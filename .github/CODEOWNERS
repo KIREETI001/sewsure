@@ -1,4 +1,6 @@
 # SewSure code owners. The last matching pattern wins.
+# Each area lists its lead first and a backup second. Either can approve, so a
+# lead's own PRs (including ones their local agents open) can still be merged.
 #   @KIREETI001  -> Kireeti        (platform, backend, AI, cloud, release)
 #   @vanilaa23   -> Narthananilaa  (rules, feasibility, recipes, evidence)
 #   @delfinee    -> Delfine        (mobile, UX, research, pitch)
@@ -6,26 +8,26 @@
 # Fallback: anything not listed below needs one of the three founders.
 *                                   @KIREETI001 @vanilaa23 @delfinee
 
-# Kireeti: platform, backend, AI, infrastructure, CI
-/services/                          @KIREETI001
-/infrastructure/                    @KIREETI001
-/.github/                           @KIREETI001
-/tests/smoke/                       @KIREETI001
-/docs/security/                     @KIREETI001
-/docs/cost/                         @KIREETI001
+# Kireeti: platform, backend, AI, infrastructure, CI (backup: Narthananilaa)
+/services/                          @KIREETI001 @vanilaa23
+/infrastructure/                    @KIREETI001 @vanilaa23
+/.github/                           @KIREETI001 @vanilaa23
+/tests/smoke/                       @KIREETI001 @vanilaa23
+/docs/security/                     @KIREETI001 @vanilaa23
+/docs/cost/                         @KIREETI001 @vanilaa23
 
-# Narthananilaa: feasibility, recipes, benchmarks, evaluation
-/packages/feasibility/              @vanilaa23
-/content/                           @vanilaa23
-/tests/benchmarks/                  @vanilaa23
-/docs/evaluation/                   @vanilaa23
+# Narthananilaa: feasibility, recipes, benchmarks, evaluation (backup: Delfine)
+/packages/feasibility/              @vanilaa23 @delfinee
+/content/                           @vanilaa23 @delfinee
+/tests/benchmarks/                  @vanilaa23 @delfinee
+/docs/evaluation/                   @vanilaa23 @delfinee
 
-# Delfine: mobile, website, research, pitch, outreach, QA
-/apps/                              @delfinee
-/docs/research/                     @delfinee
-/docs/pitch/                        @delfinee
-/docs/outreach/                     @delfinee
-/docs/qa/                           @delfinee
+# Delfine: mobile, website, research, pitch, outreach, QA (backup: Kireeti)
+/apps/                              @delfinee @KIREETI001
+/docs/research/                     @delfinee @KIREETI001
+/docs/pitch/                        @delfinee @KIREETI001
+/docs/outreach/                     @delfinee @KIREETI001
+/docs/qa/                           @delfinee @KIREETI001
 
 # AI eval cases are consumed by Kireeti's pipeline and Narthananilaa's gates
 /tests/benchmarks/ai/               @KIREETI001 @vanilaa23
