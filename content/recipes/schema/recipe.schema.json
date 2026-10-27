@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sewsure.invalid/schemas/recipe.schema.json",
+  "title": "SewSure recipe.yaml",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["recipe_id", "version", "status", "eligibility", "required_tools", "skill_prerequisites", "materials", "steps", "evidence_links", "difficulty", "reviewed_by", "reviewed_on"],
+  "properties": {
+    "recipe_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*_v[0-9]+$"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+$"},
+    "status": {"enum": ["draft", "reviewed", "retired"]},
+    "title": {"type": "string", "minLength": 1},
+    "summary": {"type": "string", "minLength": 1},
+    "eligibility": {
+      "type": "object",
+      "required": ["garment_category", "fabric", "required_inputs"],
+      "properties": {
+        "garment_category": {"type": "string"},
+        "fabric": {"type": "string"},
+        "not_eligible": {"type": "array", "items": {"type": "string"}},
+        "required_inputs": {"type": "array", "items": {"type": "string", "pattern": "_mm$"}, "minItems": 1},
+        "note": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "default": {"type": "number"},
+          "formula": {"type": "string"},
+          "note": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "required_tools": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/tool"}},
+    "optional_tools": {"type": "array", "items": {"$ref": "#/$defs/tool"}},
+    "hem_method_note": {"type": "string"},
+    "skill_prerequisites": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["skill"],
+        "properties": {"skill": {"type": "string"}, "lesson_id": {"type": "string"}},
+        "additionalProperties": false
+      }
+    },
+    "prerequisite_note": {"type": "string"},
+    "materials": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["id", "name"],
+        "properties": {"id": {"type": "string"}, "name": {"type": "string"}, "note": {"type": "string"}},
+        "additionalProperties": false
+      }
+    },
+    "difficulty": {
+      "type": "object", "required": ["level", "scale_max", "label", "basis"],
+      "properties": {
+        "level": {"type": "integer", "minimum": 1},
+        "scale_max": {"type": "integer", "minimum": 1},
+        "label": {"type": "string"},
+        "basis": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "steps": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/step"}},
+    "evidence_links": {"type": "array", "items": {"type": "string"}},
+    "reviewed_by": {"type": ["string", "null"]},
+    "reviewed_on": {"type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "reviewed"}}},
+      "then": {"properties": {"reviewed_by": {"type": "string", "minLength": 1}, "reviewed_on": {"type": "string"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "draft"}}},
+      "then": {"properties": {"reviewed_by": {"type": "null"}, "reviewed_on": {"type": "null"}}}
+    }
+  ],
+  "$defs": {
+    "tool": {
+      "type": "object", "required": ["id", "name"],
+      "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "alternatives": {"type": "array", "items": {"type": "string"}},
+        "needed_for": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "step": {
+      "type": "object",
+      "required": ["id", "phase", "title", "text", "checkpoint", "irreversible"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "phase": {"enum": ["prepare", "measure", "mark", "checkpoint", "cut", "finish", "verify"]},
+        "title": {"type": "string", "minLength": 1},
+        "text": {"type": "string", "minLength": 1},
+        "checkpoint": {"type": "boolean"},
+        "irreversible": {"type": "boolean"},
+        "confirm_in_app": {"type": "boolean"},
+        "tools": {"type": "array", "items": {"type": "string"}},
+        "lesson_ids": {"type": "array", "items": {"type": "string"}},
+        "option_group": {"type": "string"},
+        "option_label": {"type": "string"},
+        "sewist_confirmation": {"enum": ["pending", "confirmed"]},
+        "app_input": {"type": "string"},
+        "note": {"type": "string"}
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {"if": {"properties": {"phase": {"const": "cut"}}, "required": ["phase"]}, "then": {"properties": {"irreversible": {"const": true}}}},
+        {"if": {"required": ["option_group"]}, "then": {"required": ["option_label", "sewist_confirmation"]}}
+      ]
+    }
+  }
+}

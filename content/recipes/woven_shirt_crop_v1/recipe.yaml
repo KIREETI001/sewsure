@@ -1,0 +1,318 @@
+# DRAFT. Not reviewed by a sewist. Do not show to users as an executable guide
+# until a named sewist has reviewed it (task H-02) and status is changed by a human.
+# Numbers in {braces} are filled in by the feasibility engine. This file never
+# invents measurements. See REVIEW_PACKET.md for everything a sewist must confirm.
+
+recipe_id: woven_shirt_crop_v1
+version: "1.0"
+status: draft
+title: Crop a woven button-up shirt and hem it
+summary: >-
+  Shorten a plain, non-stretch woven button-up shirt by cutting it straight across
+  and finishing the bottom edge with a hem.
+
+eligibility:
+  garment_category: woven_button_up_shirt
+  fabric: non-stretch woven (for example cotton poplin or linen blend)
+  not_eligible:
+    - Stretch or knit fabric (for example a jersey or stretch-cotton shirt)
+    - Shirts with a pocket, pleat, vent or seam that would be crossed by the cut line
+    - Shirts where the cut line would run through a button or buttonhole
+  required_inputs:
+    - finished_length_mm
+    - original_length_mm
+    - hem_allowance_mm
+    - cut_mark_from_shoulder_mm
+  note: >-
+    The app checks these inputs before showing this recipe. Passing the app's checks
+    does not remove the need to measure the real shirt yourself at each checkpoint.
+
+parameters:
+  # Defaults only. The feasibility engine supplies the real values for each design.
+  hem_allowance_mm:
+    default: 30
+    note: Extra fabric kept below the finished edge so there is something to fold up.
+  hem_first_fold_mm:
+    default: 10
+    note: Small first fold that hides the raw edge. Draft value, sewist to confirm.
+  hem_second_fold_mm:
+    default: 20
+    note: Larger second fold. This is the visible hem depth. Draft value, sewist to confirm.
+  cut_mark_from_shoulder_mm:
+    formula: finished_length_mm + hem_allowance_mm
+    note: Worked out by the app, not by the AI. Measured down from the shoulder landmark.
+
+required_tools:
+  - id: ruler
+    name: Straight ruler or metal rule, at least 50 cm long
+    alternatives: [Long tape measure laid flat, with a straight edge on top]
+  - id: chalk
+    name: Tailor's chalk or a chalk pencil
+    alternatives: [Washable fabric marker, A dry bar of soap on dark fabric]
+  - id: scissors
+    name: Sharp fabric scissors
+    alternatives: [Rotary cutter with a cutting mat]
+  - id: pins
+    name: Pins or sewing clips
+    alternatives: [Sewing clips, Fabric clips]
+  - id: iron
+    name: Iron and a flat pressing surface
+    alternatives: []
+
+optional_tools:
+  - id: sewing_machine
+    name: Sewing machine with straight stitch
+    needed_for: hem_machine
+  - id: hand_needle
+    name: Hand-sewing needle
+    needed_for: hem_hand
+  - id: seam_gauge
+    name: Small sewing gauge, to measure folds
+    needed_for: press_folds
+    alternatives: [Card with the fold depths marked on its edge]
+
+hem_method_note: >-
+  You need either a sewing machine or a hand needle for the hem. If you have
+  neither, use the tailor route in the app.
+
+skill_prerequisites:
+  - skill: Measure a length with a ruler and read it correctly
+    lesson_id: lesson_measure_flat_shirt
+  - skill: Draw a straight line with chalk
+    lesson_id: lesson_mark_straight_line
+  - skill: Cut woven fabric in a steady line
+    lesson_id: lesson_cut_woven_cleanly
+  - skill: Press a folded hem
+    lesson_id: lesson_press_double_fold_hem
+  - skill: Straight stitch on a machine (machine hem only)
+    lesson_id: lesson_straight_stitch_scrap
+  - skill: Hand slip stitch (hand hem only)
+    lesson_id: lesson_hand_slip_stitch
+
+prerequisite_note: >-
+  All lessons are optional and can be skipped. Doing the practice tasks on spare fabric
+  first is suggested for beginners.
+
+materials:
+  - id: shirt
+    name: The woven button-up shirt you are cropping
+    note: Washed and dried before you start
+  - id: thread
+    name: Sewing thread that matches the shirt, in a regular weight
+    note: Machine thread for the machine hem, or hand-sewing thread for the hand hem
+  - id: spare_fabric
+    name: Spare woven fabric, for the practice tasks (optional)
+    note: An old pillowcase or offcut works
+  - id: additional_items
+    name: Nothing else (no interfacing, elastic or trims)
+    note: Listed on purpose, so a missing item does not surprise anyone
+
+difficulty:
+  level: 2
+  scale_max: 5
+  label: Beginner with practice
+  basis: Draft estimate by the recipe author. Not tested on any maker yet.
+
+steps:
+  # ---- prepare ----
+  - id: prepare_wash
+    phase: prepare
+    title: Wash and dry the shirt
+    text: >-
+      Wash and dry the shirt the way you normally would. This lets it shrink now,
+      before you measure, and not after you hem it.
+    checkpoint: false
+    irreversible: false
+
+  - id: prepare_flat
+    phase: prepare
+    title: Lay the shirt flat
+    text: >-
+      Button the shirt all the way up. Lay it flat on a table, front facing up.
+      Smooth out wrinkles with your hands. Check that the left and right sides
+      look even and the side seams line up. Press it if it is creased.
+    checkpoint: false
+    irreversible: false
+    tools: [iron]
+
+  # ---- measure ----
+  - id: measure_landmark
+    phase: measure
+    title: Find the shoulder landmark and measure the original length
+    text: >-
+      Find the top of the shoulder where it meets the collar (the highest point
+      next to the neck). Place the ruler on the shirt so its zero end is at this
+      point, then run it straight down the front to the bottom edge. Read the
+      number. Enter it in the app.
+    checkpoint: false
+    irreversible: false
+    tools: [ruler]
+    lesson_ids: [lesson_measure_flat_shirt]
+    app_input: original_length_mm
+    note: >-
+      The app compares your number with the length it already has. If they differ
+      noticeably, the app will ask you to recheck before going on.
+
+  # ---- mark ----
+  - id: mark_front_dots
+    phase: mark
+    title: Mark small dots on the front
+    text: >-
+      Measure down from the same shoulder landmark by your cut mark
+      ({cut_mark_from_shoulder_mm} mm; the app shows this in cm). Make a small chalk
+      dot. Do the same near the left side seam, near the right side seam and once
+      near each edge of the button strip.
+    checkpoint: false
+    irreversible: false
+    tools: [ruler, chalk]
+    lesson_ids: [lesson_measure_flat_shirt, lesson_mark_straight_line]
+
+  - id: mark_front_line
+    phase: mark
+    title: Join the dots into a straight line
+    text: >-
+      Lay the ruler along the dots and draw one straight chalk line across the front.
+      If a dot is off the line, rub it out and measure that spot again.
+    checkpoint: false
+    irreversible: false
+    tools: [ruler, chalk]
+    lesson_ids: [lesson_mark_straight_line]
+
+  - id: mark_back_line
+    phase: mark
+    title: Mark the back the same way
+    text: >-
+      Turn the shirt over, still buttoned, and smooth it flat. Measure from the
+      same shoulder landmark on the back, mark dots at the same cut mark, and join
+      them with a straight chalk line.
+    checkpoint: false
+    irreversible: false
+    tools: [ruler, chalk]
+    lesson_ids: [lesson_measure_flat_shirt, lesson_mark_straight_line]
+
+  # ---- ruler checkpoint (before the cut) ----
+  - id: checkpoint_before_cut
+    phase: checkpoint
+    title: "Ruler checkpoint: stop and check before cutting"
+    text: >-
+      Cutting cannot be undone. Check each of these with your ruler:
+      (1) Measure from the shoulder landmark down to the chalk line in three places on
+      the front (left, middle, right). All three should match your cut mark.
+      (2) Do the same on the back.
+      (3) Check the line is straight, with no wobble.
+      (4) Check the line does not run through a button or buttonhole.
+      (5) Hold the shirt up. Is this the length you want? Remember that your hem will
+      use the extra fabric below the line, so the finished shirt will be shorter than
+      the chalk line by the hem allowance.
+      If anything is wrong, rub out the chalk and mark again. Do not cut until
+      every check is right. Tick the checkpoint in the app.
+    checkpoint: true
+    irreversible: false
+    tools: [ruler]
+    confirm_in_app: true
+
+  # ---- cut ----
+  - id: cut_along_line
+    phase: cut
+    title: Cut along the chalk line
+    text: >-
+      Cut along the chalk line on the front, then along the line on the back. Use long,
+      steady strokes and keep the lower blade flat on the table. Cut right along the
+      chalk line. The fabric below the line is the part you remove. The fabric just
+      above the line becomes your hem.
+    checkpoint: false
+    irreversible: true
+    tools: [scissors]
+    lesson_ids: [lesson_cut_woven_cleanly]
+
+  - id: checkpoint_after_cut
+    phase: checkpoint
+    title: "Ruler checkpoint: check the cut edge"
+    text: >-
+      Lay the shirt flat. Measure from the shoulder landmark to the cut edge in three
+      places on the front and three on the back. Look for dips or steps. Do not trim
+      anything more yet. Small unevenness can be evened out when you press the hem
+      in the next steps. If the edge is very uneven, stop and use the tailor route in
+      the app.
+    checkpoint: true
+    irreversible: false
+    tools: [ruler]
+    confirm_in_app: true
+
+  # ---- finish hem ----
+  - id: press_folds
+    phase: finish
+    title: Press the hem in two folds
+    text: >-
+      Turn the shirt inside out. Fold the raw edge up by {hem_first_fold_mm} mm and press.
+      Then fold up again by {hem_second_fold_mm} mm and press. The raw edge is now
+      hidden inside the fold. Pin or clip the hem in place every few centimetres.
+    checkpoint: false
+    irreversible: false
+    tools: [iron, pins, ruler]
+    lesson_ids: [lesson_press_double_fold_hem]
+    note: >-
+      The first and second folds add up to the hem allowance. Both numbers are draft
+      values for a sewist to confirm.
+
+  - id: hem_machine
+    phase: finish
+    title: "Hem option A: machine hem"
+    text: >-
+      Sew a straight stitch along the top edge of the folded hem, about 2 mm from the
+      edge, all the way round. Start and end with a few backstitches. Remove the pins
+      as you go. Trim the loose thread ends.
+    checkpoint: false
+    irreversible: false
+    option_group: hem_method
+    option_label: Machine hem
+    sewist_confirmation: pending
+    tools: [sewing_machine, pins]
+    lesson_ids: [lesson_straight_stitch_scrap]
+
+  - id: hem_hand
+    phase: finish
+    title: "Hem option B: hand-sewn hem"
+    text: >-
+      With a threaded needle, sew the folded hem down with small slip stitches along
+      the top edge of the fold. Catch only a thread or two of the shirt on the outside,
+      so the stitches barely show. Knot the thread securely at the start and end.
+    checkpoint: false
+    irreversible: false
+    option_group: hem_method
+    option_label: Hand-sewn hem
+    sewist_confirmation: pending
+    tools: [hand_needle, pins]
+    lesson_ids: [lesson_hand_slip_stitch]
+
+  - id: press_final
+    phase: finish
+    title: Press the finished hem
+    text: >-
+      Press the hem flat from the outside. Check that no raw edge is showing and
+      the hem lies flat.
+    checkpoint: false
+    irreversible: false
+    tools: [iron]
+
+  # ---- verify ----
+  - id: verify_length
+    phase: verify
+    title: Measure the finished length
+    text: >-
+      Lay the shirt flat and button it. Measure from the shoulder landmark to the
+      finished bottom edge, in the same way as at the start. Enter the number in
+      the app. Also check that the hem is even, the stitching is secure, and the
+      bottom buttons still close.
+    checkpoint: false
+    irreversible: false
+    tools: [ruler]
+    app_input: finished_length_measured_mm
+    note: >-
+      Your measured number may differ a little from the target. The app records
+      what you measured and does not adjust it.
+
+evidence_links: []
+
+reviewed_by: null
+reviewed_on: null
