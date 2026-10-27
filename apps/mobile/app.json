@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "SewSure",
+    "slug": "sewsure",
+    "version": "0.1.0",
+    "scheme": "sewsure",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "android": {
+      "package": "com.sewsure.mobile"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "SewSure uses the camera to photograph the garment you want to redesign.",
+          "photosPermission": "SewSure reads photos you choose as a garment photo or as inspiration.",
+          "microphonePermission": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
