@@ -1,0 +1,114 @@
+{
+  "id": "RB-04",
+  "class": "revision_seam_edge",
+  "synthetic": true,
+  "description": "Revision edit: rev-002 passes at 500 mm, rev-003 edits to 800 mm, rev-002 re-evaluated",
+  "reason": "Edit makes a new revision that is rechecked and fails; the frozen rev-002 inputs still pass.",
+  "destructive_cut": true,
+  "steps": [
+    {
+      "label": "rev-002 (500 mm)",
+      "revision_id": "rev-002",
+      "inputs": {
+        "garment": {
+          "category": "shirt_button_up",
+          "material": "woven_cotton_non_stretch",
+          "closure": "button_placket",
+          "prohibited_regions": [],
+          "seam_margin_mm": 0
+        },
+        "measurements": {
+          "shoulder_to_hem_mm": {
+            "value_mm": 780,
+            "origin": "tape_measure_user",
+            "confirmed_at": "2026-01-01T00:00:00Z"
+          },
+          "chest_flat_width_mm": {
+            "value_mm": 520,
+            "origin": "tape_measure_user",
+            "confirmed_at": "2026-01-01T00:00:00Z"
+          }
+        },
+        "recipe_id": "woven_shirt_crop_v1",
+        "params": {
+          "finished_length_mm": 500,
+          "hem_allowance_mm": 30
+        }
+      },
+      "expected": {
+        "status": "PASS_SUPPORTED_CHECKS",
+        "failure_codes": []
+      }
+    },
+    {
+      "label": "rev-003 edits finished length to 800 mm",
+      "revision_id": "rev-003",
+      "inputs": {
+        "garment": {
+          "category": "shirt_button_up",
+          "material": "woven_cotton_non_stretch",
+          "closure": "button_placket",
+          "prohibited_regions": [],
+          "seam_margin_mm": 0
+        },
+        "measurements": {
+          "shoulder_to_hem_mm": {
+            "value_mm": 780,
+            "origin": "tape_measure_user",
+            "confirmed_at": "2026-01-01T00:00:00Z"
+          },
+          "chest_flat_width_mm": {
+            "value_mm": 520,
+            "origin": "tape_measure_user",
+            "confirmed_at": "2026-01-01T00:00:00Z"
+          }
+        },
+        "recipe_id": "woven_shirt_crop_v1",
+        "params": {
+          "finished_length_mm": 800,
+          "hem_allowance_mm": 30
+        }
+      },
+      "expected": {
+        "status": "FAILED_CHECKS",
+        "failure_codes": [
+          "LENGTH_EXCEEDS_AVAILABLE"
+        ]
+      }
+    },
+    {
+      "label": "rev-002 inputs re-evaluated, unchanged",
+      "revision_id": "rev-002",
+      "inputs": {
+        "garment": {
+          "category": "shirt_button_up",
+          "material": "woven_cotton_non_stretch",
+          "closure": "button_placket",
+          "prohibited_regions": [],
+          "seam_margin_mm": 0
+        },
+        "measurements": {
+          "shoulder_to_hem_mm": {
+            "value_mm": 780,
+            "origin": "tape_measure_user",
+            "confirmed_at": "2026-01-01T00:00:00Z"
+          },
+          "chest_flat_width_mm": {
+            "value_mm": 520,
+            "origin": "tape_measure_user",
+            "confirmed_at": "2026-01-01T00:00:00Z"
+          }
+        },
+        "recipe_id": "woven_shirt_crop_v1",
+        "params": {
+          "finished_length_mm": 500,
+          "hem_allowance_mm": 30
+        }
+      },
+      "expected": {
+        "status": "PASS_SUPPORTED_CHECKS",
+        "failure_codes": []
+      }
+    }
+  ]
+}

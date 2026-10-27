@@ -1,0 +1,40 @@
+{
+  "id": "RB-02",
+  "class": "revision_seam_edge",
+  "synthetic": true,
+  "description": "Overshoot by 0.5 mm: 750.5 mm finished + 30 mm hem on a 780 mm shirt",
+  "reason": "Any overshoot below 1 mm must still fail (blueprint 5.5); no rounding in the garment's favour.",
+  "destructive_cut": true,
+  "inputs": {
+    "garment": {
+      "category": "shirt_button_up",
+      "material": "woven_cotton_non_stretch",
+      "closure": "button_placket",
+      "prohibited_regions": [],
+      "seam_margin_mm": 0
+    },
+    "measurements": {
+      "shoulder_to_hem_mm": {
+        "value_mm": 780,
+        "origin": "tape_measure_user",
+        "confirmed_at": "2026-01-01T00:00:00Z"
+      },
+      "chest_flat_width_mm": {
+        "value_mm": 520,
+        "origin": "tape_measure_user",
+        "confirmed_at": "2026-01-01T00:00:00Z"
+      }
+    },
+    "recipe_id": "woven_shirt_crop_v1",
+    "params": {
+      "finished_length_mm": 750.5,
+      "hem_allowance_mm": 30
+    }
+  },
+  "expected": {
+    "status": "FAILED_CHECKS",
+    "failure_codes": [
+      "LENGTH_EXCEEDS_AVAILABLE"
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "id": "IF-03",
+  "class": "insufficient_fabric_or_placement",
+  "synthetic": true,
+  "description": "Cut mark 530 mm falls inside a 480-560 mm button-placket exclusion",
+  "reason": "Cut would intersect the prohibited placket region.",
+  "destructive_cut": true,
+  "inputs": {
+    "garment": {
+      "category": "shirt_button_up",
+      "material": "woven_cotton_non_stretch",
+      "closure": "button_placket",
+      "prohibited_regions": [
+        {
+          "name": "button_placket_end",
+          "from_shoulder_mm": 480,
+          "to_shoulder_mm": 560
+        }
+      ],
+      "seam_margin_mm": 0
+    },
+    "measurements": {
+      "shoulder_to_hem_mm": {
+        "value_mm": 780,
+        "origin": "tape_measure_user",
+        "confirmed_at": "2026-01-01T00:00:00Z"
+      },
+      "chest_flat_width_mm": {
+        "value_mm": 520,
+        "origin": "tape_measure_user",
+        "confirmed_at": "2026-01-01T00:00:00Z"
+      }
+    },
+    "recipe_id": "woven_shirt_crop_v1",
+    "params": {
+      "finished_length_mm": 500,
+      "hem_allowance_mm": 30
+    }
+  },
+  "expected": {
+    "status": "FAILED_CHECKS",
+    "failure_codes": [
+      "PROHIBITED_REGION_CONFLICT"
+    ]
+  }
+}

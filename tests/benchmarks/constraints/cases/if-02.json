@@ -1,0 +1,40 @@
+{
+  "id": "IF-02",
+  "class": "insufficient_fabric_or_placement",
+  "synthetic": true,
+  "description": "Finished 760 mm + 30 mm hem = 790 mm cut mark on a 780 mm shirt",
+  "reason": "Hem allowance pushes the cut mark 10 mm past the hem edge.",
+  "destructive_cut": true,
+  "inputs": {
+    "garment": {
+      "category": "shirt_button_up",
+      "material": "woven_cotton_non_stretch",
+      "closure": "button_placket",
+      "prohibited_regions": [],
+      "seam_margin_mm": 0
+    },
+    "measurements": {
+      "shoulder_to_hem_mm": {
+        "value_mm": 780,
+        "origin": "tape_measure_user",
+        "confirmed_at": "2026-01-01T00:00:00Z"
+      },
+      "chest_flat_width_mm": {
+        "value_mm": 520,
+        "origin": "tape_measure_user",
+        "confirmed_at": "2026-01-01T00:00:00Z"
+      }
+    },
+    "recipe_id": "woven_shirt_crop_v1",
+    "params": {
+      "finished_length_mm": 760,
+      "hem_allowance_mm": 30
+    }
+  },
+  "expected": {
+    "status": "FAILED_CHECKS",
+    "failure_codes": [
+      "LENGTH_EXCEEDS_AVAILABLE"
+    ]
+  }
+}
