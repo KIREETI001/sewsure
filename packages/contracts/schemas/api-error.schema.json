@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ApiError",
+  "description": "Error body for every non-2xx response and for failed jobs. Messages are user-safe: no stack traces, keys, photos or body measurements.",
+  "type": "object",
+  "required": ["code", "message", "recoverable"],
+  "properties": {
+    "code": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]*$",
+      "examples": ["VALIDATION_FAILED", "REVISION_NOT_PASSING", "MODEL_TIMEOUT", "RATE_LIMITED", "FORBIDDEN"]
+    },
+    "message": { "type": "string", "maxLength": 500 },
+    "recoverable": {
+      "type": "boolean",
+      "description": "true if the client may retry the same request (possibly after retry_after_s) or fix its input and resubmit."
+    },
+    "retry_after_s": { "type": ["integer", "null"], "minimum": 0 },
+    "field_errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["field", "code"],
+        "properties": {
+          "field": { "type": "string", "description": "JSON pointer into the request body." },
+          "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+          "message": { "type": "string", "maxLength": 300 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "request_id": { "type": ["string", "null"], "maxLength": 128 }
+  },
+  "additionalProperties": false
+}

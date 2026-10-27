@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MakerRequest",
+  "description": "A request to a tailor about one frozen design revision (blueprint §10). The tailor only sees the consent-filtered brief. SewSure does not transfer funds or guarantee outcomes.",
+  "type": "object",
+  "required": ["request_id", "user_id", "tailor_id", "revision_id", "brief", "status", "created_at", "updated_at"],
+  "properties": {
+    "request_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "user_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "tailor_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "revision_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "brief": { "$ref": "#/$defs/TailorBrief" },
+    "status": { "$ref": "#/$defs/RequestStatus" },
+    "price_estimate": {
+      "oneOf": [{ "$ref": "common.schema.json#/$defs/Money" }, { "type": "null" }],
+      "description": "Latest quoted price, copied from the accepted or latest quote."
+    },
+    "created_at": { "$ref": "common.schema.json#/$defs/Timestamp" },
+    "updated_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "RequestStatus": {
+      "type": "string",
+      "enum": ["DRAFT", "SUBMITTED", "NEEDS_CLARIFICATION", "QUOTED", "WITHDRAWN", "DECLINED", "CONTACTED", "ACCEPTED"]
+    },
+    "TailorBrief": {
+      "type": "object",
+      "description": "Exactly what the user agreed to share. Nothing outside this object is visible to the tailor.",
+      "required": ["verification_label", "design_status", "garment_category", "modification_request", "shared_photo_ids", "shared_measurements", "unresolved_checks", "consent"],
+      "properties": {
+        "verification_label": {
+          "type": "string",
+          "enum": ["verified_checks", "uncertain", "inspiration_only"],
+          "description": "verified_checks only for PASS_SUPPORTED_CHECKS revisions."
+        },
+        "design_status": { "$ref": "design-state.schema.json" },
+        "garment_category": { "$ref": "garment.schema.json#/$defs/GarmentCategory" },
+        "modification_request": { "type": "string", "maxLength": 1000 },
+        "shared_photo_ids": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Id" } },
+        "shared_measurements": {
+          "type": "object",
+          "description": "Only the dimensions the user ticked, in mm.",
+          "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64 },
+          "additionalProperties": { "$ref": "common.schema.json#/$defs/LengthMm" }
+        },
+        "unresolved_checks": { "type": "array", "items": { "type": "string", "maxLength": 200 } },
+        "consent": {
+          "type": "object",
+          "required": ["consent_version", "shared_fields", "consented_at"],
+          "properties": {
+            "consent_version": { "type": "string", "maxLength": 32 },
+            "shared_fields": { "type": "array", "items": { "type": "string", "maxLength": 64 }, "uniqueItems": true },
+            "consented_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "verification_label": { "const": "verified_checks" } } },
+          "then": { "properties": { "design_status": { "const": "PASS_SUPPORTED_CHECKS" } } }
+        }
+      ]
+    },
+    "MakerRequestCreate": {
+      "type": "object",
+      "description": "Body of POST /v1/maker-requests. The server builds the brief from the revision and the user's selected fields.",
+      "required": ["tailor_id", "revision_id", "modification_request", "shared_photo_ids", "shared_measurement_keys", "consent_version"],
+      "properties": {
+        "tailor_id": { "$ref": "common.schema.json#/$defs/Id" },
+        "revision_id": { "$ref": "common.schema.json#/$defs/Id" },
+        "modification_request": { "type": "string", "maxLength": 1000 },
+        "shared_photo_ids": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Id" } },
+        "shared_measurement_keys": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Slug" }, "uniqueItems": true },
+        "consent_version": { "type": "string", "maxLength": 32 },
+        "submit": { "type": "boolean", "default": false, "description": "false keeps the request as DRAFT." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

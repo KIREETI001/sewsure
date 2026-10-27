@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Measurements",
+  "description": "Garment and (optional, consented) body measurements for a project. Every value is mm and records its origin and confirmed_at. A value with confirmed_at = null is unconfirmed and the feasibility engine treats it as missing.",
+  "type": "object",
+  "required": ["measurements_id", "project_id", "units", "garment", "updated_at"],
+  "properties": {
+    "measurements_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "project_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "units": { "$ref": "common.schema.json#/$defs/Units" },
+    "garment": {
+      "$ref": "#/$defs/DimensionMap",
+      "description": "Flat garment dimensions, e.g. shoulder_to_hem, chest_flat_width, sleeve_length, hem_width."
+    },
+    "body": {
+      "oneOf": [{ "$ref": "#/$defs/BodyMeasurements" }, { "type": "null" }],
+      "description": "Self-reported body measurements. Present only with explicit consent."
+    },
+    "updated_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "MeasurementOrigin": {
+      "type": "string",
+      "enum": ["user_tape_measured", "user_entered", "vision_suggested", "saved_profile"],
+      "description": "user_tape_measured: user measured with a tape or ruler following the guide. user_entered: typed without the guide. vision_suggested: proposed from a calibrated photo; not trusted until the user confirms. saved_profile: copied from the user's saved body profile."
+    },
+    "MeasurementValue": {
+      "type": "object",
+      "required": ["value_mm", "origin", "confirmed_at"],
+      "properties": {
+        "value_mm": { "$ref": "common.schema.json#/$defs/LengthMm" },
+        "origin": { "$ref": "#/$defs/MeasurementOrigin" },
+        "confirmed_at": {
+          "oneOf": [{ "$ref": "common.schema.json#/$defs/Timestamp" }, { "type": "null" }],
+          "description": "When the user confirmed the value. null = not confirmed."
+        },
+        "entered_unit": {
+          "type": "string",
+          "enum": ["mm", "cm", "in"],
+          "description": "Unit the user typed, kept for audit. value_mm is already converted."
+        },
+        "note": { "type": ["string", "null"], "maxLength": 200 }
+      },
+      "additionalProperties": false
+    },
+    "DimensionMap": {
+      "type": "object",
+      "description": "Dimension name -> measured value. Names are lower snake case without a unit suffix; the unit lives in value_mm.",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64 },
+      "additionalProperties": { "$ref": "#/$defs/MeasurementValue" }
+    },
+    "BodyMeasurements": {
+      "type": "object",
+      "required": ["body_profile_id", "consent_version", "values"],
+      "properties": {
+        "body_profile_id": { "$ref": "common.schema.json#/$defs/Id" },
+        "consent_version": {
+          "type": "string",
+          "description": "Version of the body-measurement consent text the user accepted."
+        },
+        "values": { "$ref": "#/$defs/DimensionMap" }
+      },
+      "additionalProperties": false
+    },
+    "MeasurementsInput": {
+      "type": "object",
+      "description": "Body of PUT /v1/projects/{project_id}/measurements. Replaces the project's measurements and creates a new measurements_id; designs computed from the old values become stale until rechecked.",
+      "required": ["units", "garment"],
+      "properties": {
+        "units": { "$ref": "common.schema.json#/$defs/Units" },
+        "garment": { "$ref": "#/$defs/DimensionMap" },
+        "body": { "oneOf": [{ "$ref": "#/$defs/BodyMeasurements" }, { "type": "null" }] }
+      },
+      "additionalProperties": false
+    },
+    "MeasurementIssue": {
+      "type": "object",
+      "required": ["dimension", "code", "message"],
+      "properties": {
+        "dimension": { "$ref": "common.schema.json#/$defs/Slug" },
+        "code": {
+          "type": "string",
+          "enum": ["MISSING_DIMENSION", "UNCONFIRMED", "IMPLAUSIBLE_DIMENSION", "CONFLICTING_DIMENSIONS", "POSSIBLE_UNIT_ERROR"]
+        },
+        "message": { "type": "string", "maxLength": 300 }
+      },
+      "additionalProperties": false
+    },
+    "MeasurementsResult": {
+      "type": "object",
+      "description": "Response of PUT measurements: the stored record plus server validation (units, source, required dimensions).",
+      "required": ["measurements", "issues", "missing_dimensions"],
+      "properties": {
+        "measurements": { "$ref": "#" },
+        "issues": { "type": "array", "items": { "$ref": "#/$defs/MeasurementIssue" } },
+        "missing_dimensions": {
+          "type": "array",
+          "items": { "$ref": "common.schema.json#/$defs/Slug" },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project",
+  "description": "One redesign attempt for one garment. Creating a project also creates its Garment record.",
+  "type": "object",
+  "required": ["project_id", "owner_id", "garment_id", "created_at", "updated_at"],
+  "properties": {
+    "project_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "owner_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "garment_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "title": { "type": ["string", "null"], "maxLength": 120 },
+    "measurements_id": {
+      "oneOf": [{ "$ref": "common.schema.json#/$defs/Id" }, { "type": "null" }],
+      "description": "Latest Measurements record, or null before the user confirms any."
+    },
+    "latest_job_id": {
+      "oneOf": [{ "$ref": "common.schema.json#/$defs/Id" }, { "type": "null" }]
+    },
+    "created_at": { "$ref": "common.schema.json#/$defs/Timestamp" },
+    "updated_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "ProjectCreate": {
+      "type": "object",
+      "description": "Body of POST /v1/projects. Retries with the same Idempotency-Key header return the original project.",
+      "properties": {
+        "title": { "type": ["string", "null"], "maxLength": 120 },
+        "garment": {
+          "type": "object",
+          "properties": {
+            "category": { "$ref": "garment.schema.json#/$defs/GarmentCategory" },
+            "fabric_family": { "$ref": "garment.schema.json#/$defs/FabricFamily" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

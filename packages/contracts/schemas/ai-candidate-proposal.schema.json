@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AiCandidateProposal",
+  "description": "Structured output of AI Stage D (§4.2). The model may only pick recipe IDs and parameters; the server then checks recipe_id against the allow-list and parameter keys/ranges against the recipe before the feasibility engine runs. The model never supplies geometry, coordinates or a design state.",
+  "type": "object",
+  "required": ["proposals"],
+  "properties": {
+    "proposals": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "required": ["recipe_id", "parameters", "rationale"],
+        "properties": {
+          "recipe_id": { "$ref": "common.schema.json#/$defs/RecipeId" },
+          "parameters": { "$ref": "common.schema.json#/$defs/Parameters" },
+          "rationale": { "type": "string", "maxLength": 300 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "idea_only_notes": {
+      "type": ["string", "null"],
+      "maxLength": 600,
+      "description": "When nothing in the allow-list matches, a short description of the idea for the inspiration-only path."
+    }
+  },
+  "additionalProperties": false
+}

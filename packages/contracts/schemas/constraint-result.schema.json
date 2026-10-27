@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ConstraintResult",
+  "description": "Output of the deterministic feasibility check (blueprint §5.2, §5.4). Never a bare yes/no: always codes, residuals, missing inputs and the engine version.",
+  "type": "object",
+  "required": ["hard_pass", "failure_codes", "residuals", "missing_dimensions", "uncertainty_flags", "checks", "engine_version", "checked_at"],
+  "properties": {
+    "hard_pass": {
+      "type": "boolean",
+      "description": "true only if every hard gate ran and passed. Missing inputs make this false."
+    },
+    "failure_codes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/FailureCode" },
+      "uniqueItems": true
+    },
+    "residuals": {
+      "type": "array",
+      "description": "Numeric margins per check. residual_mm = available_mm - required_mm; negative means the design overshoots.",
+      "items": { "$ref": "#/$defs/Residual" }
+    },
+    "missing_dimensions": {
+      "type": "array",
+      "description": "Dimension names (Measurements keys) that are absent or unconfirmed and block a decision.",
+      "items": { "$ref": "common.schema.json#/$defs/Slug" },
+      "uniqueItems": true
+    },
+    "uncertainty_flags": {
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/Slug" },
+      "uniqueItems": true,
+      "examples": [["side_seams_not_verified", "self_reported_measurements"]]
+    },
+    "checks": {
+      "type": "array",
+      "description": "Every gate that was evaluated, in order.",
+      "items": { "$ref": "#/$defs/CheckOutcome" }
+    },
+    "alternatives": {
+      "type": "array",
+      "description": "Supported changes the engine verified would pass (or would need less input). Shown when the request fails.",
+      "items": { "$ref": "#/$defs/Alternative" },
+      "maxItems": 5
+    },
+    "engine_version": { "$ref": "common.schema.json#/$defs/Version" },
+    "checked_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "hard_pass": { "const": true } } },
+      "then": {
+        "properties": {
+          "failure_codes": { "maxItems": 0 },
+          "missing_dimensions": { "maxItems": 0 }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "FailureCode": {
+      "type": "string",
+      "description": "Hard-gate failure codes (§5.4). Owned by N1; new codes are added here by PR before the engine emits them.",
+      "enum": [
+        "UNSUPPORTED_RECIPE",
+        "UNSUPPORTED_GARMENT_CATEGORY",
+        "UNSUPPORTED_MATERIAL",
+        "MATERIAL_UNKNOWN",
+        "MISSING_DIMENSION",
+        "CONFLICTING_DIMENSIONS",
+        "IMPLAUSIBLE_DIMENSION",
+        "INSUFFICIENT_LENGTH",
+        "EXCEEDS_USABLE_AREA",
+        "CUT_INTERSECTS_PROHIBITED_REGION",
+        "INSUFFICIENT_EASE",
+        "MISSING_CONSTRUCTION_TECHNIQUE",
+        "UNPROVEN_PIECE_JOIN",
+        "CALIBRATION_UNSTABLE"
+      ]
+    },
+    "CheckOutcome": {
+      "type": "object",
+      "required": ["check_id", "result"],
+      "properties": {
+        "check_id": {
+          "$ref": "common.schema.json#/$defs/Slug",
+          "examples": ["supported_material", "required_dimensions", "length_gate", "usable_area", "structure", "fit_ease", "construction"]
+        },
+        "result": { "type": "string", "enum": ["pass", "fail", "needs_input", "not_applicable", "not_run"] },
+        "failure_code": { "oneOf": [{ "$ref": "#/$defs/FailureCode" }, { "type": "null" }] },
+        "detail": { "type": ["string", "null"], "maxLength": 300 }
+      },
+      "additionalProperties": false
+    },
+    "Residual": {
+      "type": "object",
+      "required": ["check_id", "quantity", "required_mm", "available_mm", "residual_mm"],
+      "properties": {
+        "check_id": { "$ref": "common.schema.json#/$defs/Slug" },
+        "quantity": {
+          "$ref": "common.schema.json#/$defs/Slug",
+          "examples": ["garment_length", "panel_width", "chest_ease"]
+        },
+        "required_mm": { "$ref": "common.schema.json#/$defs/SignedLengthMm" },
+        "available_mm": { "$ref": "common.schema.json#/$defs/SignedLengthMm" },
+        "residual_mm": { "$ref": "common.schema.json#/$defs/SignedLengthMm" },
+        "tolerance_mm": {
+          "oneOf": [{ "$ref": "common.schema.json#/$defs/LengthMm" }, { "type": "null" }]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Alternative": {
+      "type": "object",
+      "required": ["recipe_id", "parameters", "reason"],
+      "properties": {
+        "recipe_id": { "$ref": "common.schema.json#/$defs/RecipeId" },
+        "parameters": { "$ref": "common.schema.json#/$defs/Parameters" },
+        "reason": { "type": "string", "maxLength": 300 }
+      },
+      "additionalProperties": false
+    }
+  }
+}
