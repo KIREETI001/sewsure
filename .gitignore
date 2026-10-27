@@ -1,0 +1,36 @@
+# Secrets and signing
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+*.p12
+*.pem
+google-services.json
+
+# Personal Claude settings
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+
+# Node / Expo
+node_modules/
+.expo/
+dist/
+web-build/
+*.apk
+*.aab
+
+# Research data that must never be committed
+docs/research/raw/
+**/participant-photos/
+
+# OS
+.DS_Store
+Thumbs.db

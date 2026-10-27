@@ -1,0 +1,43 @@
+# SewSure code owners. The last matching pattern wins.
+#   @KIREETI001  -> Kireeti        (platform, backend, AI, cloud, release)
+#   @vanilaa23   -> Narthananilaa  (rules, feasibility, recipes, evidence)
+#   @delfinee    -> Delfine        (mobile, UX, research, pitch)
+
+# Fallback: anything not listed below needs one of the three founders.
+*                                   @KIREETI001 @vanilaa23 @delfinee
+
+# Kireeti: platform, backend, AI, infrastructure, CI
+/services/                          @KIREETI001
+/infrastructure/                    @KIREETI001
+/.github/                           @KIREETI001
+/tests/smoke/                       @KIREETI001
+/docs/security/                     @KIREETI001
+/docs/cost/                         @KIREETI001
+
+# Narthananilaa: feasibility, recipes, benchmarks, evaluation
+/packages/feasibility/              @vanilaa23
+/content/                           @vanilaa23
+/tests/benchmarks/                  @vanilaa23
+/docs/evaluation/                   @vanilaa23
+
+# Delfine: mobile, website, research, pitch, outreach, QA
+/apps/                              @delfinee
+/docs/research/                     @delfinee
+/docs/pitch/                        @delfinee
+/docs/outreach/                     @delfinee
+/docs/qa/                           @delfinee
+
+# AI eval cases are consumed by Kireeti's pipeline and Narthananilaa's gates
+/tests/benchmarks/ai/               @KIREETI001 @vanilaa23
+
+# Shared contract (A2): changes need review from every consumer
+/packages/contracts/                @KIREETI001 @vanilaa23 @delfinee
+
+# Agent rules, hooks and project instructions: all three (A3)
+/.claude/                           @KIREETI001 @vanilaa23 @delfinee
+/CLAUDE.md                          @KIREETI001 @vanilaa23 @delfinee
+/.github/CODEOWNERS                 @KIREETI001 @vanilaa23 @delfinee
+
+# Production infrastructure and outward-facing documents: all three (A3)
+/infrastructure/prod/               @KIREETI001 @vanilaa23 @delfinee
+/docs/reports/                      @KIREETI001 @vanilaa23 @delfinee
