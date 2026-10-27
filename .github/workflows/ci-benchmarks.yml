@@ -1,0 +1,78 @@
+name: CI Benchmarks
+
+# Constraint benchmark (24-case suite) against the feasibility engine.
+# Skips cleanly until the engine and at least one benchmark test exist.
+
+on:
+  pull_request:
+    paths:
+      - "packages/feasibility/**"
+      - "tests/benchmarks/**"
+      - "content/recipes/**"
+      - ".github/workflows/ci-benchmarks.yml"
+  push:
+    branches: [main]
+    paths:
+      - "packages/feasibility/**"
+      - "tests/benchmarks/**"
+      - "content/recipes/**"
+      - ".github/workflows/ci-benchmarks.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-benchmarks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  constraint-benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect benchmark and engine
+        id: detect
+        run: |
+          if [ -f packages/feasibility/pyproject.toml ] && \
+             [ -n "$(find tests/benchmarks -name 'test_*.py' -print -quit 2>/dev/null)" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No feasibility package or benchmark tests yet; skipping."
+          fi
+
+      - name: Install uv
+        if: steps.detect.outputs.exists == 'true'
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: packages/feasibility/uv.lock
+
+      - name: Set up Python
+        if: steps.detect.outputs.exists == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install feasibility package
+        if: steps.detect.outputs.exists == 'true'
+        working-directory: packages/feasibility
+        run: |
+          if [ -f uv.lock ]; then uv sync --frozen --all-extras; else uv sync --all-extras; fi
+
+      - name: Run constraint benchmark
+        if: steps.detect.outputs.exists == 'true'
+        working-directory: packages/feasibility
+        run: |
+          uv run pytest ../../tests/benchmarks -ra \
+            --junitxml=${{ github.workspace }}/benchmark-report.xml
+
+      - name: Upload benchmark report
+        if: always() && steps.detect.outputs.exists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: constraint-benchmark-report
+          path: benchmark-report.xml
+          if-no-files-found: ignore

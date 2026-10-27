@@ -1,0 +1,50 @@
+name: CI Infrastructure
+
+# Compiles the staging Bicep and lints the workflows. Needs no Azure login:
+# `az bicep build` is an offline compile and creates nothing.
+
+on:
+  pull_request:
+    paths:
+      - "infrastructure/**"
+      - "azure.yaml"
+      - ".github/workflows/**"
+  push:
+    branches: [main]
+    paths:
+      - "infrastructure/**"
+      - "azure.yaml"
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-infra-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bicep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build staging Bicep
+        run: |
+          if [ -f infrastructure/staging/main.bicep ]; then
+            az bicep build --file infrastructure/staging/main.bicep --stdout > /dev/null
+          else
+            echo "::notice::No staging Bicep yet; skipping."
+          fi
+
+  actionlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint workflows
+        run: |
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.7/scripts/download-actionlint.bash) 1.7.7
+          ./actionlint -color

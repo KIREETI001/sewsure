@@ -1,0 +1,97 @@
+name: Deploy Staging
+
+# Provisions and deploys staging with azd, authenticating to Azure by OIDC
+# (federated credential). No secrets are stored in the repo; identifiers come
+# from GitHub environment "staging" variables set by a human (RUNBOOK.md).
+#
+# Runs only when started by hand. Automatic deploys on push to main can be
+# added once staging is stable and Kireeti has approved the cost.
+
+on:
+  workflow_dispatch:
+    inputs:
+      provision:
+        description: "Run azd provision (Bicep) before deploying"
+        type: boolean
+        default: true
+      deploy:
+        description: "Run azd deploy (api image and site)"
+        type: boolean
+        default: true
+
+permissions:
+  id-token: write # request the OIDC token
+  contents: read
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: staging # holds the variables below; add a required reviewer in GitHub
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+      AZURE_ENV_NAME: staging
+      BUDGET_CONTACT_EMAIL: ${{ vars.BUDGET_CONTACT_EMAIL }}
+      BUDGET_AMOUNT: ${{ vars.BUDGET_AMOUNT }}
+      API_TARGET_PORT: ${{ vars.API_TARGET_PORT }}
+    steps:
+      - name: Check configuration
+        id: config
+        run: |
+          missing=""
+          for v in AZURE_CLIENT_ID AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID AZURE_RESOURCE_GROUP BUDGET_CONTACT_EMAIL; do
+            if [ -z "${!v}" ]; then missing="$missing $v"; fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::warning::Staging is not configured yet. Missing GitHub environment variables:$missing. See infrastructure/RUNBOOK.md. Skipping."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.config.outputs.ready == 'true'
+
+      - name: Install azd
+        if: steps.config.outputs.ready == 'true'
+        uses: Azure/setup-azd@v2
+
+      - name: Log in with azd (OIDC)
+        if: steps.config.outputs.ready == 'true'
+        run: |
+          azd auth login \
+            --client-id "$AZURE_CLIENT_ID" \
+            --federated-credential-provider github \
+            --tenant-id "$AZURE_TENANT_ID"
+
+      - name: Log in with Azure CLI (OIDC)
+        if: steps.config.outputs.ready == 'true'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Select environment
+        if: steps.config.outputs.ready == 'true'
+        run: |
+          azd env new "$AZURE_ENV_NAME" --no-prompt || true
+          azd env set AZURE_SUBSCRIPTION_ID "$AZURE_SUBSCRIPTION_ID"
+          azd env set AZURE_RESOURCE_GROUP "$AZURE_RESOURCE_GROUP"
+          azd env set AZURE_LOCATION "${AZURE_LOCATION:-southeastasia}"
+
+      - name: Provision infrastructure
+        if: steps.config.outputs.ready == 'true' && inputs.provision
+        run: azd provision --no-prompt
+
+      - name: Deploy services
+        if: steps.config.outputs.ready == 'true' && inputs.deploy
+        run: azd deploy --no-prompt
