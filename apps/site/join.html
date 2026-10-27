@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Join the waitlist: SewSure</title>
+  <meta name="description" content="Join the SewSure waitlist or sign up as a tailor. Sign-ups are not open yet and nothing is sent from this page.">
+  <link rel="stylesheet" href="assets/site.css">
+  <noscript>
+    <style>
+      .js-form {
+        display: none;
+      }
+    </style>
+  </noscript>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="index.html">SewSure</a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="how-it-works.html">How it works</a></li>
+          <li><a href="tailors.html">For tailors</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="privacy.html">Privacy</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="wrap">
+      <h1>Join the waitlist</h1>
+      <p class="lead">Tell us who you are and we will let you know when SewSure is ready to try. Sign-ups are not open yet, so the forms below do not send your details anywhere.</p>
+
+      <noscript>
+        <p class="notice" role="note">The forms need JavaScript. Sign-ups open soon, and this page will not send anything without it either.</p>
+      </noscript>
+
+      <section class="form-section js-form" id="waitlist" aria-labelledby="waitlist-heading">
+        <h2 id="waitlist-heading">Customer waitlist</h2>
+        <p>For people who own garments and would like to redesign them.</p>
+        <form class="js-form" data-form="waitlist" novalidate>
+          <div class="field">
+            <label for="waitlist-name">Name</label>
+            <input type="text" id="waitlist-name" name="name" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="waitlist-email">Email</label>
+            <input type="email" id="waitlist-email" name="email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="waitlist-role">I am</label>
+            <select id="waitlist-role" name="role" required>
+              <option value="">Choose one</option>
+              <option value="garment-owner">A garment owner</option>
+              <option value="sewer">A sewer or hobbyist</option>
+              <option value="other">Something else</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="waitlist-area">Area <span class="hint">Optional. For example, a neighbourhood or region.</span></label>
+            <input type="text" id="waitlist-area" name="area" autocomplete="address-level2">
+          </div>
+          <div class="field">
+            <label class="consent">
+              <input type="checkbox" name="consent" required>
+              <span>I agree that SewSure may contact me about the waitlist. I can ask for my details to be deleted at any time (see <a href="privacy.html">privacy</a>).</span>
+            </label>
+          </div>
+          <button class="button" type="submit">Join the waitlist</button>
+          <p class="form-message" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="form-section js-form" id="tailor" aria-labelledby="tailor-heading">
+        <h2 id="tailor-heading">Tailor sign-up</h2>
+        <p>For tailors and alteration shops who would like to hear about a pilot.</p>
+        <form class="js-form" data-form="tailor" novalidate>
+          <div class="field">
+            <label for="tailor-name">Name</label>
+            <input type="text" id="tailor-name" name="name" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="tailor-email">Email</label>
+            <input type="email" id="tailor-email" name="email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="tailor-role">I am</label>
+            <select id="tailor-role" name="role" required>
+              <option value="">Choose one</option>
+              <option value="independent-tailor">An independent tailor</option>
+              <option value="alteration-shop">An alteration shop</option>
+              <option value="other">Something else</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="tailor-area">Area <span class="hint">Optional. For example, a neighbourhood or region.</span></label>
+            <input type="text" id="tailor-area" name="area" autocomplete="address-level2">
+          </div>
+          <div class="field">
+            <label class="consent">
+              <input type="checkbox" name="consent" required>
+              <span>I agree that SewSure may contact me about a tailor pilot. I can ask for my details to be deleted at any time (see <a href="privacy.html">privacy</a>).</span>
+            </label>
+          </div>
+          <button class="button" type="submit">Sign up as a tailor</button>
+          <p class="form-message" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>SewSure is an NTU final-year project. It is not yet available to the public.</p>
+      <p><a href="privacy.html">Privacy</a> · <a href="about.html">About the team</a></p>
+      <p>Last updated 28 October 2026.</p>
+    </div>
+  </footer>
+
+  <script src="assets/join.js" defer></script>
+</body>
+</html>
