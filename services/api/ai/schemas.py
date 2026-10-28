@@ -1,16 +1,18 @@
 """Model output schemas and the recipe allow-list.
 
-REPLACE WITH packages/contracts SCHEMA once K1 publishes it. Everything the
-model may return is defined here and nowhere else: pipeline code imports these
-names, so swapping in the generated contract is a one-module change.
+Aligned to contract 1.0.0-draft.2 (PR #15, commit 2cfd24e): `AI_CANDIDATES_SCHEMA`
+is a copy of `packages/contracts/schemas/ai-candidate-proposal.schema.json` with
+`common#/$defs/RecipeId` and `AiParameters` inlined. REPLACE WITH THE GENERATED
+packages/contracts MODEL once it is merged; nothing else in this package defines
+what the model may return.
 
-The allow-list is categorical on purpose. Parameters are named levels ordered
-from least to most demanding, never millimetre values: the model must not
-invent numeric pattern geometry (blueprint section 4.1). The feasibility
-engine turns a level into geometry.
+The contract schema checks shape only ("the server checks recipe_id against the
+allow-list and each level against the recipe"). `validate_candidates` does that
+second step and fails closed.
 
-Recipe IDs and levels here are PLACEHOLDERS until N5 publishes reviewed recipes
-in content/recipes/.
+Parameters are named levels, never numbers: the model must not invent numeric
+pattern geometry. The recipe (N5/N1) maps a level to millimetres before the
+feasibility engine runs; that mapping is not implemented here.
 """
 
 from __future__ import annotations
@@ -20,22 +22,25 @@ from typing import Any
 from jsonschema import Draft202012Validator
 from pydantic import BaseModel, ConfigDict
 
-SCHEMA_VERSION = "v0"
-MAX_CANDIDATES_FROM_MODEL = 8
-MAX_OPERATIONS_PER_CANDIDATE = 3
+CONTRACT_VERSION = "1.0.0-draft.2"
+MAX_PROPOSALS_FROM_MODEL = 6  # contract maxItems
 MAX_DESIGNS_RETURNED = 3
 
-SUPPORTED_GARMENTS = frozenset({"button_shirt"})
-SUPPORTED_MATERIALS = frozenset({"woven_cotton", "woven_linen", "woven_blend"})
+# Contract vocabulary: garment category and fabric family (draft.2 "kept stable").
+SUPPORTED_GARMENTS = frozenset({"woven_shirt"})
+SUPPORTED_MATERIALS = frozenset({"woven"})  # fabric_family
 
-# recipe_id -> {param_name: levels ordered least -> most demanding}
+# Contract GarmentDimension names, used to say what is still needed.
+REQUIRED_DIMENSIONS = frozenset({"shoulder_to_hem", "chest_flat_width"})
+
+# recipe_id -> {param: levels ordered least -> most demanding}. Only recipes in
+# packages/feasibility ALLOWED_RECIPE_IDS belong here.
 RECIPE_ALLOW_LIST: dict[str, dict[str, tuple[str, ...]]] = {
-    "shirt_crop_hem": {"crop_level": ("slightly_shorter", "cropped", "very_cropped")},
-    "shirt_short_sleeve": {"sleeve_length": ("short", "cap")},
-    "shirt_waist_darts": {"shaping": ("light", "moderate")},
+    "woven_shirt_crop_v1": {"crop_level": ("slightly_shorter", "cropped", "very_cropped")},
 }
 
-# Stage B attribute vocabulary (blueprint 4.2 stage B).
+# Stage B attribute vocabulary (blueprint 4.2 stage B). Only crop_length maps to a
+# reviewed recipe today; the others are parsed so the app can say they are unsupported.
 CROP_LENGTHS = ("none", "slightly_shorter", "cropped", "very_cropped")
 WAIST_SHAPINGS = ("none", "light", "moderate")
 SLEEVE_STYLES = ("unchanged", "short", "cap")
@@ -53,81 +58,68 @@ INSPIRATION_SCHEMA: dict[str, Any] = {
     },
 }
 
+_LEVEL = {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64}
 
-def _operation_schema() -> dict[str, Any]:
-    branches = []
-    for recipe_id, params in RECIPE_ALLOW_LIST.items():
-        branches.append(
-            {
-                "type": "object",
-                "additionalProperties": False,
-                "required": ["recipe_id", "params"],
-                "properties": {
-                    "recipe_id": {"const": recipe_id},
-                    "params": {
-                        "type": "object",
-                        "additionalProperties": False,
-                        "required": list(params),
-                        "properties": {
-                            name: {"enum": list(levels)} for name, levels in params.items()
-                        },
-                    },
-                },
-            }
-        )
-    return {"oneOf": branches}
-
-
-CANDIDATES_SCHEMA: dict[str, Any] = {
+AI_CANDIDATES_SCHEMA: dict[str, Any] = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "AiCandidateProposal",
     "type": "object",
+    "required": ["proposals"],
     "additionalProperties": False,
-    "required": ["candidates"],
     "properties": {
-        "candidates": {
+        "proposals": {
             "type": "array",
             "minItems": 0,
-            "maxItems": MAX_CANDIDATES_FROM_MODEL,
+            "maxItems": MAX_PROPOSALS_FROM_MODEL,
             "items": {
                 "type": "object",
+                "required": ["recipe_id", "parameters"],
                 "additionalProperties": False,
-                "required": ["operations"],
                 "properties": {
-                    "operations": {
-                        "type": "array",
-                        "minItems": 1,
-                        "maxItems": MAX_OPERATIONS_PER_CANDIDATE,
-                        "items": _operation_schema(),
-                    }
+                    "recipe_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*_v[0-9]+$"},
+                    "parameters": {  # AiParameters
+                        "type": "object",
+                        "propertyNames": {
+                            "pattern": "^[a-z][a-z0-9_]*$",
+                            "maxLength": 64,
+                            "not": {"pattern": "_(mm|cm|in|count)$"},
+                        },
+                        "additionalProperties": {"anyOf": [_LEVEL, {"type": "boolean"}]},
+                    },
                 },
             },
         }
     },
 }
-# No free-text field is allowed in candidates: model prose is an injection
-# channel. User-facing explanations are written from constraint results.
 
 INSPIRATION_VALIDATOR = Draft202012Validator(INSPIRATION_SCHEMA)
-CANDIDATES_VALIDATOR = Draft202012Validator(CANDIDATES_SCHEMA)
+CANDIDATES_VALIDATOR = Draft202012Validator(AI_CANDIDATES_SCHEMA)
 
 
-class Operation(BaseModel):
-    model_config = ConfigDict(frozen=True)
-
-    recipe_id: str
-    params: dict[str, str]
-
-    def key(self) -> tuple[str, tuple[tuple[str, str], ...]]:
-        return self.recipe_id, tuple(sorted(self.params.items()))
+def validate_candidates(payload: Any) -> bool:
+    """Contract shape plus allow-list: unknown recipe IDs, parameter names or
+    levels fail closed."""
+    if not CANDIDATES_VALIDATOR.is_valid(payload):
+        return False
+    for prop in payload["proposals"]:
+        allowed = RECIPE_ALLOW_LIST.get(prop["recipe_id"])
+        if allowed is None or set(prop["parameters"]) != set(allowed):
+            return False
+        if any(prop["parameters"][name] not in levels for name, levels in allowed.items()):
+            return False
+    return True
 
 
 class Candidate(BaseModel):
+    """One contract proposal: a reviewed recipe plus named levels."""
+
     model_config = ConfigDict(frozen=True)
 
-    operations: tuple[Operation, ...]
+    recipe_id: str
+    parameters: dict[str, str | bool]
 
-    def key(self) -> tuple:
-        return tuple(sorted(op.key() for op in self.operations))
+    def key(self) -> tuple[str, tuple[tuple[str, str | bool], ...]]:
+        return self.recipe_id, tuple(sorted(self.parameters.items()))
 
 
 class InspirationAttributes(BaseModel):
@@ -138,13 +130,5 @@ class InspirationAttributes(BaseModel):
     sleeve_style: str
     closure_preservation: bool
 
-    def requested(self) -> dict[str, str]:
-        """Attributes that ask for a change, keyed by the recipe parameter they map to."""
-        out: dict[str, str] = {}
-        if self.crop_length != "none":
-            out["crop_level"] = self.crop_length
-        if self.waist_shaping != "none":
-            out["shaping"] = self.waist_shaping
-        if self.sleeve_style != "unchanged":
-            out["sleeve_length"] = self.sleeve_style
-        return out
+    def requested_crop(self) -> str | None:
+        return None if self.crop_length == "none" else self.crop_length

@@ -1,9 +1,16 @@
 """The only door to the feasibility engine.
 
-Implemented by packages/feasibility (N1). This module defines the call shape and
-nothing else: the pipeline never computes geometry and never sets a design
-state. It relays the engine's verdict verbatim, and any status it does not
-recognise is treated as FAILED_CHECKS (fail closed).
+Implemented by an adapter over packages/feasibility (N1, PR #12 head 8d6db44):
+`evaluate(garment, measurements, recipe_id, params, ...) -> ConstraintResult`.
+The adapter (not this package) loads the garment and confirmed measurements for
+`revision_context_id`, maps the AI's named levels to the recipe's mm parameters
+(`finished_length_mm`, `hem_allowance_mm`) and calls `evaluate`. That
+level-to-mm mapping has no owner yet.
+
+This module only relays the engine's verdict. All five design states from
+contract 1.0.0-draft.2 pass through unchanged. A value outside those five, or an
+engine exception, becomes FAILED_CHECKS (fail closed). Failure codes use the
+contract `FailureCode` names.
 """
 
 from __future__ import annotations
@@ -12,34 +19,33 @@ from typing import Protocol
 
 from pydantic import BaseModel, ConfigDict
 
-from .schemas import Candidate
-
-# Mirrors the engine's state names (root CLAUDE.md non-negotiable 2). The
-# engine is the only producer; this module only recognises them.
 PASS = "PASS_SUPPORTED_CHECKS"
 NEEDS_INPUT = "NEEDS_INPUT"
 FAILED = "FAILED_CHECKS"
 IDEA_ONLY = "IDEA_ONLY"
 SUPERSEDED = "SUPERSEDED"
-# The five design states from root CLAUDE.md / the K1 contract. Passed through unchanged.
 ENGINE_STATES = frozenset({PASS, NEEDS_INPUT, FAILED, IDEA_ONLY, SUPERSEDED})
 
 
 class FeasibilityRequest(BaseModel):
     model_config = ConfigDict(frozen=True)
 
-    candidate: Candidate
-    garment_class: str
-    material: str
-    revision_context_id: str  # opaque; the engine resolves measurements itself
+    recipe_id: str
+    parameters: dict[str, str | bool]  # AI levels; the adapter maps them to mm
+    garment_category: str  # contract category, e.g. "woven_shirt"
+    fabric_family: str  # contract fabric family, e.g. "woven"
+    revision_context_id: str  # opaque; the adapter resolves garment and measurements
 
 
 class FeasibilityResult(BaseModel):
+    """The subset of the engine's ConstraintResult that the pipeline reads."""
+
     model_config = ConfigDict(frozen=True)
 
-    status: str
+    status: str  # DesignState
     failure_codes: tuple[str, ...] = ()
-    missing_inputs: tuple[str, ...] = ()
+    missing_dimensions: tuple[str, ...] = ()
+    uncertainty_flags: tuple[str, ...] = ()
 
 
 class FeasibilityChecker(Protocol):

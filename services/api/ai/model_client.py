@@ -118,29 +118,15 @@ def default_responder(request: ModelRequest) -> str:
     if request.stage == "D":
         attrs = request.user_payload["attributes"]
         allowed = request.user_payload["allowed_recipes"]
-        ops = []
-        if attrs["crop_length"] != "none" and "shirt_crop_hem" in allowed:
-            ops.append(("shirt_crop_hem", {"crop_level": attrs["crop_length"]}))
-        if attrs["waist_shaping"] != "none" and "shirt_waist_darts" in allowed:
-            ops.append(("shirt_waist_darts", {"shaping": attrs["waist_shaping"]}))
-        if attrs["sleeve_style"] != "unchanged" and "shirt_short_sleeve" in allowed:
-            ops.append(("shirt_short_sleeve", {"sleeve_length": attrs["sleeve_style"]}))
-        candidates: list[dict[str, Any]] = []
-        if ops:
-            candidates.append({"operations": [{"recipe_id": r, "params": p} for r, p in ops]})
-            # one notch less demanding on every operation
-            eased = []
-            for r, p in ops:
-                ((name, level),) = p.items()
-                levels = RECIPE_ALLOW_LIST[r][name]
-                eased.append(
-                    {"recipe_id": r, "params": {name: levels[max(0, levels.index(level) - 1)]}}
-                )
-            candidates.append({"operations": eased})
-            # the single most demanding operation alone
-            r, p = ops[0]
-            candidates.append({"operations": [{"recipe_id": r, "params": p}]})
-        return json.dumps({"candidates": candidates})
+        proposals: list[dict[str, Any]] = []
+        recipe = "woven_shirt_crop_v1"
+        if attrs["crop_length"] != "none" and recipe in allowed:
+            levels = RECIPE_ALLOW_LIST[recipe]["crop_level"]
+            top = levels.index(attrs["crop_length"])
+            # the requested level, then up to two notches less demanding
+            for idx in range(top, max(top - 3, -1), -1):
+                proposals.append({"recipe_id": recipe, "parameters": {"crop_level": levels[idx]}})
+        return json.dumps({"proposals": proposals})
     raise ModelError("MOCK_UNKNOWN_STAGE", request.stage)
 
 

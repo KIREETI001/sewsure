@@ -11,8 +11,8 @@ from run_eval import evaluate, load_cases
 
 def test_case_file_shape():
     cases = load_cases()
-    assert len(cases) == 25
-    assert len({c["id"] for c in cases}) == 25
+    assert len(cases) == 28
+    assert len({c["id"] for c in cases}) == 28
     cats = {c["category"] for c in cases}
     assert cats == {
         "success",
@@ -31,6 +31,7 @@ def test_no_false_approvals_and_all_outcomes_match():
     m = evaluate(load_cases())["metrics"]
     assert m["false_approvals"]["numerator"] == 0
     assert m["outcome_match"]["numerator"] == m["outcome_match"]["denominator"]
+    assert m["reasons_match"]["numerator"] == m["reasons_match"]["denominator"]
     assert m["recipe_id_validity"]["numerator"] <= m["recipe_id_validity"]["denominator"]
     assert (
         m["injection_contained_without_screen"]["numerator"]

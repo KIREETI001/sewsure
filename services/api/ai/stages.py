@@ -11,6 +11,7 @@ import json
 import logging
 import time
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -25,15 +26,15 @@ from .feasibility_port import (
 )
 from .model_client import ModelClient, ModelError, ModelRequest, ModelResponse
 from .schemas import (
-    CANDIDATES_VALIDATOR,
     INSPIRATION_VALIDATOR,
     MAX_DESIGNS_RETURNED,
     RECIPE_ALLOW_LIST,
+    REQUIRED_DIMENSIONS,
     SUPPORTED_GARMENTS,
     SUPPORTED_MATERIALS,
     Candidate,
     InspirationAttributes,
-    Operation,
+    validate_candidates,
 )
 
 log = logging.getLogger("sewsure.ai")
@@ -95,7 +96,10 @@ def stage_a_confirm_garment(garment_class: str, confidence: float) -> GarmentCon
 
 
 def _call_model(
-    client: ModelClient, request: ModelRequest, validator: Any, telemetry: Telemetry
+    client: ModelClient,
+    request: ModelRequest,
+    is_valid: Callable[[Any], bool],
+    telemetry: Telemetry,
 ) -> dict[str, Any]:
     rec = CallRecord(stage=request.stage)
     telemetry.calls.append(rec)
@@ -123,34 +127,23 @@ def _call_model(
         raise StageError(rec.error) from None
     if request.stage == "D":
         _count_recipe_ids(payload, rec)
-    if validator.is_valid(payload) and not _has_duplicate_recipes(payload):
+    if is_valid(payload):
         rec.schema_ok = True
         return payload
     rec.error = "MODEL_OUTPUT_SCHEMA_INVALID"
     raise StageError(rec.error)
 
 
-def _has_duplicate_recipes(payload: Any) -> bool:
-    """Two operations on one recipe in a candidate are contradictory (two crop lengths)."""
-    for cand in payload.get("candidates", []) if isinstance(payload, dict) else []:
-        ids = [op["recipe_id"] for op in cand["operations"]]
-        if len(ids) != len(set(ids)):
-            return True
-    return False
-
-
 def _count_recipe_ids(payload: Any, rec: CallRecord) -> None:
     """Recipe-ID validity is measured on whatever IDs the model emitted, before
-    schema validation rejects the response."""
-    if not isinstance(payload, dict) or not isinstance(payload.get("candidates"), list):
+    validation rejects the response."""
+    if not isinstance(payload, dict) or not isinstance(payload.get("proposals"), list):
         return
-    for cand in payload["candidates"]:
-        ops = cand.get("operations") if isinstance(cand, dict) else None
-        for op in ops if isinstance(ops, list) else []:
-            rid = op.get("recipe_id") if isinstance(op, dict) else None
-            rec.recipe_ids_seen += 1
-            if isinstance(rid, str) and rid in RECIPE_ALLOW_LIST:
-                rec.recipe_ids_valid += 1
+    for prop in payload["proposals"]:
+        rid = prop.get("recipe_id") if isinstance(prop, dict) else None
+        rec.recipe_ids_seen += 1
+        if isinstance(rid, str) and rid in RECIPE_ALLOW_LIST:
+            rec.recipe_ids_valid += 1
 
 
 def log_call_summary(telemetry: Telemetry, revision_id: str | None = None) -> None:
@@ -181,7 +174,8 @@ def stage_b_parse_inspiration(
         schema_name="inspiration_attributes",
         prompt_version=PROMPT_VERSION,
     )
-    return InspirationAttributes(**_call_model(client, request, INSPIRATION_VALIDATOR, telemetry))
+    payload = _call_model(client, request, INSPIRATION_VALIDATOR.is_valid, telemetry)
+    return InspirationAttributes(**payload)
 
 
 # ------------------------------------------------------------------ C ----
@@ -190,23 +184,22 @@ def stage_b_parse_inspiration(
 @dataclass(frozen=True)
 class DesignContext:
     allowed_recipes: dict[str, dict[str, tuple[str, ...]]]
-    missing_measurements: tuple[str, ...]
-    rejection: str = ""  # non-empty means unsupported; no model call is made
+    missing_dimensions: tuple[str, ...]
+    rejection: str = ""  # a contract FailureCode; non-empty means no model call is made
 
 
 def stage_c_load_context(
-    garment_class: str,
-    material: str,
-    provided_measurements: set[str],
-    required_measurements: frozenset[str] = frozenset({"chest", "waist", "shirt_length"}),
+    garment_category: str,
+    fabric_family: str,
+    provided_dimensions: set[str],
 ) -> DesignContext:
     """Reject unsupported garment/material combinations before spending a model call.
-    Only measurement *names* are used here; values stay with the engine."""
-    if garment_class not in SUPPORTED_GARMENTS:
-        return DesignContext({}, (), "UNSUPPORTED_GARMENT")
-    if material not in SUPPORTED_MATERIALS:
+    Only dimension *names* are used here; values stay with the engine."""
+    if garment_category not in SUPPORTED_GARMENTS:
+        return DesignContext({}, (), "UNSUPPORTED_GARMENT_CATEGORY")
+    if fabric_family not in SUPPORTED_MATERIALS:
         return DesignContext({}, (), "UNSUPPORTED_MATERIAL")
-    missing = tuple(sorted(required_measurements - provided_measurements))
+    missing = tuple(sorted(REQUIRED_DIMENSIONS - provided_dimensions))
     return DesignContext(dict(RECIPE_ALLOW_LIST), missing)
 
 
@@ -228,14 +221,14 @@ def stage_d_propose_candidates(
                 k: {p: list(v) for p, v in ps.items()} for k, ps in context.allowed_recipes.items()
             },
         },
-        schema_name="candidates",
+        schema_name="ai_candidate_proposal",
         prompt_version=PROMPT_VERSION,
     )
-    payload = _call_model(client, request, CANDIDATES_VALIDATOR, telemetry)
+    payload = _call_model(client, request, validate_candidates, telemetry)
     seen: set[tuple] = set()
     out: list[Candidate] = []
-    for raw in payload["candidates"]:
-        cand = Candidate(operations=tuple(Operation(**op) for op in raw["operations"]))
+    for raw in payload["proposals"]:
+        cand = Candidate(recipe_id=raw["recipe_id"], parameters=raw["parameters"])
         if cand.key() not in seen:  # distinct only
             seen.add(cand.key())
             out.append(cand)
@@ -255,8 +248,8 @@ class CheckedCandidate:
 def stage_e_check(
     checker: FeasibilityChecker,
     candidates: list[Candidate],
-    garment_class: str,
-    material: str,
+    garment_category: str,
+    fabric_family: str,
     context_id: str,
 ) -> list[CheckedCandidate]:
     out = []
@@ -265,9 +258,10 @@ def stage_e_check(
             result = normalise(
                 checker.check(
                     FeasibilityRequest(
-                        candidate=cand,
-                        garment_class=garment_class,
-                        material=material,
+                        recipe_id=cand.recipe_id,
+                        parameters=cand.parameters,
+                        garment_category=garment_category,
+                        fabric_family=fabric_family,
                         revision_context_id=context_id,
                     )
                 )
@@ -282,31 +276,31 @@ def stage_e_check(
 
 
 def _ease(candidate: Candidate) -> Candidate | None:
-    """One notch less demanding on every operation, or None if already minimal."""
-    ops, changed = [], False
-    for op in candidate.operations:
-        ((name, level),) = op.params.items()
-        levels = RECIPE_ALLOW_LIST[op.recipe_id][name]
-        idx = levels.index(level)
+    """One notch less demanding, or None if already minimal."""
+    levels_by_param = RECIPE_ALLOW_LIST[candidate.recipe_id]
+    params = dict(candidate.parameters)
+    changed = False
+    for name, levels in levels_by_param.items():
+        idx = levels.index(params[name])
         if idx > 0:
+            params[name] = levels[idx - 1]
             changed = True
-            idx -= 1
-        ops.append(Operation(recipe_id=op.recipe_id, params={name: levels[idx]}))
-    return Candidate(operations=tuple(ops)) if changed else None
+    return Candidate(recipe_id=candidate.recipe_id, parameters=params) if changed else None
 
 
 def stage_f_relax_and_rank(
     checked: list[CheckedCandidate],
     attributes: InspirationAttributes,
     checker: FeasibilityChecker,
-    garment_class: str,
-    material: str,
+    garment_category: str,
+    fabric_family: str,
     context_id: str,
 ) -> list[CheckedCandidate]:
-    """Retry hard failures one notch easier (once), then rank survivors, max three.
+    """Retry FAILED_CHECKS candidates one notch easier (once), then rank survivors, max three.
 
-    Hard gates run first: only PASS candidates are ranked. The score is an
-    initial, untuned preference ordering. It is not a probability of success.
+    Only candidates the engine marked FAILED_CHECKS are relaxed; IDEA_ONLY, NEEDS_INPUT
+    and SUPERSEDED are not. Hard gates run first: only PASS candidates are ranked. The
+    score is an initial, untuned preference ordering, not a probability of success.
     """
     pool = list(checked)
     if sum(c.result.status == PASS for c in pool) < MAX_DESIGNS_RETURNED:
@@ -319,7 +313,7 @@ def stage_f_relax_and_rank(
                     known.add(easier.key())
                     eased.append((c.candidate, easier))
         rechecked = stage_e_check(
-            checker, [e for _, e in eased], garment_class, material, context_id
+            checker, [e for _, e in eased], garment_category, fabric_family, context_id
         )
         pool += [
             CheckedCandidate(r.candidate, r.result, relaxed_from=orig)
@@ -327,14 +321,10 @@ def stage_f_relax_and_rank(
         ]
 
     survivors = [c for c in pool if c.result.status == PASS]
-    wanted = attributes.requested()
+    wanted = attributes.requested_crop()
 
     def score(c: CheckedCandidate) -> float:
-        matched = sum(
-            1 for op in c.candidate.operations for k, v in op.params.items() if wanted.get(k) == v
-        )
-        match = matched / len(wanted) if wanted else 0.0
-        return match - 0.1 * (len(c.candidate.operations) - 1)
+        return 1.0 if c.candidate.parameters.get("crop_level") == wanted else 0.0
 
     survivors.sort(key=lambda c: (-score(c), repr(c.candidate.key())))
     return survivors[:MAX_DESIGNS_RETURNED]

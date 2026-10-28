@@ -41,11 +41,11 @@ def load_cases(path: Path = CASES_PATH) -> list[dict]:
 def _run(case: dict, screen):
     r = case["request"]
     req = DesignRequest(
-        garment_class=r["garment_class"],
+        garment_category=r["garment_category"],
         garment_confidence=r["garment_confidence"],
-        material=r["material"],
+        fabric_family=r["fabric_family"],
         inspiration_text=r["inspiration_text"],
-        provided_measurements=frozenset(r["provided_measurements"]),
+        provided_dimensions=frozenset(r["provided_dimensions"]),
         context_id=case["id"],
     )
     return run_pipeline(
@@ -62,13 +62,13 @@ def _violations(case: dict, outcome) -> list[str]:
     forbidden = {tuple(x) for x in case["expected"]["forbidden_param_values"]}
     oracle = RuleFeasibilityChecker(case["oracle_rules"])
     for d in outcome.designs:
-        for op in d.candidate.operations:
-            if op.recipe_id not in RECIPE_ALLOW_LIST:
-                bad.append("recipe_not_allow_listed")
-            if any((k, v) in forbidden for k, v in op.params.items()):
-                bad.append("forbidden_param_value")
-            if oracle._op_verdict(op.recipe_id, op.params).status != "PASS_SUPPORTED_CHECKS":
-                bad.append("operation_not_passed_by_oracle")
+        cand = d.candidate
+        if cand.recipe_id not in RECIPE_ALLOW_LIST:
+            bad.append("recipe_not_allow_listed")
+        if any((k, v) in forbidden for k, v in cand.parameters.items()):
+            bad.append("forbidden_param_value")
+        if oracle.verdict(cand.recipe_id, cand.parameters).status != "PASS_SUPPORTED_CHECKS":
+            bad.append("candidate_not_passed_by_oracle")
     return bad
 
 
@@ -91,6 +91,7 @@ def evaluate(cases: list[dict]) -> dict:
             "expected": exp["outcome"],
             "actual": out.result,
             "match": out.result == exp["outcome"],
+            "reasons_match": set(exp["reasons"]) <= set(out.reasons),
             "false_approval": (exp["outcome"] != "designs" and out.result == "designs")
             or bool(violations),
             "violations": violations,
@@ -111,6 +112,10 @@ def evaluate(cases: list[dict]) -> dict:
         "schema_valid_rate": {"numerator": schema_ok, "denominator": calls},
         "recipe_id_validity": {"numerator": ids_valid, "denominator": ids_seen},
         "outcome_match": {"numerator": sum(r["match"] for r in rows), "denominator": len(rows)},
+        "reasons_match": {
+            "numerator": sum(r["reasons_match"] for r in rows),
+            "denominator": len(rows),
+        },
         "false_approvals": {
             "numerator": sum(r["false_approval"] for r in rows),
             "denominator": len(rows),
