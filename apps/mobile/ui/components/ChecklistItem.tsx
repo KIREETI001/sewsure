@@ -1,8 +1,8 @@
-import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import { useTheme } from '../theme/ThemeProvider';
-import { borderWidth, minTouchTarget, radius, spacing } from '../tokens/spacing';
-import { Text } from './Text';
+import React from "react";
+import { Pressable, StyleSheet, View } from "react-native";
+import { useTheme } from "../theme/ThemeProvider";
+import { borderWidth, minTouchTarget, radius, spacing } from "../tokens/spacing";
+import { Text } from "./Text";
 
 export type ChecklistItemProps = {
   label: string;
@@ -12,7 +12,13 @@ export type ChecklistItemProps = {
   description?: string;
 };
 
-export function ChecklistItem({ label, checked, onToggle, disabled, description }: ChecklistItemProps) {
+export function ChecklistItem({
+  label,
+  checked,
+  onToggle,
+  disabled,
+  description,
+}: ChecklistItemProps) {
   const { colors } = useTheme();
   return (
     <Pressable
@@ -39,7 +45,7 @@ export function ChecklistItem({ label, checked, onToggle, disabled, description 
           variant="bodyStrong"
           style={{ color: colors.onPrimary }}
         >
-          {checked ? '✓' : ''}
+          {checked ? "✓" : ""}
         </Text>
       </View>
       <View style={styles.text}>
@@ -57,8 +63,8 @@ export function ChecklistItem({ label, checked, onToggle, disabled, description 
 const styles = StyleSheet.create({
   row: {
     minHeight: minTouchTarget,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: spacing.md,
     paddingVertical: spacing.xs,
   },
@@ -67,8 +73,8 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: radius.sm,
     borderWidth: borderWidth.control,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   text: { flex: 1 },
 });

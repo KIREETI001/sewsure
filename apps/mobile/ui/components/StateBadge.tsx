@@ -1,24 +1,37 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { useTheme } from '../theme/ThemeProvider';
-import { borderWidth, radius, spacing } from '../tokens/spacing';
-import { uiStrings } from '../strings';
-import { Text } from './Text';
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import { useTheme } from "../theme/ThemeProvider";
+import { borderWidth, radius, spacing } from "../tokens/spacing";
+import type { StateColors } from "../tokens/colors";
+import { uiStrings } from "../strings";
+import { Text } from "./Text";
 
 /**
- * The three user-facing design states. This component only DISPLAYS a state
- * decided by the feasibility engine; it never derives or upgrades one.
+ * Design states exactly as defined by the contract
+ * (packages/contracts/schemas/design-state.schema.json). Set only by the
+ * feasibility engine. This component DISPLAYS a state; it never derives,
+ * maps or upgrades one, so screens pass the API value straight through.
  */
-export type DesignStateKind = 'verified' | 'needs_info' | 'inspiration';
+export type DesignState =
+  "IDEA_ONLY" | "NEEDS_INPUT" | "FAILED_CHECKS" | "PASS_SUPPORTED_CHECKS" | "SUPERSEDED";
 
-const config = {
-  verified: { symbol: '✓', label: uiStrings.stateVerified, key: 'stateVerified' },
-  needs_info: { symbol: '?', label: uiStrings.stateNeedsInfo, key: 'stateNeedsInfo' },
-  inspiration: { symbol: '✦', label: uiStrings.stateInspiration, key: 'stateInspiration' },
-} as const;
+type Config = {
+  symbol: string;
+  label: string;
+  color:
+    "stateVerified" | "stateNeedsInfo" | "stateInspiration" | "stateFailed" | "stateSuperseded";
+};
+
+const config: Record<DesignState, Config> = {
+  PASS_SUPPORTED_CHECKS: { symbol: "✓", label: uiStrings.stateVerified, color: "stateVerified" },
+  NEEDS_INPUT: { symbol: "?", label: uiStrings.stateNeedsInfo, color: "stateNeedsInfo" },
+  IDEA_ONLY: { symbol: "✦", label: uiStrings.stateInspiration, color: "stateInspiration" },
+  FAILED_CHECKS: { symbol: "✗", label: uiStrings.stateFailed, color: "stateFailed" },
+  SUPERSEDED: { symbol: "↺", label: uiStrings.stateSuperseded, color: "stateSuperseded" },
+};
 
 export type StateBadgeProps = {
-  state: DesignStateKind;
+  state: DesignState;
   /** Override the visible text (e.g. from the i18n catalogue). */
   label?: string;
 };
@@ -26,7 +39,7 @@ export type StateBadgeProps = {
 export function StateBadge({ state, label }: StateBadgeProps) {
   const { colors } = useTheme();
   const c = config[state];
-  const palette = colors[c.key];
+  const palette: StateColors = colors[c.color];
   const text = label ?? c.label;
   return (
     <View
@@ -53,9 +66,9 @@ export function StateBadge({ state, label }: StateBadgeProps) {
 
 const styles = StyleSheet.create({
   badge: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
     gap: spacing.xs,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,

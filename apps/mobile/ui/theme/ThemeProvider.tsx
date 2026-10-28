@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useMemo } from 'react';
-import { useColorScheme } from 'react-native';
-import { colorSchemes, type ColorScheme, type ColorTokens } from '../tokens/colors';
+import React, { createContext, useContext, useMemo } from "react";
+import { useColorScheme } from "react-native";
+import { colorSchemes, type ColorScheme, type ColorTokens } from "../tokens/colors";
 
 type Theme = { scheme: ColorScheme; colors: ColorTokens };
 
@@ -15,13 +15,13 @@ export function ThemeProvider({
   children: React.ReactNode;
 }) {
   const system = useColorScheme();
-  const resolved: ColorScheme = scheme ?? (system === 'dark' ? 'dark' : 'light');
+  const resolved: ColorScheme = scheme ?? (system === "dark" ? "dark" : "light");
   const value = useMemo(() => ({ scheme: resolved, colors: colorSchemes[resolved] }), [resolved]);
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme(): Theme {
   const theme = useContext(ThemeContext);
-  if (!theme) return { scheme: 'light', colors: colorSchemes.light };
+  if (!theme) return { scheme: "light", colors: colorSchemes.light };
   return theme;
 }

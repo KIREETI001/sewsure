@@ -1,7 +1,7 @@
-import React from 'react';
-import { StyleSheet, View, type ViewProps } from 'react-native';
-import { useTheme } from '../theme/ThemeProvider';
-import { borderWidth, radius, spacing } from '../tokens/spacing';
+import React from "react";
+import { StyleSheet, View, type ViewProps } from "react-native";
+import { useTheme } from "../theme/ThemeProvider";
+import { borderWidth, radius, spacing } from "../tokens/spacing";
 
 export type CardProps = ViewProps & {
   /** Group the card's content as one screen-reader element. Default false. */

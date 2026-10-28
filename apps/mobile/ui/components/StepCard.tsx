@@ -1,10 +1,10 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { useTheme } from '../theme/ThemeProvider';
-import { spacing } from '../tokens/spacing';
-import { uiStrings } from '../strings';
-import { Card } from './Card';
-import { Text } from './Text';
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import { useTheme } from "../theme/ThemeProvider";
+import { spacing } from "../tokens/spacing";
+import { uiStrings } from "../strings";
+import { Card } from "./Card";
+import { Text } from "./Text";
 
 export type StepCardProps = {
   stepNumber: number;
@@ -16,7 +16,14 @@ export type StepCardProps = {
 };
 
 /** One DIY step. Completion is shown by text and a symbol, not colour alone. */
-export function StepCard({ stepNumber, totalSteps, title, body, done = false, children }: StepCardProps) {
+export function StepCard({
+  stepNumber,
+  totalSteps,
+  title,
+  body,
+  done = false,
+  children,
+}: StepCardProps) {
   const { colors } = useTheme();
   const status = done ? uiStrings.stepDone : uiStrings.stepNotDone;
   return (
@@ -29,7 +36,10 @@ export function StepCard({ stepNumber, totalSteps, title, body, done = false, ch
         <Text variant="label" tone="secondary">
           {uiStrings.stepOf(stepNumber, totalSteps)}
         </Text>
-        <Text variant="label" style={{ color: done ? colors.stateVerified.fg : colors.textSecondary }}>
+        <Text
+          variant="label"
+          style={{ color: done ? colors.stateVerified.fg : colors.textSecondary }}
+        >
           {done ? `✓ ${status}` : `○ ${status}`}
         </Text>
       </View>
@@ -41,5 +51,5 @@ export function StepCard({ stepNumber, totalSteps, title, body, done = false, ch
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.sm },
+  header: { flexDirection: "row", justifyContent: "space-between", gap: spacing.sm },
 });
