@@ -14,7 +14,7 @@ Mark each note slot with their words where possible.
 
 ## 0. Opening (2 min)
 
-Read: "We are students building an app that helps people redesign clothes they own, with a tailor option for jobs people don't want to do themselves. We want to understand how your work actually runs. There are no right answers. You may skip anything. May I take notes? Optional audio?"
+Ask: "Are you 18 or over?" (if no, thank and end). Read: "We are students building an app that helps people redesign clothes they own, with a tailor option for jobs people don't want to do themselves. We want to understand how your work actually runs. There are no right answers. You may skip anything. May I take notes? Optional audio?"
 
 - Consent in tracker: ☐   Audio: ☐ yes ☐ no
 
@@ -79,7 +79,7 @@ Read: "We are students building an app that helps people redesign clothes they o
 5.2 What would make you ignore a request?
 > Notes:
 
-5.3 Would you want to see a garment's measurements, a diagram, photos, the customer's intended change? In what form?
+5.3 Of the things you listed, which do you need first, and in what form? (Do not offer items they did not mention; probe only after they finish.)
 > Notes:
 
 5.4 After you've seen the brief: what would help you give a quote or say no quickly?
@@ -90,23 +90,23 @@ Read: "We are students building an app that helps people redesign clothes they o
 6.1 How do customers currently find you? What works best?
 > Notes:
 
-6.2 How would you feel about receiving requests through an app? What would worry you?
+6.2 Tell me about any new way of getting customers or requests that you have tried. How did it go?
 > Notes:
 
-6.3 What would a small trial need to look like for you to take part (volume, time, payment, cost to you)?
+6.3 How do you decide whether to take part in something new, like a trial? What do you need to know first?
 > Notes:
 
-6.4 What would make you stop using such a service?
+6.4 Tell me about something you stopped using or doing in your business. Why?
 > Notes:
 
-6.5 If we offered to share only the briefs customers choose to send, would you be willing to try a trial period? What would you want written down first?
+6.5 Is there anything you would want agreed in writing before trying something new with customers?
 > Notes:
 
 ## 7. Letter of intent (2 min)
 
 Read: "We may ask interested tailors to sign a short non-binding letter saying they are willing to take part in a trial, if it goes ahead. It does not commit you to pay or to accept work."
 
-7.1 Would you be comfortable signing something like that? Who else would you need to ask?
+7.1 How do you feel about that? What would you need to decide? Who else, if anyone, would be involved?
 > Notes (yes / maybe / no; reason):
 
 7.2 What would you want it to say or not say?
@@ -125,4 +125,4 @@ Read: "Thank you. Notes will be de-identified. You can ask us to delete your dat
 
 - Fill section A of `insight-template.md` (de-identified; no shop name, area or customer details).
 - Tracker: status, consent, notes link, follow-up date, LOI interest (yes/maybe/no).
-- Delete raw audio once notes are written, unless longer retention was agreed.
+- Delete raw audio once notes are written, and in any case within the period stated in the consent form.

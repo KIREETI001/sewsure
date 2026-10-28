@@ -8,7 +8,7 @@
 
 ## What this is
 
-We would like to talk with you for about 30 minutes about your experience with clothes, fit, sewing or alterations. Or, if agreed, to watch you try parts of a prototype app. This is to help us design the product. It is not a test of you.
+We would like to talk with you for 30 to 40 minutes about your experience with clothes, fit, sewing or alterations. Or, if agreed, to watch you try parts of a prototype app. This is to help us design the product. It is not a test of you.
 
 ## What we will do
 
@@ -19,10 +19,12 @@ We would like to talk with you for about 30 minutes about your experience with c
 
 ## Your choices (tick each)
 
+- ☐ I am 18 or over. (Required.)
 - ☐ I agree to take part and to notes being taken.
 - ☐ I agree to audio recording. (Optional — you can say no.)
 - ☐ I agree to share photos of garments. (Optional — no faces, no identifying background, please.)
 - ☐ I agree to be contacted once more about testing an early version. (Optional.)
+- ☐ I agree that my de-identified notes may be read and summarised by an AI assistant used by the team. (Optional — if you decline, your notes will be summarised by hand only.)
 
 ## How we protect you
 
@@ -30,9 +32,9 @@ We would like to talk with you for about 30 minutes about your experience with c
 - We remove names, places, workplaces and anything that could identify you before notes are stored in our project files.
 - We do not ask for body measurements in interviews. If a usability test uses measurements, you can use made-up numbers; we do not store real ones.
 - Audio is used only to write notes and is deleted within [30] days, or sooner if you ask. Photos are kept only as long as needed for the study and are deleted at the end of the project [date], or sooner if you ask. Photos will not be published or shared outside the team without separate written permission.
-- Your contact details are kept in a private team spreadsheet, separate from notes, and are deleted [date / within 30 days of the study ending].
+- Your contact details are kept in a private team Google Sheet (hosted by Google, accessible only to the three team members), separate from notes, and are deleted [date / within 30 days of the study ending]. If you filled in our recruiting form but were not invited, your response is deleted within [N] days.
 - Findings may be shared in project reports and presentations as short de-identified quotes or counts (for example "6 of 10 participants"). You will not be named.
-- Notes may be processed using AI-assisted tools to help summarise de-identified text. Audio and photos are not [confirm with supervisor].
+- If you tick the AI option, only de-identified written notes (never audio, photos or contact details) are given to an AI assistant (Claude, by Anthropic) to tag and summarise. [supervisor to confirm tool and terms in H-05]
 
 ## Taking part is voluntary
 

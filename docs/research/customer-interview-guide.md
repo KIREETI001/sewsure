@@ -14,7 +14,7 @@ Each question has a note slot. Write what they said, in their words. Mark quotes
 
 ## 0. Opening (2 min)
 
-Read: "Thanks for your time. I'm learning how people deal with clothes in their wardrobe. There are no right answers and I'm not testing you. You can skip any question or stop at any time. Is it still OK to take notes? Is it OK to record audio (optional)?"
+Ask: "Are you 18 or over?" (if no, thank and end). Read: "Thanks for your time. I'm learning how people deal with clothes in their wardrobe. There are no right answers and I'm not testing you. You can skip any question or stop at any time. Is it still OK to take notes? Is it OK to record audio (optional)?"
 
 - Consent confirmed in tracker: ☐   Audio: ☐ yes ☐ no
 
@@ -51,13 +51,13 @@ Read: "Thanks for your time. I'm learning how people deal with clothes in their 
 3.1 Have you ever changed or repaired a piece of clothing, or thought about it? Tell me about it.
 > Notes:
 
-3.2 What stopped you, or what made it difficult?
+3.2 Tell me how that went from idea to what you ended up doing. (If nothing happened: what did you do instead?)
 > Notes:
 
-3.3 Tell me about a garment you would be worried about cutting into. What worries you?
+3.3 Have you ever decided not to do something to a garment? Tell me about it.
 > Notes:
 
-3.4 What would you need to see or know before you felt OK starting?
+3.4 How did you decide? What did you take into account?
 > Notes:
 
 ## 4. Sewing skill and tools (4 min)
@@ -88,14 +88,16 @@ Read: "Thanks for your time. I'm learning how people deal with clothes in their 
 5.4 What would make you pay someone to do a job on a garment, rather than do it yourself or leave it? Where is the limit?
 > Notes:
 
-## 6. Trust in computer-generated patterns and willingness to pay (4 min)
+## 6. Trust in instructions and willingness to pay (4 min)
 
-Read: "Imagine a tool that suggests how to change a garment and gives you a cutting guide. I'm not showing you anything; I just want your thoughts."
+Follow-up only if the participant raises computer- or AI-made guides themselves: "Tell me more about that." Then ask: "Have you ever used something like that? What happened?"
 
-6.1 What would you want to be true before you'd cut your own clothing using a guide a computer made?
+Read: "Now some questions about guides and instructions you have used. Think of real examples."
+
+6.1 Tell me about a time you followed instructions or a guide you weren't sure about. How did you decide whether to trust it?
 > Notes:
 
-6.2 What would make you doubt it?
+6.2 What makes you trust or doubt a source of instructions, such as a person, video or app?
 > Notes:
 
 6.3 Have you used any app or website to get instructions for making or changing things? What was it like?
@@ -104,8 +106,8 @@ Read: "Imagine a tool that suggests how to change a garment and gives you a cutt
 6.4 Have you paid for any app, pattern, tutorial or kit for hobbies or clothing? Tell me about the last one: what, and how much?
 > Notes:
 
-6.5 If a tool like that existed, how would you expect it to be priced? Would a free version with limits and paid extras make sense to you? What would you expect in each?
-> Notes (record exact figures and currency; do not suggest a number first):
+6.5 Tell me what you have paid for in the past for hobbies or clothing, and what made it worth it (or not). Stop there. Do not suggest a price or pricing model; if they name one, record it in their words.
+> Notes (record exact figures and currency):
 
 ## 7. Close (1 min)
 
@@ -122,4 +124,4 @@ Read: "Thank you. Notes will be de-identified. You can ask us to delete your dat
 - Fill section A of `insight-template.md` with the de-identified notes.
 - Add three top observations and one surprise.
 - Update the tracker: status, consent, notes link, follow-up date.
-- Delete raw audio once notes are written, unless the participant agreed to longer retention in the consent form.
+- Delete raw audio once notes are written, and in any case within the period stated in the consent form.
