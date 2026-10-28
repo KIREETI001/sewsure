@@ -1,10 +1,10 @@
 """Print the constraint-suite counts as numerator/denominator.
 
 Exit codes:
-  0  no false acceptance on a destructive cut
+  0  no false acceptance on a destructive cut and no indeterminate result
   1  at least one false acceptance on a destructive cut (CI gate)
   2  engine not importable (use --allow-skip to exit 0 instead; local use only)
-  3  --strict and any status/failure-code mismatch or indeterminate result
+  3  indeterminate result (unless --allow-indeterminate), or --strict and any mismatch
 """
 from __future__ import annotations
 
@@ -20,6 +20,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--strict", action="store_true", help="also fail on any mismatch or indeterminate result")
     ap.add_argument("--allow-skip", action="store_true", help="exit 0 if the engine is not importable")
+    ap.add_argument("--allow-indeterminate", action="store_true", help="do not fail on indeterminate results")
     ap.add_argument("--json", action="store_true", help="print machine-readable JSON")
     args = ap.parse_args(argv)
 
@@ -57,7 +58,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if s["destructive_false_acceptances"]:
         return 1
-    if args.strict and (s["mismatches"] or n[C.INDETERMINATE]):
+    if n[C.INDETERMINATE] and not args.allow_indeterminate:
+        return 3
+    if args.strict and s["mismatches"]:
         return 3
     return 0
 

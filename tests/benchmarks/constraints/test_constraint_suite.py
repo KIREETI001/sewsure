@@ -1,4 +1,4 @@
-"""The 24-case suite against the real feasibility engine (skipped until it is importable)."""
+"""The constraint suite against the real feasibility engine (skipped until it is importable)."""
 import pytest
 
 import cases as C

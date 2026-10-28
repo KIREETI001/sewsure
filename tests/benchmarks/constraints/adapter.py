@@ -3,18 +3,23 @@
 Everything in this suite reaches the engine through ``evaluate_inputs``. If the
 engine's entry point changes, this is the only file to touch.
 
-Assumed engine shape (N1, packages/feasibility):
+Case files use the contract v1 vocabulary (packages/contracts, K1): dimension names
+without unit suffix, ``woven_shirt`` / ``fabric_family``, contract failure codes. This
+adapter translates to N1's ``sewsure_feasibility`` types and back, so a rename on either
+side is a change to the tables below and nothing else.
 
-    evaluate(garment, measurements, recipe_id, params)
-        -> object or dict with ``status`` and ``failure_codes``
+Engine shape (N1, PR #12):
 
-``status`` may be a plain string or an Enum (``.value`` / ``.name`` is used).
+    evaluate(garment: Garment, measurements: Mapping[str, Measurement],
+             recipe_id: str, params: Mapping[str, float]) -> ConstraintResult
 """
 from __future__ import annotations
 
 import importlib
 import os
 import sys
+import math
+from datetime import datetime
 from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
@@ -90,25 +95,77 @@ def load_engine():
     )
 
 
-def _normalise_measurement(m: Any) -> Any:
-    """Convert any ``{"value": x, "unit": u}`` measurement to mm before it reaches the engine."""
-    if isinstance(m, dict) and "value" in m and m.get("unit") in _MM_PER_UNIT:
-        out = {k: v for k, v in m.items() if k not in ("value", "unit")}
-        out["value_mm"] = to_mm(m["value"], m["unit"])
-        return out
-    return m
+# --- vocabulary translation (contract v1 <-> N1) -------------------------------
+
+DIMENSION_TO_ENGINE = {
+    "shoulder_to_hem": "shoulder_to_hem_length",
+    "chest_flat_width": "chest_width",
+}
+CATEGORY_TO_ENGINE = {"woven_shirt": "button_up_shirt", "jersey_tee": "jersey_tee", "other": "other", "unknown": None}
+FABRIC_TO_ENGINE = {"woven": "woven", "knit": "knit", "unknown": None}
+
+# N1 failure code -> contract FailureCode. Codes with no entry pass through unchanged.
+CODE_FROM_ENGINE = {
+    "RECIPE_NOT_ALLOWED": "UNSUPPORTED_RECIPE",
+    "CATEGORY_NOT_SUPPORTED": "UNSUPPORTED_GARMENT_CATEGORY",
+    "MATERIAL_NOT_SUPPORTED": "UNSUPPORTED_MATERIAL",
+    "MISSING_PARAM": "MISSING_DIMENSION",
+    "DIMENSION_IMPLAUSIBLE": "IMPLAUSIBLE_DIMENSION",
+    "UNIT_MIX_UP_SUSPECTED": "IMPLAUSIBLE_DIMENSION",
+    "NON_FINITE_VALUE": "IMPLAUSIBLE_DIMENSION",
+    "FINISHED_LENGTH_EXCEEDS_AVAILABLE": "INSUFFICIENT_LENGTH",
+    "NO_POSITIVE_REMAINDER": "INSUFFICIENT_LENGTH",
+    "PROHIBITED_ZONE_INTERSECTION": "CUT_INTERSECTS_PROHIBITED_REGION",
+}
+
+_DEFAULT_PANEL_MM = (520.0, 780.0)
+
+
+def _parse_ts(ts: str | None) -> datetime | None:
+    return None if ts is None else datetime.fromisoformat(ts.replace("Z", "+00:00"))
+
+
+def _value_mm(m: dict) -> float:
+    """mm value of a case measurement. ``{"value", "unit"}`` is converted; a bare number is NaN."""
+    if m.get("value_mm") is not None:
+        return float(m["value_mm"])
+    if m.get("unit") in _MM_PER_UNIT and m.get("value") is not None:
+        return to_mm(m["value"], m["unit"])
+    return math.nan  # no usable unit: the engine must refuse, not guess
+
+
+def build_engine_args(inputs: dict, models) -> tuple:
+    """Translate one case's inputs into N1 types. ``models`` is ``sewsure_feasibility``."""
+    g, ms = inputs["garment"], inputs["measurements"]
+    meas = {}
+    for name, m in ms.items():
+        meas[DIMENSION_TO_ENGINE.get(name, name)] = models.Measurement(
+            _value_mm(m), m["origin"], _parse_ts(m.get("confirmed_at")))
+    length = meas["shoulder_to_hem_length"].value_mm if "shoulder_to_hem_length" in meas else math.nan
+    width = meas["chest_width"].value_mm if "chest_width" in meas else math.nan
+    w = width if math.isfinite(width) and width > 0 else _DEFAULT_PANEL_MM[0]
+    h = length if math.isfinite(length) and length > 0 else _DEFAULT_PANEL_MM[1]
+    margin = float(g.get("seam_margin_mm", 0))
+    rect = lambda y0, y1: ((0.0, y0), (w, y0), (w, y1), (0.0, y1))  # noqa: E731
+    # A seam margin widens each exclusion; N1 only tests intersection with the zone itself.
+    zones = tuple(
+        models.Zone(r["name"], r["name"], rect(r["from_shoulder_mm"] - margin, r["to_shoulder_mm"] + margin))
+        for r in g.get("prohibited_regions", []))
+    panel = models.FabricPanel("case", models.Side.BACK, rect(0.0, h), prohibited_regions=zones)
+    garment = models.Garment(
+        "case", CATEGORY_TO_ENGINE.get(g["category"], g["category"]),
+        FABRIC_TO_ENGINE.get(g["fabric_family"], g["fabric_family"]), (panel,))
+    return garment, meas, inputs["recipe_id"], dict(inputs["params"])
 
 
 def _status_of(raw: Any) -> str | None:
-    s = raw.get("status") if isinstance(raw, dict) else getattr(raw, "status", None)
-    if s is None:
-        return None
-    return str(getattr(s, "value", None) or getattr(s, "name", None) or s)
+    s = getattr(raw, "status", None)
+    return None if s is None else str(getattr(s, "value", s))
 
 
 def _codes_of(raw: Any) -> list[str]:
-    codes = raw.get("failure_codes") if isinstance(raw, dict) else getattr(raw, "failure_codes", None)
-    return sorted(str(getattr(c, "value", None) or getattr(c, "name", None) or c) for c in (codes or []))
+    codes = (str(getattr(c, "value", c)) for c in (getattr(raw, "failure_codes", None) or ()))
+    return sorted({CODE_FROM_ENGINE.get(c, c) for c in codes})
 
 
 def evaluate_inputs(inputs: dict) -> Outcome:
@@ -117,9 +174,9 @@ def evaluate_inputs(inputs: dict) -> Outcome:
     An exception from inside the engine is reported as indeterminate, never as a pass.
     """
     fn = load_engine()
-    measurements = {k: _normalise_measurement(v) for k, v in inputs["measurements"].items()}
     try:
-        raw = fn(inputs["garment"], measurements, inputs["recipe_id"], inputs["params"])
+        models = importlib.import_module(fn.__module__.split(".")[0])
+        raw = fn(*build_engine_args(inputs, models))
     except Exception as exc:  # noqa: BLE001 - engine failures are data for the report
         return Outcome(None, error=f"{type(exc).__name__}: {exc}")
     return Outcome(_status_of(raw), _codes_of(raw), raw=raw)

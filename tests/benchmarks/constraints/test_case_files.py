@@ -10,13 +10,13 @@ import cases as C
 ALL = C.load_cases()
 
 
-def test_suite_has_24_cases_in_the_blueprint_split():
-    assert len(ALL) == 24
+def test_suite_has_the_expected_class_split():
+    assert len(ALL) == 26  # 24 from blueprint 17.2 + MU-05, MU-06 added after X1 review
     assert collections.Counter(c["class"] for c in ALL) == C.CLASS_COUNTS
 
 
 def test_ids_unique():
-    assert len({c["id"] for c in ALL}) == 24
+    assert len({c["id"] for c in ALL}) == len(ALL)
 
 
 @pytest.mark.parametrize("case", ALL, ids=lambda c: c["id"])
@@ -30,7 +30,7 @@ def test_case_is_well_formed(case):
         passed = step["expected"]["status"] == adapter.PASS
         assert bool(step["expected"]["failure_codes"]) != passed
         for name, meas in step["inputs"]["measurements"].items():
-            assert name.endswith("_mm")
+            assert not name.endswith("_mm"), "contract v1: dimension names carry no unit suffix"
             assert "origin" in meas and "confirmed_at" in meas, f"{name} lacks origin/confirmed_at"
 
 
@@ -46,21 +46,21 @@ def test_every_failing_length_case_overshoots_by_arithmetic():
     """The expected result must follow from the stated numbers, not from the engine."""
     for case in ALL:
         for step in C.steps_of(case):
-            if step["expected"]["failure_codes"] == ["LENGTH_EXCEEDS_AVAILABLE"]:
+            if step["expected"]["failure_codes"] == ["INSUFFICIENT_LENGTH"]:
                 i = step["inputs"]
-                length = i["measurements"]["shoulder_to_hem_mm"]["value_mm"]
+                length = i["measurements"]["shoulder_to_hem"]["value_mm"]
                 mark = i["params"]["finished_length_mm"] + i["params"]["hem_allowance_mm"]
-                assert mark > length, case["id"]
+                assert mark >= length, case["id"]  # zero remainder fails (blueprint 5.3: positive remainder)
             if step["expected"]["status"] == adapter.PASS and not step["inputs"]["garment"]["prohibited_regions"]:
                 i = step["inputs"]
-                length = i["measurements"]["shoulder_to_hem_mm"]["value_mm"]
-                assert i["params"]["finished_length_mm"] + i["params"]["hem_allowance_mm"] <= length, case["id"]
+                length = i["measurements"]["shoulder_to_hem"]["value_mm"]
+                assert i["params"]["finished_length_mm"] + i["params"]["hem_allowance_mm"] < length, case["id"]
 
 
 def test_blueprint_example_is_case_ss_01():
     c = next(c for c in ALL if c["id"] == "SS-01")
     p = c["inputs"]["params"]
-    assert (c["inputs"]["measurements"]["shoulder_to_hem_mm"]["value_mm"], p["finished_length_mm"], p["hem_allowance_mm"]) == (780, 500, 30)
+    assert (c["inputs"]["measurements"]["shoulder_to_hem"]["value_mm"], p["finished_length_mm"], p["hem_allowance_mm"]) == (780, 500, 30)
 
 
 def _outcome(status, codes=()):
@@ -106,7 +106,7 @@ def test_report_clean_when_engine_matches_expectations(monkeypatch, capsys):
     monkeypatch.setattr(adapter, "evaluate_inputs", oracle)
     assert report.main(["--strict"]) == 0
     out = capsys.readouterr().out
-    assert re.search(r"false acceptance\s+0/17", out) and re.search(r"false rejection\s+0/9", out)
+    assert re.search(r"false acceptance\s+0/20", out) and re.search(r"false rejection\s+0/8", out)
 
 
 def test_report_exits_2_when_engine_missing(monkeypatch):

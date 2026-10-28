@@ -1,16 +1,16 @@
 # Constraint suite (blueprint §17.2, §5.5)
 
-24 synthetic cases that check the feasibility engine blocks what it must block and passes what it can support. All inputs are invented. None comes from a real person or a real garment, and none is measured evidence.
+26 synthetic cases (the 24 proposed in §17.2, plus `MU-05` and `MU-06` added after review, see below) that check the feasibility engine blocks what it must block and passes what it can support. All inputs are invented. None comes from a real person or a real garment, and none is measured evidence.
 
 | Class | Cases | Files |
 |---|---|---|
 | Supported successful transformations | 6 | `ss-*.json` |
 | Insufficient fabric / invalid placement | 6 | `if-*.json` |
-| Measurement missing / unit / implausible | 4 | `mu-*.json` |
+| Measurement missing / unit / implausible | 6 | `mu-*.json` |
 | Unsupported garment or material (expect `IDEA_ONLY`) | 4 | `ug-*.json` |
 | Revision / seam / edge-boundary | 4 | `rb-*.json` |
 
-`SS-01` is the blueprint §5.3 example (780 mm shirt, 500 mm finished, 30 mm hem). `RB-04` is a three-step revision sequence, so the suite is 24 cases and 26 checks. Counts below use checks as the denominator.
+`SS-01` is the blueprint §5.3 example (780 mm shirt, 500 mm finished, 30 mm hem). `RB-04` is a three-step revision sequence, so the suite is 26 cases and 28 checks. Counts below use checks as the denominator.
 
 ## Run it
 
@@ -22,9 +22,9 @@ python report.py            # counts as numerator/denominator
 python report.py --strict   # also fail on any status/code mismatch or indeterminate result
 ```
 
-`report.py` exit codes: `0` ok, `1` a false acceptance on a destructive cut (the CI gate), `2` engine not importable (`--allow-skip` makes that `0`, for local use only), `3` `--strict` mismatch.
+`report.py` exit codes: `0` ok, `1` a false acceptance on a destructive cut (the CI gate), `2` engine not importable (`--allow-skip` makes that `0`, for local use only), `3` any indeterminate result (`--allow-indeterminate` to ignore) or, with `--strict`, any status/code mismatch. Mismatch lines show expected versus actual status and codes, and the engine error if it raised.
 
-The engine is reached through one function, `adapter.evaluate_inputs`, which calls `evaluate(garment, measurements, recipe_id, params)` from `sewsure_feasibility` or `feasibility` (override with `SEWSURE_FEASIBILITY_MODULE`). The result needs `status` and `failure_codes`. If N1's entry point differs, change `adapter.py` only.
+Case files use the contract v1 vocabulary (K1): dimension names without unit suffix (`shoulder_to_hem`), `woven_shirt` / `fabric_family`, origin `user_tape_measured`, contract failure codes. The engine is reached through one function, `adapter.evaluate_inputs`, which builds N1's `Garment`, `Measurement` and `FabricPanel`/`Zone` types, calls `sewsure_feasibility.evaluate(garment, measurements, recipe_id, params)` and maps N1's failure codes back to contract codes (tables in `adapter.py`). A seam margin widens each exclusion zone in the adapter. If either vocabulary changes, edit those tables only. Override the module with `SEWSURE_FEASIBILITY_MODULE`.
 
 ## What the counts mean
 
@@ -43,17 +43,33 @@ Every case is marked `destructive_cut: true`, because a pass leads to a cut guid
 2. All lengths in mm, as `<name>_mm` with `origin` and `confirmed_at`. The only exception is a measurement given as `{"value", "unit"}` to test unit handling; the adapter converts it to mm before the engine sees it.
 3. `PASS_SUPPORTED_CHECKS` carries no failure codes. Every other status carries at least one.
 4. Work out the expected result from the stated numbers, not by running the engine. `test_case_files.py` re-checks the length arithmetic.
-5. If you add or remove a case, update `CLASS_COUNTS` in `cases.py` and say why in the PR. Each new rule needs a passing and a failing case.
+5. If you add or remove a case, update `CLASS_COUNTS` and the count assertion in `test_case_files.py` in `cases.py` and say why in the PR. Each new rule needs a passing and a failing case.
 
 ## Why expected results change only with a written reason
 
 The expected values are the specification the engine is held to. If a failing case is "fixed" by editing its expectation, the suite stops catching the thing it exists to catch, and a false acceptance can be hidden as a change of mind. So a PR that changes any `expected`, `reason` or `destructive_cut` value must explain in its description which rule changed, who decided (Narthananilaa approves), and the blueprint or recipe reference. Never change an expectation to make a run green.
 
+## Expected results changed after X1 review (written reasons)
+
+| Case | Was | Now | Reason |
+|---|---|---|---|
+| `RB-01` exact fit | PASS | FAILED_CHECKS / `INSUFFICIENT_LENGTH` | Blueprint §5.3 requires a positive remainder; zero remainder removes no fabric. Matches N1. Narthananilaa to confirm. |
+| `IF-05`, `IF-06` | FAILED_CHECKS / `INVALID_PARAMETER` | NEEDS_INPUT / `IMPLAUSIBLE_DIMENSION` | Implausible values must stop before any geometry runs (§5.5, feasibility CLAUDE.md), so they ask for input. |
+| `UG-01` | knit tee, `UNSUPPORTED_MATERIAL` | knit fabric on `woven_shirt`, same code | A tee is a garment-category failure in the engine; the material case now isolates the material gate. |
+| `UG-02` | unknown material, IDEA_ONLY | unknown recipe ID, IDEA_ONLY / `UNSUPPORTED_RECIPE` | Unknown material asks for confirmation (§5.4), so it moved to new `MU-06` (NEEDS_INPUT). `UG-02` now tests fail-closed recipe allow-listing. |
+| `UG-04` | elastane woven | jersey tee, `UNSUPPORTED_GARMENT_CATEGORY` | Contract v1 `FabricFamily` has no stretch-woven value. |
+| Failure-code names | provisional | contract v1 enum | Cases use K1's codes; the adapter maps N1's. |
+
+Added: `MU-05` (measurement `vision_suggested`, `confirmed_at: null`, expect NEEDS_INPUT / `MISSING_DIMENSION`, contract v1: unconfirmed counts as missing) and `MU-06` (fabric unknown, NEEDS_INPUT / `MATERIAL_UNKNOWN`).
+
+## Known failures against N1 (PR #12)
+
+`MU-04` (conflicting flat width and circumference) and `MU-05` (unconfirmed measurement) are false acceptances in N1's current engine. They are real engine gaps, so the suite fails by design until N1 fixes them. Do not edit the expectations.
+
 ## Open points for Narthananilaa (needs-human)
 
-- Failure-code names (`LENGTH_EXCEEDS_AVAILABLE`, `PROHIBITED_REGION_CONFLICT`, ...) are provisional until N1 publishes the engine's vocabulary. Align the cases, with a written reason.
-- Boundary convention in `RB-01`/`RB-02`: cut mark equal to available length passes (zero overshoot); any overshoot, even 0.01 mm, fails. This is a rule decision, not a test detail.
-- Which `NEEDS_INPUT` versus `IDEA_ONLY` versus `FAILED_CHECKS` status belongs to implausible and ambiguous-unit inputs (`MU-*`, `UG-02`).
+- Confirm the `RB-01` zero-remainder convention above.
+- `MU-03` (bare number, no unit) maps to `IMPLAUSIBLE_DIMENSION` because contract v1 has no failure code for an ambiguous unit; K1 may want one.
 
 ## Files
 

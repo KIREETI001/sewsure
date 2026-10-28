@@ -3,25 +3,25 @@
   "class": "insufficient_fabric_or_placement",
   "synthetic": true,
   "description": "Negative hem allowance of -30 mm",
-  "reason": "A negative hem allowance would put the cut mark above the finished edge.",
+  "reason": "Implausible parameter (negative hem) stops the engine before geometry runs; it asks for input.",
   "destructive_cut": true,
   "inputs": {
     "garment": {
-      "category": "shirt_button_up",
-      "material": "woven_cotton_non_stretch",
+      "category": "woven_shirt",
+      "fabric_family": "woven",
       "closure": "button_placket",
       "prohibited_regions": [],
       "seam_margin_mm": 0
     },
     "measurements": {
-      "shoulder_to_hem_mm": {
+      "shoulder_to_hem": {
         "value_mm": 780,
-        "origin": "tape_measure_user",
+        "origin": "user_tape_measured",
         "confirmed_at": "2026-01-01T00:00:00Z"
       },
-      "chest_flat_width_mm": {
+      "chest_flat_width": {
         "value_mm": 520,
-        "origin": "tape_measure_user",
+        "origin": "user_tape_measured",
         "confirmed_at": "2026-01-01T00:00:00Z"
       }
     },
@@ -32,9 +32,9 @@
     }
   },
   "expected": {
-    "status": "FAILED_CHECKS",
+    "status": "NEEDS_INPUT",
     "failure_codes": [
-      "INVALID_PARAMETER"
+      "IMPLAUSIBLE_DIMENSION"
     ]
   }
 }

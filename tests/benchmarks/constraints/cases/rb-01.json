@@ -3,25 +3,25 @@
   "class": "revision_seam_edge",
   "synthetic": true,
   "description": "Exact fit: 750 mm finished + 30 mm hem = 780 mm cut mark on a 780 mm shirt",
-  "reason": "Boundary convention: cut mark equal to available length passes the length gate (zero overshoot). Convention needs Narthananilaa sign-off.",
+  "reason": "Blueprint 5.3 requires a positive remainder; zero remainder removes no fabric and fails. Changed from PASS after N1 review (needs Narthananilaa sign-off).",
   "destructive_cut": true,
   "inputs": {
     "garment": {
-      "category": "shirt_button_up",
-      "material": "woven_cotton_non_stretch",
+      "category": "woven_shirt",
+      "fabric_family": "woven",
       "closure": "button_placket",
       "prohibited_regions": [],
       "seam_margin_mm": 0
     },
     "measurements": {
-      "shoulder_to_hem_mm": {
+      "shoulder_to_hem": {
         "value_mm": 780,
-        "origin": "tape_measure_user",
+        "origin": "user_tape_measured",
         "confirmed_at": "2026-01-01T00:00:00Z"
       },
-      "chest_flat_width_mm": {
+      "chest_flat_width": {
         "value_mm": 520,
-        "origin": "tape_measure_user",
+        "origin": "user_tape_measured",
         "confirmed_at": "2026-01-01T00:00:00Z"
       }
     },
@@ -32,7 +32,9 @@
     }
   },
   "expected": {
-    "status": "PASS_SUPPORTED_CHECKS",
-    "failure_codes": []
+    "status": "FAILED_CHECKS",
+    "failure_codes": [
+      "INSUFFICIENT_LENGTH"
+    ]
   }
 }

@@ -13,7 +13,7 @@ CASES_DIR = Path(__file__).parent / "cases"
 CLASS_COUNTS = {
     "supported_success": 6,
     "insufficient_fabric_or_placement": 6,
-    "missing_unit_implausible": 4,
+    "missing_unit_implausible": 6,
     "unsupported_garment_or_material": 4,
     "revision_seam_edge": 4,
 }
@@ -71,6 +71,13 @@ def run_case(case: dict, evaluate: Callable[[dict], Outcome]) -> list[StepResult
     return results
 
 
+def _describe(cid: str, r: StepResult) -> str:
+    e = r.expected
+    got = f"{r.outcome.status} {r.outcome.failure_codes}"
+    err = f" error={r.outcome.error}" if r.outcome.error else ""
+    return f"{cid} ({r.label}): expected {e['status']} {sorted(e['failure_codes'])}, got {got}{err}"
+
+
 def summarise(per_case: dict[str, list[StepResult]], cases: list[dict]) -> dict:
     """Counts with denominators. Denominators are steps, so the revision sequence counts three times."""
     by_id = {c["id"]: c for c in cases}
@@ -87,9 +94,9 @@ def summarise(per_case: dict[str, list[StepResult]], cases: list[dict]) -> dict:
             else:
                 exp_reject += 1
             if r.bucket == FALSE_ACCEPTANCE and by_id[cid].get("destructive_cut"):
-                destructive_false_accept.append(f"{cid}: {r.label}")
+                destructive_false_accept.append(_describe(cid, r))
             if not (r.status_match and r.codes_match):
-                status_mismatch.append(f"{cid}: {r.label}")
+                status_mismatch.append(_describe(cid, r))
     return {
         "counts": counts, "total": total, "expected_reject": exp_reject, "expected_accept": exp_accept,
         "destructive_false_acceptances": destructive_false_accept, "mismatches": status_mismatch,

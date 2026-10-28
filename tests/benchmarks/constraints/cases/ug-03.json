@@ -7,21 +7,21 @@
   "destructive_cut": true,
   "inputs": {
     "garment": {
-      "category": "trousers",
-      "material": "woven_cotton_non_stretch",
+      "category": "other",
+      "fabric_family": "woven",
       "closure": "button_placket",
       "prohibited_regions": [],
       "seam_margin_mm": 0
     },
     "measurements": {
-      "shoulder_to_hem_mm": {
+      "shoulder_to_hem": {
         "value_mm": 780,
-        "origin": "tape_measure_user",
+        "origin": "user_tape_measured",
         "confirmed_at": "2026-01-01T00:00:00Z"
       },
-      "chest_flat_width_mm": {
+      "chest_flat_width": {
         "value_mm": 520,
-        "origin": "tape_measure_user",
+        "origin": "user_tape_measured",
         "confirmed_at": "2026-01-01T00:00:00Z"
       }
     },
@@ -34,7 +34,7 @@
   "expected": {
     "status": "IDEA_ONLY",
     "failure_codes": [
-      "UNSUPPORTED_GARMENT"
+      "UNSUPPORTED_GARMENT_CATEGORY"
     ]
   }
 }
