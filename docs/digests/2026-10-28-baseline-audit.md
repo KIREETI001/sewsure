@@ -29,7 +29,7 @@ P0 window: 22 Oct – 1 Nov 2026 (blueprint §12, proposed internal dates). **4 
 | E2 | Real structured response, logs, failure handling | Kireeti | **No.** `services/api/` is empty; no Azure smoke-test trace | K2 API Builder, K3 AI Pipeline, K5 Infra |
 | E3 | Unit tests and a dimensioned cut plan | Narthananilaa | **No.** `packages/feasibility/` and `tests/benchmarks/` are empty | N1 Geometry Engine, N2 Constraint Tests |
 | E4 | Installable build / end-to-end mock path | Delfine | **No.** `apps/mobile/` is empty | D1 Design System, D2 Intake Flow, K5 (EAS) |
-| E5 | Photo and measurements of outcome | All, Narthananilaa lead | **Unknown.** Physical work happens off-repo | Humans only (H-02, H-04); N5 drafts the recipe |
+| E5 | Photo and measurements of outcome | All, Narthananilaa lead | **Unknown.** Physical work happens off-repo | Humans only (H-03 measure, H-04 trial); N5 drafts the recipe (PR #11) |
 
 Supporting release gates (§18.3):
 
@@ -44,7 +44,7 @@ Pass-criterion parts:
 |---|---|
 | Actual user-measured woven shirt | Unknown (question Q1) |
 | Internally consistent cut plan | Not in repo (needs N1 engine + N2 tests) |
-| Reviewed | Not in repo; reviewer not named (Q3, H-03) |
+| Reviewed | Not in repo; reviewer not named (Q3, H-02) |
 | Dimensioned | Not in repo |
 | Physically trialled | Unknown (Q4) |
 
@@ -66,6 +66,7 @@ Please answer in reply to the PR or the digest. Answers go into the next digest.
 
 ## Gaps L0 cannot fix (outside L0's paths)
 
-- **No CI.** Owner K5 (`.github/workflows/`). Without CI, the digest cannot report failing checks and PRs carry no test evidence. Recommend K5 adds a minimal lint/test workflow in wave 1.
-- **No `needs-human` label** in the repo, although `CLAUDE.md` requires it. Creating labels is a repo setting change; listed as H-07 for Kireeti.
+- **No CI.** Owner K5 (`.github/workflows/`). Without CI, the digest cannot report failing checks and PRs carry no test evidence. Recommend K5 adds a minimal lint/test workflow in wave 1. *Update 28 Oct: K5 opened [#6](https://github.com/KIREETI001/sewsure/pull/6) with CI workflows; its 8 checks pass on its own branch. Until it merges, other PRs still run no checks.*
+- **Nobody can approve a PR yet.** Agent PRs are opened from the KIREETI001 account, and GitHub does not count an author's approval. On `main`, `services/`, `infrastructure/` and `.github/` list only @KIREETI001, so K2, K3 and K5 PRs have no possible approver until [#1](https://github.com/KIREETI001/sewsure/pull/1) merges. The Narthananilaa and Delfine repo invites are still pending. Listed as H-07.
+- **No `needs-human` label** in the repo, although `CLAUDE.md` requires it. Creating labels is a repo setting change; listed under H-07 for Kireeti.
 - **No cost report source.** K7 is queued, so agent and Azure spend vs cap cannot be reported yet.

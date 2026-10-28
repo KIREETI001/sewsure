@@ -34,7 +34,7 @@ Last reviewed: 2026-10-28 (baseline, first run).
 
 Sorted by critical-path impact (§13.1).
 
-1. **D01 first.** Every P0 task depends on it: the K1 fixture, N1 cut math, N5 recipe and the physical trial. Recommend the team agrees D01 at A3 this week, with the pattern reviewer named (H-03).
+1. **D01 first.** Every P0 task depends on it: the K1 fixture, N1 cut math, N5 recipe and the physical trial. Recommend the team agrees D01 at A3 this week, with the pattern reviewer named (H-02).
 2. **D10 and D08 next.** D10 needs a confirmed Android test device; D08 needs the credit and rules check. Both block P0 exit evidence ("installable build", "real structured response").
 3. **D12 before any participant session.** Ethics and consent must be approved before D7 schedules users or tailors.
 4. **D13 before the pitch is locked.** The blueprint marks 7 Jan 2027 as internal only.
