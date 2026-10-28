@@ -7,7 +7,8 @@
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "android": {
-      "package": "com.sewsure.mobile"
+      "package": "com.sewsure.mobile",
+      "allowBackup": false
     },
     "plugins": [
       "expo-router",

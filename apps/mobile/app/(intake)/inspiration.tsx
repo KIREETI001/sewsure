@@ -17,7 +17,7 @@ import {
   TextField,
 } from "@/components/plain";
 import { t, type MessageKey } from "@/i18n";
-import { useIntakeStore } from "@/state/intakeStore";
+import { inspirationFor, useIntakeStore, type InspirationMode } from "@/state/intakeStore";
 
 const FITS: FitPreference[] = ["fitted", "relaxed", "oversized", "no_preference"];
 const SKILLS: SkillLevel[] = ["beginner", "intermediate", "advanced"];
@@ -29,17 +29,35 @@ const TOOLS: Tool[] = [
   "overlocker",
   "tailors_chalk",
 ];
-type Mode = "image" | "text" | "surprise";
 
 export default function InspirationScreen() {
   const router = useRouter();
-  const { inspiration, fit, skill, tools, extraMaterials, patch } = useIntakeStore();
-  const [mode, setMode] = useState<Mode>(inspiration?.kind ?? "text");
+  const {
+    inspirationMode: mode,
+    inspirationDraft: draft,
+    fit,
+    skill,
+    tools,
+    extraMaterials,
+    patch,
+  } = useIntakeStore();
+  const inspiration = inspirationFor(mode, draft);
+  const setMode = (m: InspirationMode) => patch({ inspirationMode: m });
+  const setDraft = (partial: Partial<typeof draft>) => {
+    const next = { ...draft, ...partial };
+    patch({ inspirationDraft: next });
+  };
   const [pickFailed, setPickFailed] = useState(false);
 
   const surprise = useMutation({
     mutationFn: () => getApi().surpriseMe(),
-    onSuccess: (res) => patch({ inspiration: { kind: "surprise", prompt: res.data.prompt } }),
+    onSuccess: (res) => {
+      const next = { ...draft, surprisePrompt: res.data.prompt };
+      patch({
+        inspirationMode: "surprise",
+        inspirationDraft: next,
+      });
+    },
   });
 
   const pickImage = async () => {
@@ -50,7 +68,7 @@ export default function InspirationScreen() {
         quality: 0.8,
       });
       const asset = result.canceled ? undefined : result.assets[0];
-      if (asset) patch({ inspiration: { kind: "image", uri: asset.uri } });
+      if (asset) setDraft({ imageUri: asset.uri });
     } catch {
       setPickFailed(true);
     }
@@ -59,14 +77,13 @@ export default function InspirationScreen() {
   const toggleTool = (tool: Tool) =>
     patch({ tools: tools.includes(tool) ? tools.filter((x) => x !== tool) : [...tools, tool] });
 
-  const blank =
-    inspiration === null || (inspiration.kind === "text" && inspiration.text.trim() === "");
+  const blank = inspiration === null;
   const canContinue = !blank && fit !== null && skill !== null;
 
   return (
     <Screen>
       <Row>
-        {(["image", "text", "surprise"] as Mode[]).map((m) => (
+        {(["image", "text", "surprise"] as InspirationMode[]).map((m) => (
           <Chip
             key={m}
             label={t(`inspiration.mode.${m}` as MessageKey)}
@@ -79,9 +96,9 @@ export default function InspirationScreen() {
       {mode === "image" && (
         <>
           <Button secondary label={t("inspiration.pickImage")} onPress={pickImage} />
-          {inspiration?.kind === "image" && (
+          {draft.imageUri && (
             <Image
-              source={{ uri: inspiration.uri }}
+              source={{ uri: draft.imageUri }}
               accessibilityLabel={t("inspiration.imageAlt")}
               style={{ width: "100%", aspectRatio: 1, borderRadius: 8 }}
               resizeMode="contain"
@@ -101,8 +118,8 @@ export default function InspirationScreen() {
           placeholder={t("inspiration.textPlaceholder")}
           multiline
           maxLength={300}
-          value={inspiration?.kind === "text" ? inspiration.text : ""}
-          onChangeText={(text) => patch({ inspiration: { kind: "text", text } })}
+          value={draft.text}
+          onChangeText={(text) => setDraft({ text })}
         />
       )}
 
@@ -123,9 +140,9 @@ export default function InspirationScreen() {
               <Body>{t("inspiration.surpriseFailed")}</Body>
             </Notice>
           )}
-          {inspiration?.kind === "surprise" && (
+          {draft.surprisePrompt && (
             <Row>
-              <Body>{t("inspiration.surpriseResult", { prompt: inspiration.prompt })}</Body>
+              <Body>{t("inspiration.surpriseResult", { prompt: draft.surprisePrompt })}</Body>
               <MockBadge />
             </Row>
           )}
@@ -139,7 +156,6 @@ export default function InspirationScreen() {
             secondary
             label={t("inspiration.surpriseButton")}
             onPress={() => {
-              setMode("surprise");
               surprise.mutate();
             }}
           />

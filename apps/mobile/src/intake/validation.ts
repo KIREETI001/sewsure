@@ -33,16 +33,17 @@ export interface Plausibility {
 const within = (mm: number, [lo, hi]: readonly [number, number]): boolean => mm >= lo && mm <= hi;
 
 export const checkPlausibility = (spec: MeasurementSpec, mm: number): Plausibility => {
+  // Outside the hard range a value is rejected and can never be kept. A likely typo still
+  // gets a suggested replacement (6 cm where 60 cm is expected).
+  const level = within(mm, spec.hardMm) ? "warn" : "error";
   if (within(mm, spec.typicalMm)) return { level: "ok", code: "ok" };
-  // Likely typo: a dropped or extra zero (6 cm where 60 cm is expected).
   if (within(mm * 10, spec.typicalMm)) {
-    return { level: "warn", code: "maybe_missing_zero", suggestedCm: mmToCm(mm * 10) };
+    return { level, code: "maybe_missing_zero", suggestedCm: mmToCm(mm * 10) };
   }
   if (within(mm / 10, spec.typicalMm)) {
-    return { level: "warn", code: "maybe_extra_zero", suggestedCm: mmToCm(mm / 10) };
+    return { level, code: "maybe_extra_zero", suggestedCm: mmToCm(mm / 10) };
   }
-  if (!within(mm, spec.hardMm)) return { level: "error", code: "out_of_range" };
-  return { level: "warn", code: "unusual" };
+  return level === "error" ? { level, code: "out_of_range" } : { level, code: "unusual" };
 };
 
 /** What the user has typed and decided for one field. Stored in the local draft. */
@@ -84,6 +85,16 @@ export const missingSpecs = (
   entries: Record<string, MeasurementEntry>,
 ): MeasurementSpec[] => specs.filter((s) => evaluateEntry(s, entries[s.key]).state !== "confirmed");
 
+/** Optional specs the user typed something into but has not confirmed. */
+export const unconfirmedSpecs = (
+  specs: MeasurementSpec[],
+  entries: Record<string, MeasurementEntry>,
+): MeasurementSpec[] =>
+  specs.filter((s) => {
+    const state = evaluateEntry(s, entries[s.key]).state;
+    return state !== "empty" && state !== "confirmed";
+  });
+
 export const buildMeasurementRecords = (
   specs: MeasurementSpec[],
   entries: Record<string, MeasurementEntry>,
@@ -98,6 +109,7 @@ export const buildMeasurementRecords = (
       group: s.group,
       value_mm: status.mm,
       origin: entry.origin,
+      entered_unit: "cm",
       confirmed_at: entry.confirmedAt,
     });
   }

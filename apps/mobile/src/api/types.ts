@@ -17,7 +17,7 @@ export type Tool =
   "sewing_machine" | "hand_sewing" | "scissors" | "iron" | "overlocker" | "tailors_chalk";
 
 /** Every measurement records where it came from and when the user confirmed it. */
-export type MeasurementOrigin = "user_entered" | "profile_reused";
+export type MeasurementOrigin = "user_tape_measured" | "user_entered" | "saved_profile";
 export type MeasurementGroup = "garment" | "body";
 
 export interface MeasurementRecord {
@@ -26,6 +26,8 @@ export interface MeasurementRecord {
   /** Millimetres. Centimetres exist only in the UI. */
   value_mm: number;
   origin: MeasurementOrigin;
+  /** Unit the user typed, kept for audit. `value_mm` is already converted. */
+  entered_unit: "cm";
   confirmed_at: string;
 }
 
@@ -43,8 +45,12 @@ export interface IntakeRequest {
   skill_level: SkillLevel;
   tools: Tool[];
   extra_materials: string;
+  /** Set only when the user opted in to sharing body measurements. */
+  body_consent_version: string | null;
   measurements: MeasurementRecord[];
 }
+
+export const BODY_CONSENT_VERSION = "body-v0-draft";
 
 export interface IntakeReceipt {
   intake_id: string;

@@ -1,8 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { getApi } from "@/api/client";
-import type { IntakeRequest } from "@/api/types";
-import { Body, Button, Heading, Notice, Row, Screen, TextField } from "@/components/plain";
+import { BODY_CONSENT_VERSION, type IntakeRequest } from "@/api/types";
+import {
+  Body,
+  Button,
+  Chip,
+  Heading,
+  MockBadge,
+  Notice,
+  Row,
+  Screen,
+  TextField,
+} from "@/components/plain";
 import { t, type MessageKey } from "@/i18n";
 import { BODY_SPECS, garmentSpecsFor, type MeasurementSpec } from "@/intake/measurements";
 import {
@@ -11,8 +21,9 @@ import {
   missingSpecs,
   mmToCm,
   type EntryStatus,
+  unconfirmedSpecs,
 } from "@/intake/validation";
-import { useIntakeStore } from "@/state/intakeStore";
+import { inspirationFor, useIntakeStore } from "@/state/intakeStore";
 
 const fieldLabel = (spec: MeasurementSpec) => t(`measure.field.${spec.key}` as MessageKey);
 
@@ -92,8 +103,11 @@ function MeasureField({ spec }: { spec: MeasurementSpec }) {
 
 export default function MeasurementsScreen() {
   const draft = useIntakeStore();
-  const { category, front, back, inspiration, fit, skill, measurements, uploadStatus, guest } =
-    draft;
+  const { category, front, back, fit, skill, measurements, uploadStatus, guest } = draft;
+  const inspiration = inspirationFor(draft.inspirationMode, draft.inspirationDraft);
+  const bodyShared = draft.bodyConsentVersion !== null;
+  const bodySpecs = bodyShared ? BODY_SPECS : [];
+  const unconfirmedBody = unconfirmedSpecs(bodySpecs, measurements);
 
   const garmentSpecs = category ? garmentSpecsFor(category) : [];
   const missing = missingSpecs(garmentSpecs, measurements);
@@ -118,19 +132,20 @@ export default function MeasurementsScreen() {
         skill_level: skill as NonNullable<typeof skill>,
         tools: draft.tools,
         extra_materials: draft.extraMaterials,
-        measurements: buildMeasurementRecords([...garmentSpecs, ...BODY_SPECS], measurements),
+        measurements: buildMeasurementRecords([...garmentSpecs, ...bodySpecs], measurements),
+        body_consent_version: draft.bodyConsentVersion,
       };
       return getApi().uploadIntake(request);
     },
     onMutate: () => draft.patch({ uploadStatus: "uploading" }),
-    onSuccess: () => draft.patch({ uploadStatus: "uploaded" }),
+    onSuccess: (res) => draft.patch({ uploadStatus: "uploaded", uploadProvenance: res.provenance }),
     // The draft is untouched on failure: nothing the user typed is lost.
     onError: () => draft.patch({ uploadStatus: "failed" }),
   });
 
   const onUpload = () => {
     setAttempted(true);
-    if (missing.length === 0 && prerequisitesMet) upload.mutate();
+    if (missing.length === 0 && unconfirmedBody.length === 0 && prerequisitesMet) upload.mutate();
   };
 
   const statusKey: MessageKey = guest
@@ -146,7 +161,12 @@ export default function MeasurementsScreen() {
   return (
     <Screen>
       <Body muted>{t("measure.intro")}</Body>
-      <Body>{`${uploadStatus === "uploaded" && !guest ? "✓" : "○"} ${t(statusKey)}`}</Body>
+      <Row>
+        <Body>{`${uploadStatus === "uploaded" && !guest ? "✓" : "○"} ${t(statusKey)}`}</Body>
+        {uploadStatus === "uploaded" && !guest && draft.uploadProvenance === "mock" && (
+          <MockBadge />
+        )}
+      </Row>
 
       {!prerequisitesMet && (
         <Notice>
@@ -163,9 +183,24 @@ export default function MeasurementsScreen() {
 
       <Heading>{t("measure.bodyHeading")}</Heading>
       <Body muted>{t("measure.bodyConsent")}</Body>
-      {BODY_SPECS.map((spec) => (
+      <Chip
+        role="checkbox"
+        label={t("measure.bodyOptIn")}
+        selected={bodyShared}
+        onPress={() =>
+          draft.patch({ bodyConsentVersion: bodyShared ? null : BODY_CONSENT_VERSION })
+        }
+      />
+      {bodySpecs.map((spec) => (
         <MeasureField key={spec.key} spec={spec} />
       ))}
+      {attempted && unconfirmedBody.length > 0 && (
+        <Notice>
+          <Body>
+            {t("measure.unconfirmedBody", { fields: unconfirmedBody.map(fieldLabel).join(", ") })}
+          </Body>
+        </Notice>
+      )}
 
       {attempted && missing.length > 0 && (
         <Notice>

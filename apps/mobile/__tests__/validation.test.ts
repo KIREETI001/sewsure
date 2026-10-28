@@ -6,6 +6,7 @@ import {
   cmToMm,
   evaluateEntry,
   missingSpecs,
+  unconfirmedSpecs,
   parseCm,
 } from "@/intake/validation";
 
@@ -40,19 +41,30 @@ describe("checkPlausibility", () => {
   it("accepts a typical chest", () => {
     expect(checkPlausibility(chest, 520).level).toBe("ok");
   });
-  it("flags 6 cm where 60 cm is likely and suggests the fix", () => {
+  it("rejects 6 cm where 60 cm is likely, but suggests the fix", () => {
     expect(checkPlausibility(chest, cmToMm(6))).toEqual({
-      level: "warn",
+      level: "error",
       code: "maybe_missing_zero",
       suggestedCm: 60,
     });
   });
-  it("flags 600 cm where 60 cm is likely", () => {
-    expect(checkPlausibility(chest, cmToMm(600))).toMatchObject({
-      level: "warn",
+  it("rejects 500 cm, suggesting 50 cm, and never lets it be kept", () => {
+    expect(checkPlausibility(chest, cmToMm(500))).toMatchObject({
+      level: "error",
       code: "maybe_extra_zero",
-      suggestedCm: 60,
+      suggestedCm: 50,
     });
+    const kept = {
+      inputCm: "500",
+      confirmedAt: "2026-10-28T00:00:00Z",
+      origin: "user_entered" as const,
+    };
+    expect(evaluateEntry(chest, kept).state).toBe("blocked");
+    expect(buildMeasurementRecords([chest], { chest_flat_width: kept })).toEqual([]);
+  });
+  it("only warns for an unusual value inside the hard range", () => {
+    const waist = garmentSpecsFor("skirt")[0]!;
+    expect(checkPlausibility(waist, 250)).toEqual({ level: "warn", code: "unusual" });
   });
   it("warns but allows an unusual value inside hard limits", () => {
     expect(checkPlausibility(chest, 800)).toEqual({ level: "warn", code: "unusual" });
@@ -76,21 +88,26 @@ describe("entries", () => {
 
   it("reports missing garment values", () => {
     const specs = garmentSpecsFor("shirt");
-    const missing = missingSpecs(specs, { chest_flat: entry("52", "2026-10-28T00:00:00Z") });
-    expect(missing.map((s) => s.key)).toEqual(["body_length", "shoulder_width", "sleeve_length"]);
+    const missing = missingSpecs(specs, { chest_flat_width: entry("52", "2026-10-28T00:00:00Z") });
+    expect(missing.map((s) => s.key)).toEqual([
+      "shoulder_to_hem",
+      "shoulder_width",
+      "sleeve_length",
+    ]);
   });
 
   it("builds mm records with origin and confirmed_at, skipping unconfirmed values", () => {
     const records = buildMeasurementRecords([chest, ...BODY_SPECS], {
-      chest_flat: entry("52.5", "2026-10-28T00:00:00Z"),
+      chest_flat_width: entry("52.5", "2026-10-28T00:00:00Z"),
       height: entry("170"),
     });
     expect(records).toEqual([
       {
-        key: "chest_flat",
+        key: "chest_flat_width",
         group: "garment",
         value_mm: 525,
         origin: "user_entered",
+        entered_unit: "cm",
         confirmed_at: "2026-10-28T00:00:00Z",
       },
     ]);
@@ -101,5 +118,20 @@ describe("checkPhotoBasics", () => {
   it("warns on small photos only", () => {
     expect(checkPhotoBasics({ width: 4000, height: 3000 }).warnings).toEqual([]);
     expect(checkPhotoBasics({ width: 640, height: 480 }).warnings).toEqual(["low_resolution"]);
+  });
+});
+
+describe("unconfirmedSpecs", () => {
+  it("lists typed-but-unconfirmed values only", () => {
+    const entries = {
+      height: { inputCm: "250", confirmedAt: null, origin: "user_entered" as const },
+      bust: { inputCm: "", confirmedAt: null, origin: "user_entered" as const },
+      waist: {
+        inputCm: "80",
+        confirmedAt: "2026-10-28T00:00:00Z",
+        origin: "user_entered" as const,
+      },
+    };
+    expect(unconfirmedSpecs(BODY_SPECS, entries).map((x) => x.key)).toEqual(["height"]);
   });
 });

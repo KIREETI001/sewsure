@@ -24,7 +24,10 @@ const renderScreen = (ui: ReactElement) =>
     <QueryClientProvider
       client={
         new QueryClient({
-          defaultOptions: { mutations: { retry: false }, queries: { retry: false } },
+          defaultOptions: {
+            mutations: { retry: false },
+            queries: { retry: false, gcTime: Infinity },
+          },
         })
       }
     >
@@ -101,7 +104,7 @@ describe("inspiration", () => {
     expect(screen.getByText(/Nothing entered yet/)).toBeTruthy();
     await fireEvent.press(screen.getAllByRole("button", { name: "Surprise Me" })[0]!);
     expect(await screen.findByText(/^Idea:/)).toBeTruthy();
-    expect(useIntakeStore.getState().inspiration?.kind).toBe("surprise");
+    expect(useIntakeStore.getState().inspirationMode).toBe("surprise");
   });
 
   it("continues once text, fit and skill are set", async () => {
@@ -124,7 +127,8 @@ describe("measurements", () => {
         category: "shirt",
         front: photo,
         back: photo,
-        inspiration: { kind: "text", text: "shorter sleeves" },
+        inspirationMode: "text",
+        inspirationDraft: { imageUri: null, text: "shorter sleeves", surprisePrompt: null },
         fit: "relaxed",
         skill: "beginner",
       }),
@@ -137,7 +141,7 @@ describe("measurements", () => {
     await fireEvent.changeText(chest, "6");
     expect(screen.getByText(/Did you mean 60 cm/)).toBeTruthy();
     await fireEvent.press(screen.getByRole("button", { name: "Use 60 cm" }));
-    const stored = useIntakeStore.getState().measurements.chest_flat!;
+    const stored = useIntakeStore.getState().measurements.chest_flat_width!;
     expect(stored.inputCm).toBe("60");
     expect(stored.confirmedAt).not.toBeNull();
     expect(screen.getByText(/Confirmed: 60 cm/)).toBeTruthy();
@@ -159,7 +163,7 @@ describe("measurements", () => {
     await act(() =>
       useIntakeStore.getState().patch({
         measurements: Object.fromEntries(
-          ["chest_flat", "body_length", "shoulder_width", "sleeve_length"].map((k, i) => [
+          ["chest_flat_width", "shoulder_to_hem", "shoulder_width", "sleeve_length"].map((k, i) => [
             k,
             { inputCm: String([52, 70, 45, 60][i]), confirmedAt, origin: "user_entered" },
           ]),
@@ -173,7 +177,7 @@ describe("measurements", () => {
 
     await fireEvent.press(screen.getByRole("button", { name: "Upload" }));
     expect(await screen.findAllByText(/Upload failed/)).toBeTruthy();
-    expect(useIntakeStore.getState().measurements.chest_flat?.inputCm).toBe("52");
+    expect(useIntakeStore.getState().measurements.chest_flat_width?.inputCm).toBe("52");
 
     setApi(mockApi);
     await fireEvent.press(screen.getByRole("button", { name: "Try upload again" }));
@@ -186,5 +190,113 @@ describe("measurements", () => {
     await renderScreen(<MeasurementsScreen />);
     expect(screen.queryByRole("button", { name: "Upload" })).toBeNull();
     expect(screen.getByText(/Demo mode: stays on this device/)).toBeTruthy();
+  });
+});
+
+describe("review fixes", () => {
+  const ready = async () =>
+    act(() =>
+      useIntakeStore.getState().patch({
+        category: "shirt",
+        front: photo,
+        back: photo,
+        inspirationMode: "text",
+        inspirationDraft: { imageUri: null, text: "shorter sleeves", surprisePrompt: null },
+        fit: "relaxed",
+        skill: "beginner",
+        measurements: Object.fromEntries(
+          [
+            ["chest_flat_width", "52"],
+            ["shoulder_to_hem", "70"],
+            ["shoulder_width", "45"],
+            ["sleeve_length", "60"],
+          ].map(([k, v]) => [
+            k,
+            { inputCm: v, confirmedAt: "2026-10-28T00:00:00Z", origin: "user_entered" },
+          ]),
+        ),
+      }),
+    );
+
+  it("offers only the suggestion, not Keep, for a value outside the hard range", async () => {
+    await ready();
+    await renderScreen(<MeasurementsScreen />);
+    await fireEvent.changeText(screen.getByLabelText("Chest, flat across (cm)"), "500");
+    expect(screen.getByRole("button", { name: "Use 50 cm" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /^Keep/ })).toBeNull();
+  });
+
+  it("marks an upload as stale after any later edit to photos or category", async () => {
+    await ready();
+    await act(() => useIntakeStore.getState().patch({ uploadStatus: "uploaded" }));
+    await act(() => useIntakeStore.getState().patch({ role: "user" }));
+    expect(useIntakeStore.getState().uploadStatus).toBe("uploaded");
+    await act(() => useIntakeStore.getState().patch({ category: "dress" }));
+    expect(useIntakeStore.getState().uploadStatus).toBe("not_uploaded");
+    await act(() => useIntakeStore.getState().patch({ uploadStatus: "uploaded" }));
+    await act(() => useIntakeStore.getState().patch({ front: { ...photo, uri: "file:///b.jpg" } }));
+    expect(useIntakeStore.getState().uploadStatus).toBe("not_uploaded");
+  });
+
+  it("shows a mock marker beside an Uploaded status from the fixture client", async () => {
+    await ready();
+    await renderScreen(<MeasurementsScreen />);
+    await fireEvent.press(screen.getByRole("button", { name: "Upload" }));
+    expect(await screen.findByText(/^✓ Uploaded/)).toBeTruthy();
+    expect(screen.getByLabelText("Sample data, not a real result")).toBeTruthy();
+  });
+
+  it("leaves body measurements out unless the user opts in, and then records the consent", async () => {
+    await ready();
+    const uploadIntake = jest.fn().mockResolvedValue(await mockApi.uploadIntake({} as never));
+    setApi({ ...mockApi, uploadIntake });
+    await act(() =>
+      useIntakeStore.getState().setMeasurement("height", {
+        inputCm: "170",
+        confirmedAt: "2026-10-28T00:00:00Z",
+        origin: "user_entered",
+      }),
+    );
+    await renderScreen(<MeasurementsScreen />);
+    expect(screen.queryByLabelText("Height (cm)")).toBeNull();
+    await fireEvent.press(screen.getByRole("button", { name: "Upload" }));
+    await waitFor(() => expect(uploadIntake).toHaveBeenCalledTimes(1));
+    const first = uploadIntake.mock.calls[0]![0];
+    expect(first.body_consent_version).toBeNull();
+    expect(first.measurements.map((m: { key: string }) => m.key)).not.toContain("height");
+
+    await fireEvent.press(screen.getByRole("checkbox", { name: /Include my body/ }));
+    await fireEvent.press(screen.getByRole("button", { name: "Upload" }));
+    await waitFor(() => expect(uploadIntake).toHaveBeenCalledTimes(2));
+    const second = uploadIntake.mock.calls[1]![0];
+    expect(second.body_consent_version).toBe("body-v0-draft");
+    expect(second.measurements.map((m: { key: string }) => m.key)).toContain("height");
+  });
+
+  it("blocks upload while an opted-in body value is unconfirmed", async () => {
+    await ready();
+    const uploadIntake = jest.fn();
+    setApi({ ...mockApi, uploadIntake });
+    await act(() => useIntakeStore.getState().patch({ bodyConsentVersion: "body-v0-draft" }));
+    await renderScreen(<MeasurementsScreen />);
+    await fireEvent.changeText(screen.getByLabelText("Height (cm)"), "250");
+    await fireEvent.press(screen.getByRole("button", { name: "Upload" }));
+    expect(screen.getByText(/Confirm or clear before uploading: Height/)).toBeTruthy();
+    expect(uploadIntake).not.toHaveBeenCalled();
+  });
+
+  it("keeps typed text when switching to Surprise Me and back, and submits only the selected mode", async () => {
+    await renderScreen(<InspirationScreen />);
+    await fireEvent.changeText(screen.getByLabelText("Describe the change you want"), "boxy crop");
+    await fireEvent.press(screen.getByRole("radio", { name: "Surprise Me" }));
+    await fireEvent.press(screen.getAllByRole("button", { name: "Surprise Me" })[0]!);
+    expect(await screen.findByText(/^Idea:/)).toBeTruthy();
+    await fireEvent.press(screen.getByRole("radio", { name: "Describe it" }));
+    expect(screen.getByDisplayValue("boxy crop")).toBeTruthy();
+
+    // Image mode with no image: hidden text must not count, Continue stays disabled.
+    await fireEvent.press(screen.getByRole("radio", { name: "Image" }));
+    await act(() => useIntakeStore.getState().patch({ fit: "relaxed", skill: "beginner" }));
+    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
   });
 });
