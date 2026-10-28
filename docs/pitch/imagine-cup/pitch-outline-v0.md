@@ -51,7 +51,7 @@ All three are **planned**. None exists today. If the evidence does not exist by 
 | Cut mark from shoulder | TO BE MEASURED | TO BE MEASURED | TO BE MEASURED |
 | Hem allowance | TO BE MEASURED | TO BE MEASURED | TO BE MEASURED |
 
-- The Blueprint's 780 / 500 / 30 / 530 / 250 mm crop sum is **illustrative only** (Blueprint 5.3). Never show it as a measurement.
+- The 76 / 52 / 2 cm crop example (deck slide 8; 760 / 520 / 20 / 540 / 220 mm; the same example the interim report uses) is **illustrative only**. The blueprint 5.3 example (780 / 500 / 30 / 530 / 250 mm) is also illustrative. Never show it as a measurement.
 - Report the number of garments and measurements as the denominator. One shirt is one case, say so. Include any mismatch and its cause.
 - Evidence needed: physical validation record (Blueprint 17.3 template), consent for photos. Owner: Narthananilaa. Status: needs data. Depends on P0 pass (currently red).
 

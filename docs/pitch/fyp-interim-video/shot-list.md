@@ -2,7 +2,7 @@
 
 Status: all shots are **PLANNED**. Nothing has been filmed or recorded. Owner column names the founder who captures it; the agent only prepares this list.
 
-Recording window proposal: film 4 to 7 Nov 2026, edit 8 to 9 Nov, submit by 10 Nov 2026 (proposed, not agreed). Buffer is thin: see README risks.
+Schedule proposal (aligned to L0 human-tasks H-10): script approved by all three at or before the Thu 5 Nov draft review, evidence freeze Fri 6 Nov (shared with the interim report), film 6 to 8 Nov, edit 8 to 9 Nov, submit by Tue 10 Nov 2026. Proposed, not agreed. Filming before approval risks reshoots.
 
 ## A. Real-world footage (needs a human with a camera)
 
@@ -27,7 +27,7 @@ Recording window proposal: film 4 to 7 Nov 2026, edit 8 to 9 Nov, submit by 10 N
 
 | ID | Shot | Details | Owner | Status |
 |---|---|---|---|---|
-| P1 | Hand-drawn shirt front with the crop sum | 780 / 500 / 30 / 530 / 250 mm written in marker. Tag illustrative. | Narthananilaa | planned |
+| P1 | Hand-drawn shirt front with the crop sum | 760 / 520 / 20 / 540 / 220 mm (deck slide 8 example, as in the interim report) written in marker. Tag illustrative. | Narthananilaa | planned |
 | P2 | Chalk-line pass over a printed layout | optional | Narthananilaa | planned |
 | P3 | Rejection card, redrawn | Paper or digital card: request, reason in mm, alternative. Tagged illustrative. | Delfine | planned |
 
@@ -37,8 +37,8 @@ Recording window proposal: film 4 to 7 Nov 2026, edit 8 to 9 Nov, submit by 10 N
 |---|---|---|---|---|
 | M1 | Garment capture (flat-lay, front and back) | D2 design, Figma | MOCK-UP | planned |
 | M2 | Measurement guide with sample values | D2 design | MOCK-UP, SAMPLE DATA | planned |
-| M3 | Result card with status badge, fewer than three options | D3 design | MOCK-UP | planned |
-| M4 | Cut guide with ruler checkpoint (fallback diagram) | D4 design | MOCK-UP | planned |
+| M3 | Result card with status badge, fewer than three options | D3 design | MOCK-UP | planned, do not use until designed |
+| M4 | Cut guide with ruler checkpoint (fallback diagram) | D4 design | MOCK-UP | planned, do not use until designed |
 | M5 | (Only if an installable build exists) screen recording on a real Android device | D6 | label by what is real: "prototype build" only if connected to the real engine, else MOCK-UP | planned, conditional |
 
 ## E. Graphics (can be produced without filming)

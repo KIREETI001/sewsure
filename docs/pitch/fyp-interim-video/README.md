@@ -35,6 +35,7 @@ Due **10 Nov 2026**, submitted to the supervisor with the interim report (source
 | SLOT-3 research | D7 sessions actually held, consented | de-identified notes, counts with denominators | Delfine, X2 |
 | SLOT-4 P0 physical trial | measured shirt made and recorded | physical record: predicted and measured mm, number of measurements | Narthananilaa, X2 |
 | SLOT-5 conclusion | any of the above change | as above | all three |
+| SLOT-6 app screens | D3/D4 designs or builds exist | merged PR or signed-off design per screen | Delfine, X2 |
 
 ## Open questions for the founders
 

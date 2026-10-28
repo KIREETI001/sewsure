@@ -26,7 +26,7 @@ Format follows the NTU suggested interim report: 1 Introduction, 2 Work done so 
 ## S0 Cold open (0:00 to 0:25) | Delfine
 
 > **[D, over the real shirt on a table, ruler and chalk beside it]**
-> "This shirt is already in someone's wardrobe. It is too big, and it will probably stay there. We are three students building SewSure, an app that tries to close the gap between 'I have an idea for this garment' and 'I can actually make it'. This is our Final Year Project interim presentation."
+> "Imagine a shirt like this one, already in a wardrobe, too big, and unlikely to be worn again. (Framing device, not a claim about a specific garment.) We are three students building SewSure, an app that tries to close the gap between 'I have an idea for this garment' and 'I can actually make it'. This is our Final Year Project interim presentation."
 
 (~55 words)
 
@@ -35,15 +35,15 @@ Format follows the NTU suggested interim report: 1 Introduction, 2 Work done so 
 ### S1a Problem and evidence (0:25 to 1:10) | Delfine
 
 > "We ran a small exploratory survey of 25 people. It is a small, non-representative sample, so we treat it as a direction, not a result. Twenty-four of the 25 had no sewing experience or were beginners [C-01]. Seventeen had rejected second-hand clothing because of fit [C-02]. Twenty-one rated our proposed tool four or five for usefulness [C-03], and that was a description of a tool, not a working product. Twelve would consider finding a tailor through the app [C-04].
-> The pattern we heard was the same: people have ideas, but an image does not tell you whether the design can be cut from the fabric you have."
+> The concerns people raised included sewing time, missing equipment, inaccurate AI patterns and fear of damaging a garment [C-35]. Our own reading is that an image alone does not show whether a design can be cut from the fabric you have."
 
 (~115 words)
 
 ### S1b What SewSure is and the objectives (1:10 to 2:10) | Kireeti
 
-> "SewSure is a mobile app we are designing. The user photographs a garment they own, says what they want, and confirms measurements. The app then aims to offer up to three redesigns that pass the feasibility checks we have implemented, and then a cut guide with DIY steps, or a brief a tailor can quote from [C-05].
+> "SewSure is a mobile app we are designing. The user photographs a garment they own, says what they want, and confirms measurements. The app then aims to offer up to three redesigns that pass the feasibility checks the engine is designed to apply, and then a cut guide with DIY steps, or a brief a tailor can quote from [C-05].
 > The key idea is a split of roles. A generative model may propose a design from an approved list of recipes. It never invents pattern geometry. A deterministic feasibility engine checks the numbers, in millimetres, and only that engine can set a design's status [C-07].
-> Our objectives for this project are: one: prove a single measured transformation on a real woven shirt, from measurement to cut plan to a physical make. Two: connect it into a mobile prototype. Three: report what passes, what fails and what we got wrong, with denominators. [C-06]"
+> Our four objectives match the interim report. One: one real, user-measured woven shirt yields a reviewed, dimensioned cut plan that we physically trial. Two: a connected mobile prototype carries a photo through to checked options and a DIY sequence. Three: design states are set only by the engine, revisions are immutable, and an unverified image never reaches a safe-to-cut screen. Four: we evaluate with evidence that keeps failures, using proposed targets for tests, makes and participants [C-06]."
 
 (~140 words)
 
@@ -61,7 +61,7 @@ Format follows the NTU suggested interim report: 1 Introduction, 2 Work done so 
 ### S2a Repository, agent workflow, contract first (2:40 to 3:50) | Kireeti
 
 > "What exists today in our repository is a monorepo with a defined structure: mobile app, API service, a standalone feasibility package, a shared contracts package, recipes, and benchmarks [C-09].
-> We also use AI coding agents, supervised by us. There are 29 agent definitions, each limited to the folders it may edit, and project hooks that block edits to secrets and production infrastructure [C-09]. Agents work in branches and open pull requests. They cannot merge. A human code owner approves every change [C-10]. We will declare this assistance on the NTU generative AI form [C-28].
+> We also use AI coding agents, supervised by us. There are 29 agent definitions, each limited to the folders it may edit, and project hooks that block edits to secrets and production infrastructure [C-09]. Agents work in branches and open pull requests. They cannot merge. Since branch protection was enabled, a human code owner approves every change to main [C-10]. We will declare this assistance on the NTU generative AI form [C-28].
 > Our rules are written down: lengths in millimetres, design status set only by the feasibility engine, revisions never edited in place, and no guarantee language anywhere [C-11].
 > [SLOT-1] Default: 'The shared API contract and the first service code are in progress and are not yet merged.' Replace only if the contract PR is merged by recording day, naming it."
 
@@ -70,7 +70,7 @@ Format follows the NTU suggested interim report: 1 Introduction, 2 Work done so 
 ### S2b Feasibility engine and the honest rejection (3:50 to 5:20) | Narthananilaa
 
 > "My part is the rules: what can physically be cut from a shirt, and when the answer is no.
-> The design, from our blueprint, is that for a shirt crop the engine takes the original length, the finished length wanted, and a hem allowance, and works out where to mark the cut. The numbers on screen are the illustrative ones from our plan, not measurements [C-13].
+> The design, from our blueprint, is that for a shirt crop the engine takes the original length, the finished length wanted, and a hem allowance, and works out where to mark the cut. The numbers on screen are the illustrative ones from our advisor deck, not measurements: an original length of 76 centimetres, a target of 52, and a 2 centimetre hem [C-13].
 > Next is the part we care about most. When a request is impossible, the engine must say so and say why. In our plan's example, a peplum needs a strip about 140 centimetres by 18, but the leftover fabric yields about 112, so it is rejected and a shorter, less full option is suggested [C-14]. That is an illustrative example. A peplum is a later transformation that still needs proof.
 > [SLOT-2] Default: 'The engine and its first tests are being written now. We do not yet have a passing test suite to show.' Evidenced version, only if the N1 and N2 PRs are merged: show the real test run, name the number of cases and the number passing out of the total [C-17]."
 
@@ -78,8 +78,8 @@ Format follows the NTU suggested interim report: 1 Introduction, 2 Work done so 
 
 ### S2c App screens and research (5:20 to 6:20) | Delfine
 
-> "On the app side, these screens are mock-ups made from our design plan. They are labelled mock-up on screen, because they are not connected to the engine yet [C-20]. You can see capture, measurement guide, a result card with its status, and a cut guide with a ruler check.
-> One rule shapes the design: an unverified design must never reach a 'safe to cut' screen. Previews are labelled approximate [C-25], and the result list never assumes there are three options.
+> "On the app side, we have started with the design system and the first intake screens. [SLOT-6] Default: 'Two screens, garment capture and the measurement guide, are drafted. The result card and the cut guide are still to be designed. Anything you see of them is a sketch of our plan, labelled mock-up, and it is not connected to the engine.' Evidenced version: add a screen only when its PR is merged or its design is signed off.
+> One rule shapes the design: an unverified design must never reach a 'safe to cut' screen. Previews will be labelled approximate [C-25], and the result list will not assume there are three options.
 > For research, we have the survey I described. [SLOT-3] Default: 'Interviews and usability sessions with real users and tailors are planned, with consent forms, and have not started.'"
 
 (~110 words)
