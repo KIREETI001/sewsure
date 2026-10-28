@@ -94,7 +94,9 @@ def stage_a_confirm_garment(garment_class: str, confidence: float) -> GarmentCon
 # ------------------------------------------------------------------ model plumbing ----
 
 
-def _call_model(client: ModelClient, request: ModelRequest, validator: Any, telemetry: Telemetry) -> dict[str, Any]:
+def _call_model(
+    client: ModelClient, request: ModelRequest, validator: Any, telemetry: Telemetry
+) -> dict[str, Any]:
     rec = CallRecord(stage=request.stage)
     telemetry.calls.append(rec)
     response: ModelResponse | None = None
@@ -121,11 +123,20 @@ def _call_model(client: ModelClient, request: ModelRequest, validator: Any, tele
         raise StageError(rec.error) from None
     if request.stage == "D":
         _count_recipe_ids(payload, rec)
-    if validator.is_valid(payload):
+    if validator.is_valid(payload) and not _has_duplicate_recipes(payload):
         rec.schema_ok = True
         return payload
     rec.error = "MODEL_OUTPUT_SCHEMA_INVALID"
     raise StageError(rec.error)
+
+
+def _has_duplicate_recipes(payload: Any) -> bool:
+    """Two operations on one recipe in a candidate are contradictory (two crop lengths)."""
+    for cand in payload.get("candidates", []) if isinstance(payload, dict) else []:
+        ids = [op["recipe_id"] for op in cand["operations"]]
+        if len(ids) != len(set(ids)):
+            return True
+    return False
 
 
 def _count_recipe_ids(payload: Any, rec: CallRecord) -> None:
@@ -145,7 +156,8 @@ def _count_recipe_ids(payload: Any, rec: CallRecord) -> None:
 def log_call_summary(telemetry: Telemetry, revision_id: str | None = None) -> None:
     for c in telemetry.calls:
         log.info(
-            "model_call request_id=%s revision_id=%s stage=%s deployment=%s latency_ms=%.1f cost_usd=%.6f error=%s",
+            "model_call request_id=%s revision_id=%s stage=%s deployment=%s "
+            "latency_ms=%.1f cost_usd=%.6f error=%s",
             telemetry.request_id,
             revision_id or "-",
             c.stage,
@@ -212,7 +224,9 @@ def stage_d_propose_candidates(
         system_prompt=load_prompt("stage_d"),
         user_payload={
             "attributes": attributes.model_dump(),
-            "allowed_recipes": {k: {p: list(v) for p, v in ps.items()} for k, ps in context.allowed_recipes.items()},
+            "allowed_recipes": {
+                k: {p: list(v) for p, v in ps.items()} for k, ps in context.allowed_recipes.items()
+            },
         },
         schema_name="candidates",
         prompt_version=PROMPT_VERSION,
@@ -251,7 +265,10 @@ def stage_e_check(
             result = normalise(
                 checker.check(
                     FeasibilityRequest(
-                        candidate=cand, garment_class=garment_class, material=material, revision_context_id=context_id
+                        candidate=cand,
+                        garment_class=garment_class,
+                        material=material,
+                        revision_context_id=context_id,
                     )
                 )
             )
@@ -301,14 +318,21 @@ def stage_f_relax_and_rank(
                 if easier is not None and easier.key() not in known:
                     known.add(easier.key())
                     eased.append((c.candidate, easier))
-        rechecked = stage_e_check(checker, [e for _, e in eased], garment_class, material, context_id)
-        pool += [CheckedCandidate(r.candidate, r.result, relaxed_from=orig) for (orig, _), r in zip(eased, rechecked)]
+        rechecked = stage_e_check(
+            checker, [e for _, e in eased], garment_class, material, context_id
+        )
+        pool += [
+            CheckedCandidate(r.candidate, r.result, relaxed_from=orig)
+            for (orig, _), r in zip(eased, rechecked, strict=True)
+        ]
 
     survivors = [c for c in pool if c.result.status == PASS]
     wanted = attributes.requested()
 
     def score(c: CheckedCandidate) -> float:
-        matched = sum(1 for op in c.candidate.operations for k, v in op.params.items() if wanted.get(k) == v)
+        matched = sum(
+            1 for op in c.candidate.operations for k, v in op.params.items() if wanted.get(k) == v
+        )
         match = matched / len(wanted) if wanted else 0.0
         return match - 0.1 * (len(c.candidate.operations) - 1)
 

@@ -1,3 +1,4 @@
+# ruff: noqa: E402  (sys.path set before imports)
 import sys
 from pathlib import Path
 
@@ -10,10 +11,18 @@ from run_eval import evaluate, load_cases
 
 def test_case_file_shape():
     cases = load_cases()
-    assert len(cases) == 24
-    assert len({c["id"] for c in cases}) == 24
+    assert len(cases) == 25
+    assert len({c["id"] for c in cases}) == 25
     cats = {c["category"] for c in cases}
-    assert cats == {"success", "near_boundary", "missing_value", "impossible", "unsupported", "prompt_injection"}
+    assert cats == {
+        "success",
+        "near_boundary",
+        "missing_value",
+        "impossible",
+        "unsupported",
+        "prompt_injection",
+        "malformed_output",
+    }
     for c in cases:
         assert c["expected"]["why"]
 
@@ -24,5 +33,6 @@ def test_no_false_approvals_and_all_outcomes_match():
     assert m["outcome_match"]["numerator"] == m["outcome_match"]["denominator"]
     assert m["recipe_id_validity"]["numerator"] <= m["recipe_id_validity"]["denominator"]
     assert (
-        m["injection_contained_without_screen"]["numerator"] == m["injection_contained_without_screen"]["denominator"]
+        m["injection_contained_without_screen"]["numerator"]
+        == m["injection_contained_without_screen"]["denominator"]
     )

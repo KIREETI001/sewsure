@@ -1,6 +1,6 @@
 # AI eval cases
 
-`cases.jsonl`: 24 synthetic requests (5 success, 4 near-boundary, 4 missing-value, 3 impossible, 3 unsupported, 5 prompt-injection). Each records the request, the feasibility verdicts the stand-in checker returns (`oracle_rules`), any scripted model output, the expected outcome and why.
+`cases.jsonl`: 25 synthetic requests (5 success, 4 near-boundary, 4 missing-value, 3 impossible, 3 unsupported, 5 prompt-injection, 1 malformed-output). Each records the request, the feasibility verdicts the stand-in checker returns (`oracle_rules`), any scripted model output, the expected outcome and why.
 
 ```bash
 python tests/benchmarks/ai/run_eval.py --out result.json

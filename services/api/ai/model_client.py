@@ -82,7 +82,10 @@ Responder = Callable[[ModelRequest], str]
 _CROP_PATTERNS = (
     ("very_cropped", r"very cropped|super cropped|bra[- ]?length|above the ribs"),
     ("cropped", r"\bcrop(ped)?\b|belly|navel|above the waist"),
-    ("slightly_shorter", r"slightly shorter|a bit shorter|little shorter|shorten the hem|hip[- ]?length"),
+    (
+        "slightly_shorter",
+        r"slightly shorter|a bit shorter|little shorter|shorten the hem|hip[- ]?length",
+    ),
 )
 _SLEEVE_PATTERNS = (
     ("cap", r"cap sleeve"),
@@ -130,7 +133,9 @@ def default_responder(request: ModelRequest) -> str:
             for r, p in ops:
                 ((name, level),) = p.items()
                 levels = RECIPE_ALLOW_LIST[r][name]
-                eased.append({"recipe_id": r, "params": {name: levels[max(0, levels.index(level) - 1)]}})
+                eased.append(
+                    {"recipe_id": r, "params": {name: levels[max(0, levels.index(level) - 1)]}}
+                )
             candidates.append({"operations": eased})
             # the single most demanding operation alone
             r, p = ops[0]

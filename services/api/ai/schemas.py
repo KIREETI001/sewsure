@@ -68,7 +68,9 @@ def _operation_schema() -> dict[str, Any]:
                         "type": "object",
                         "additionalProperties": False,
                         "required": list(params),
-                        "properties": {name: {"enum": list(levels)} for name, levels in params.items()},
+                        "properties": {
+                            name: {"enum": list(levels)} for name, levels in params.items()
+                        },
                     },
                 },
             }

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .feasibility_port import NEEDS_INPUT, FeasibilityChecker
+from .feasibility_port import IDEA_ONLY, NEEDS_INPUT, FeasibilityChecker
 from .model_client import ModelClient
 from .safety import SafetyScreen
 from .stages import (
@@ -62,7 +62,9 @@ def run_pipeline(
     if confirmation.needs_user_confirmation:
         return done("complete", "needs_confirmation", reasons=("GARMENT_CATEGORY_LOW_CONFIDENCE",))
 
-    context = stage_c_load_context(request.garment_class, request.material, set(request.provided_measurements))
+    context = stage_c_load_context(
+        request.garment_class, request.material, set(request.provided_measurements)
+    )
     if context.rejection:
         return done("complete", "unsupported", reasons=(context.rejection,))
 
@@ -73,18 +75,26 @@ def run_pipeline(
     try:
         attributes = stage_b_parse_inspiration(client, request.inspiration_text, tele)
         if not attributes.requested():
-            return done("complete", "no_feasible_design", reasons=("NO_SUPPORTED_CHANGE_REQUESTED",))
+            return done(
+                "complete", "no_feasible_design", reasons=("NO_SUPPORTED_CHANGE_REQUESTED",)
+            )
         candidates = stage_d_propose_candidates(client, attributes, context, tele)
     except StageError as exc:
         return done("failed", "error", reasons=(exc.code,), recoverable=exc.recoverable)
 
-    checked = stage_e_check(checker, candidates, request.garment_class, request.material, request.context_id)
+    checked = stage_e_check(
+        checker, candidates, request.garment_class, request.material, request.context_id
+    )
     ranked = stage_f_relax_and_rank(
         checked, attributes, checker, request.garment_class, request.material, request.context_id
     )
     if not ranked:
-        codes = sorted({c for ch in checked for c in (*ch.result.failure_codes, *ch.result.missing_inputs)})
+        codes = sorted(
+            {c for ch in checked for c in (*ch.result.failure_codes, *ch.result.missing_inputs)}
+        )
         needs = any(ch.result.status == NEEDS_INPUT for ch in checked)
+        if checked and all(ch.result.status == IDEA_ONLY for ch in checked):
+            return done("complete", "idea_only", reasons=tuple(codes) or ("IDEA_ONLY",))
         return done(
             "complete",
             "needs_input" if needs else "no_feasible_design",

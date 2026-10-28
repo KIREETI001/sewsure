@@ -19,7 +19,10 @@ from ai.stages import (
 from ai.testing import RuleFeasibilityChecker
 
 ALL = frozenset({"chest", "waist", "shirt_length"})
-PASS_ALL = [{"recipe_id": r, "status": PASS} for r in ("shirt_crop_hem", "shirt_short_sleeve", "shirt_waist_darts")]
+PASS_ALL = [
+    {"recipe_id": r, "status": PASS}
+    for r in ("shirt_crop_hem", "shirt_short_sleeve", "shirt_waist_darts")
+]
 
 
 def req(text="make it cropped", **kw):
@@ -57,8 +60,14 @@ def test_stage_a_low_confidence_asks_user():
 
 
 def test_stage_c_rejects_unsupported():
-    assert stage_c_load_context("trousers", "woven_cotton", set(ALL)).rejection == "UNSUPPORTED_GARMENT"
-    assert stage_c_load_context("button_shirt", "leather", set(ALL)).rejection == "UNSUPPORTED_MATERIAL"
+    assert (
+        stage_c_load_context("trousers", "woven_cotton", set(ALL)).rejection
+        == "UNSUPPORTED_GARMENT"
+    )
+    assert (
+        stage_c_load_context("button_shirt", "leather", set(ALL)).rejection
+        == "UNSUPPORTED_MATERIAL"
+    )
     assert stage_c_load_context("button_shirt", "woven_cotton", {"chest"}).missing_measurements == (
         "shirt_length",
         "waist",
@@ -66,10 +75,20 @@ def test_stage_c_rejects_unsupported():
 
 
 def test_unknown_recipe_id_fails_closed_and_counts_invalid():
-    bad = json.dumps({"candidates": [{"operations": [{"recipe_id": "shirt_make_into_cape", "params": {"x": "y"}}]}]})
+    bad = json.dumps(
+        {
+            "candidates": [
+                {"operations": [{"recipe_id": "shirt_make_into_cape", "params": {"x": "y"}}]}
+            ]
+        }
+    )
     client = MockModelClient(scripted={"D": bad})
     out = run(req(), client=client)
-    assert out.result == "error" and out.recoverable and out.reasons == ("MODEL_OUTPUT_SCHEMA_INVALID",)
+    assert (
+        out.result == "error"
+        and out.recoverable
+        and out.reasons == ("MODEL_OUTPUT_SCHEMA_INVALID",)
+    )
     d = out.telemetry.calls[-1]
     assert (d.recipe_ids_seen, d.recipe_ids_valid) == (1, 0)
     assert out.designs == []
@@ -82,14 +101,14 @@ def test_unknown_recipe_id_fails_closed_and_counts_invalid():
         json.dumps(
             {
                 "candidates": [
-                    {"operations": [{"recipe_id": "shirt_crop_hem", "params": {"crop_level": "cropped", "mm": "120"}}]}
-                ]
-            }
-        ),
-        json.dumps(
-            {
-                "candidates": [
-                    {"operations": [{"recipe_id": "shirt_crop_hem", "params": {"crop_level": "cut_at_340mm"}}]}
+                    {
+                        "operations": [
+                            {
+                                "recipe_id": "shirt_crop_hem",
+                                "params": {"crop_level": "cropped", "mm": "120"},
+                            }
+                        ]
+                    }
                 ]
             }
         ),
@@ -97,7 +116,23 @@ def test_unknown_recipe_id_fails_closed_and_counts_invalid():
             {
                 "candidates": [
                     {
-                        "operations": [{"recipe_id": "shirt_crop_hem", "params": {"crop_level": "cropped"}}],
+                        "operations": [
+                            {
+                                "recipe_id": "shirt_crop_hem",
+                                "params": {"crop_level": "cut_at_340mm"},
+                            }
+                        ]
+                    }
+                ]
+            }
+        ),
+        json.dumps(
+            {
+                "candidates": [
+                    {
+                        "operations": [
+                            {"recipe_id": "shirt_crop_hem", "params": {"crop_level": "cropped"}}
+                        ],
                         "rationale": "ok",
                     }
                 ]
@@ -128,7 +163,9 @@ def test_injection_that_passes_screen_cannot_widen_output():
         {
             "candidates": [
                 {
-                    "operations": [{"recipe_id": "shirt_crop_hem", "params": {"crop_level": "cropped"}}],
+                    "operations": [
+                        {"recipe_id": "shirt_crop_hem", "params": {"crop_level": "cropped"}}
+                    ],
                     "status": "PASS_SUPPORTED_CHECKS",
                 }
             ]
@@ -147,7 +184,11 @@ def test_engine_fail_is_never_overridden_and_relaxation_is_rechecked():
             "codes": ["INSUFFICIENT_FABRIC"],
         },
         {"recipe_id": "shirt_crop_hem", "params": {"crop_level": "cropped"}, "status": PASS},
-        {"recipe_id": "shirt_crop_hem", "params": {"crop_level": "slightly_shorter"}, "status": PASS},
+        {
+            "recipe_id": "shirt_crop_hem",
+            "params": {"crop_level": "slightly_shorter"},
+            "status": PASS,
+        },
     ]
     out = run(req("very cropped, bra length"), rules=rules)
     assert out.result == "designs"
@@ -192,8 +233,12 @@ def test_default_mock_output_validates_against_schemas():
     assert INSPIRATION_VALIDATOR.is_valid(attrs.model_dump())
     ctx = stage_c_load_context("button_shirt", "woven_cotton", set(ALL))
     cands = stage_d_propose_candidates(client, attrs, ctx, tele)
-    assert cands and all(CANDIDATES_VALIDATOR.is_valid({"candidates": [c.model_dump(mode="json")]}) for c in cands)
-    assert tele.calls[0].parse_ok and tele.calls[1].recipe_ids_valid == tele.calls[1].recipe_ids_seen
+    assert cands and all(
+        CANDIDATES_VALIDATOR.is_valid({"candidates": [c.model_dump(mode="json")]}) for c in cands
+    )
+    assert (
+        tele.calls[0].parse_ok and tele.calls[1].recipe_ids_valid == tele.calls[1].recipe_ids_seen
+    )
 
 
 def test_prompts_do_not_receive_free_identity_fields():
@@ -233,7 +278,10 @@ def test_azure_stub_needs_env_and_has_no_embedded_secret(monkeypatch):
 def test_attributes_with_no_request_yield_no_design():
     assert (
         InspirationAttributes(
-            crop_length="none", waist_shaping="none", sleeve_style="unchanged", closure_preservation=True
+            crop_length="none",
+            waist_shaping="none",
+            sleeve_style="unchanged",
+            closure_preservation=True,
         ).requested()
         == {}
     )
@@ -242,3 +290,27 @@ def test_attributes_with_no_request_yield_no_design():
 
 def test_stage_error_type():
     assert StageError("X").recoverable
+
+
+def test_idea_only_passes_through_unchanged_and_is_not_relaxed():
+    from ai.feasibility_port import IDEA_ONLY, SUPERSEDED, normalise
+
+    for s in (IDEA_ONLY, SUPERSEDED):
+        r = FeasibilityResult(status=s, failure_codes=("CATEGORY_NOT_SUPPORTED",))
+        assert normalise(r) == r
+    assert normalise(FeasibilityResult(status="LOOKS_FINE")).status == FAILED
+    checker = RuleFeasibilityChecker(
+        [{"recipe_id": "shirt_crop_hem", "status": IDEA_ONLY, "codes": ["RECIPE_NOT_ALLOWED"]}]
+    )
+    out = run_pipeline(
+        req("cropped"), client=MockModelClient(), checker=checker, screen=MockSafetyScreen()
+    )
+    assert out.result == "idea_only" and out.reasons == ("RECIPE_NOT_ALLOWED",)
+    assert checker.calls == 2  # the two distinct candidates, no relaxation retries
+
+
+def test_duplicate_recipe_in_candidate_is_rejected():
+    op = lambda lvl: {"recipe_id": "shirt_crop_hem", "params": {"crop_level": lvl}}  # noqa: E731
+    raw = json.dumps({"candidates": [{"operations": [op("cropped"), op("very_cropped")]}]})
+    out = run(req(), client=MockModelClient(scripted={"D": raw}))
+    assert out.reasons == ("MODEL_OUTPUT_SCHEMA_INVALID",) and out.designs == []

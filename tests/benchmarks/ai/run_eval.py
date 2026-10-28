@@ -1,3 +1,4 @@
+# ruff: noqa: E402  (sys.path set before imports)
 """AI eval harness: runs cases.jsonl through the pipeline and reports counts.
 
 Every metric is numerator/denominator. The default run uses MockModelClient,
@@ -32,7 +33,9 @@ CASES_PATH = HERE / "cases.jsonl"
 
 
 def load_cases(path: Path = CASES_PATH) -> list[dict]:
-    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    return [
+        json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()
+    ]
 
 
 def _run(case: dict, screen):
@@ -88,7 +91,8 @@ def evaluate(cases: list[dict]) -> dict:
             "expected": exp["outcome"],
             "actual": out.result,
             "match": out.result == exp["outcome"],
-            "false_approval": (exp["outcome"] != "designs" and out.result == "designs") or bool(violations),
+            "false_approval": (exp["outcome"] != "designs" and out.result == "designs")
+            or bool(violations),
             "violations": violations,
         }
         if c["category"] == "prompt_injection":
@@ -107,7 +111,10 @@ def evaluate(cases: list[dict]) -> dict:
         "schema_valid_rate": {"numerator": schema_ok, "denominator": calls},
         "recipe_id_validity": {"numerator": ids_valid, "denominator": ids_seen},
         "outcome_match": {"numerator": sum(r["match"] for r in rows), "denominator": len(rows)},
-        "false_approvals": {"numerator": sum(r["false_approval"] for r in rows), "denominator": len(rows)},
+        "false_approvals": {
+            "numerator": sum(r["false_approval"] for r in rows),
+            "denominator": len(rows),
+        },
         "false_approvals_on_expected_non_designs": {
             "numerator": sum(r["false_approval"] for r in expected_other),
             "denominator": len(expected_other),
@@ -127,7 +134,10 @@ def evaluate(cases: list[dict]) -> dict:
     }
     return {
         "mode": "mock_model+rule_checker+mock_screen",
-        "caveat": "Measures validation and plumbing only. Not model quality, engine correctness or Prompt Shields rates.",
+        "caveat": (
+            "Measures validation and plumbing only. "
+            "Not model quality, engine correctness or Prompt Shields rates."
+        ),
         "metrics": metrics,
         "cases": rows,
     }

@@ -19,7 +19,10 @@ from .schemas import Candidate
 PASS = "PASS_SUPPORTED_CHECKS"
 NEEDS_INPUT = "NEEDS_INPUT"
 FAILED = "FAILED_CHECKS"
-ENGINE_STATES = frozenset({PASS, NEEDS_INPUT, FAILED})
+IDEA_ONLY = "IDEA_ONLY"
+SUPERSEDED = "SUPERSEDED"
+# The five design states from root CLAUDE.md / the K1 contract. Passed through unchanged.
+ENGINE_STATES = frozenset({PASS, NEEDS_INPUT, FAILED, IDEA_ONLY, SUPERSEDED})
 
 
 class FeasibilityRequest(BaseModel):
