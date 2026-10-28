@@ -121,6 +121,7 @@
     "state": "complete",
     "stage": null,
     "result": {
+      "outcome": "no_feasible_design",
       "design_ids": [
         "des-longer-a"
       ]

@@ -9,7 +9,7 @@
     "project_id": { "$ref": "common.schema.json#/$defs/Id" },
     "units": { "$ref": "common.schema.json#/$defs/Units" },
     "garment": {
-      "$ref": "#/$defs/DimensionMap",
+      "$ref": "#/$defs/GarmentDimensionMap",
       "description": "Flat garment dimensions, e.g. shoulder_to_hem, chest_flat_width, sleeve_length, hem_width."
     },
     "body": {
@@ -29,7 +29,7 @@
       "type": "object",
       "required": ["value_mm", "origin", "confirmed_at"],
       "properties": {
-        "value_mm": { "$ref": "common.schema.json#/$defs/LengthMm" },
+        "value_mm": { "$ref": "common.schema.json#/$defs/PositiveLengthMm" },
         "origin": { "$ref": "#/$defs/MeasurementOrigin" },
         "confirmed_at": {
           "oneOf": [{ "$ref": "common.schema.json#/$defs/Timestamp" }, { "type": "null" }],
@@ -55,10 +55,7 @@
       "required": ["body_profile_id", "consent_version", "values"],
       "properties": {
         "body_profile_id": { "$ref": "common.schema.json#/$defs/Id" },
-        "consent_version": {
-          "type": "string",
-          "description": "Version of the body-measurement consent text the user accepted."
-        },
+        "consent_version": { "type": "string", "description": "Version of the body-measurement consent text the user accepted." },
         "values": { "$ref": "#/$defs/DimensionMap" }
       },
       "additionalProperties": false
@@ -69,7 +66,7 @@
       "required": ["units", "garment"],
       "properties": {
         "units": { "$ref": "common.schema.json#/$defs/Units" },
-        "garment": { "$ref": "#/$defs/DimensionMap" },
+        "garment": { "$ref": "#/$defs/GarmentDimensionMap" },
         "body": { "oneOf": [{ "$ref": "#/$defs/BodyMeasurements" }, { "type": "null" }] }
       },
       "additionalProperties": false
@@ -81,7 +78,13 @@
         "dimension": { "$ref": "common.schema.json#/$defs/Slug" },
         "code": {
           "type": "string",
-          "enum": ["MISSING_DIMENSION", "UNCONFIRMED", "IMPLAUSIBLE_DIMENSION", "CONFLICTING_DIMENSIONS", "POSSIBLE_UNIT_ERROR"]
+          "enum": [
+            "MISSING_DIMENSION",
+            "UNCONFIRMED_DIMENSION",
+            "IMPLAUSIBLE_DIMENSION",
+            "CONFLICTING_DIMENSIONS",
+            "POSSIBLE_UNIT_ERROR"
+          ]
         },
         "message": { "type": "string", "maxLength": 300 }
       },
@@ -94,13 +97,29 @@
       "properties": {
         "measurements": { "$ref": "#" },
         "issues": { "type": "array", "items": { "$ref": "#/$defs/MeasurementIssue" } },
-        "missing_dimensions": {
-          "type": "array",
-          "items": { "$ref": "common.schema.json#/$defs/Slug" },
-          "uniqueItems": true
-        }
+        "missing_dimensions": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Slug" }, "uniqueItems": true }
       },
       "additionalProperties": false
+    },
+    "GarmentDimension": {
+      "type": "string",
+      "description": "Canonical flat-garment dimension names: lower snake case, no unit suffix. N1, N2, K3 and the app use exactly these; new names are added here by PR.",
+      "enum": [
+        "shoulder_to_hem",
+        "chest_flat_width",
+        "chest_circumference",
+        "waist_flat_width",
+        "hem_width",
+        "shoulder_width",
+        "sleeve_length",
+        "placket_end_from_shoulder"
+      ]
+    },
+    "GarmentDimensionMap": {
+      "type": "object",
+      "description": "GarmentDimension -> measured value.",
+      "propertyNames": { "$ref": "#/$defs/GarmentDimension" },
+      "additionalProperties": { "$ref": "#/$defs/MeasurementValue" }
     }
   }
 }

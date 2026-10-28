@@ -611,15 +611,20 @@ export interface components {
          * @constant
          */
         Units: "mm";
-        /** @description A non-negative length in millimetres. */
-        LengthMm: number;
+        /**
+         * @description Canonical flat-garment dimension names: lower snake case, no unit suffix. N1, N2, K3 and the app use exactly these; new names are added here by PR.
+         * @enum {string}
+         */
+        GarmentDimension: "shoulder_to_hem" | "chest_flat_width" | "chest_circumference" | "waist_flat_width" | "hem_width" | "shoulder_width" | "sleeve_length" | "placket_end_from_shoulder";
+        /** @description A strictly positive length in millimetres (measured values; 0 mm is never a real measurement). */
+        PositiveLengthMm: number;
         /**
          * @description user_tape_measured: user measured with a tape or ruler following the guide. user_entered: typed without the guide. vision_suggested: proposed from a calibrated photo; not trusted until the user confirms. saved_profile: copied from the user's saved body profile.
          * @enum {string}
          */
         MeasurementOrigin: "user_tape_measured" | "user_entered" | "vision_suggested" | "saved_profile";
         MeasurementValue: {
-            value_mm: components["schemas"]["LengthMm"];
+            value_mm: components["schemas"]["PositiveLengthMm"];
             origin: components["schemas"]["MeasurementOrigin"];
             /** @description When the user confirmed the value. null = not confirmed. */
             confirmed_at: components["schemas"]["Timestamp"] | null;
@@ -629,6 +634,10 @@ export interface components {
              */
             entered_unit?: "mm" | "cm" | "in";
             note?: string | null;
+        };
+        /** @description GarmentDimension -> measured value. */
+        GarmentDimensionMap: {
+            [key: string]: components["schemas"]["MeasurementValue"];
         };
         /** @description Dimension name -> measured value. Names are lower snake case without a unit suffix; the unit lives in value_mm. */
         DimensionMap: {
@@ -643,7 +652,7 @@ export interface components {
         /** @description Body of PUT /v1/projects/{project_id}/measurements. Replaces the project's measurements and creates a new measurements_id; designs computed from the old values become stale until rechecked. */
         MeasurementsInput: {
             units: components["schemas"]["Units"];
-            garment: components["schemas"]["DimensionMap"];
+            garment: components["schemas"]["GarmentDimensionMap"];
             body?: components["schemas"]["BodyMeasurements"] | null;
         };
         /**
@@ -655,7 +664,7 @@ export interface components {
             project_id: components["schemas"]["Id"];
             units: components["schemas"]["Units"];
             /** @description Flat garment dimensions, e.g. shoulder_to_hem, chest_flat_width, sleeve_length, hem_width. */
-            garment: components["schemas"]["DimensionMap"];
+            garment: components["schemas"]["GarmentDimensionMap"];
             /** @description Self-reported body measurements. Present only with explicit consent. */
             body?: components["schemas"]["BodyMeasurements"] | null;
             updated_at: components["schemas"]["Timestamp"];
@@ -666,7 +675,7 @@ export interface components {
                  */
                 MeasurementOrigin: "user_tape_measured" | "user_entered" | "vision_suggested" | "saved_profile";
                 MeasurementValue: {
-                    value_mm: components["schemas"]["LengthMm"];
+                    value_mm: components["schemas"]["PositiveLengthMm"];
                     origin: components["schemas"]["MeasurementOrigin"];
                     /** @description When the user confirmed the value. null = not confirmed. */
                     confirmed_at: components["schemas"]["Timestamp"] | null;
@@ -690,13 +699,13 @@ export interface components {
                 /** @description Body of PUT /v1/projects/{project_id}/measurements. Replaces the project's measurements and creates a new measurements_id; designs computed from the old values become stale until rechecked. */
                 MeasurementsInput: {
                     units: components["schemas"]["Units"];
-                    garment: components["schemas"]["DimensionMap"];
+                    garment: components["schemas"]["GarmentDimensionMap"];
                     body?: components["schemas"]["BodyMeasurements"] | null;
                 };
                 MeasurementIssue: {
                     dimension: components["schemas"]["Slug"];
                     /** @enum {string} */
-                    code: "MISSING_DIMENSION" | "UNCONFIRMED" | "IMPLAUSIBLE_DIMENSION" | "CONFLICTING_DIMENSIONS" | "POSSIBLE_UNIT_ERROR";
+                    code: "MISSING_DIMENSION" | "UNCONFIRMED_DIMENSION" | "IMPLAUSIBLE_DIMENSION" | "CONFLICTING_DIMENSIONS" | "POSSIBLE_UNIT_ERROR";
                     message: string;
                 };
                 /** @description Response of PUT measurements: the stored record plus server validation (units, source, required dimensions). */
@@ -705,14 +714,25 @@ export interface components {
                     issues: components["schemas"]["MeasurementIssue"][];
                     missing_dimensions: components["schemas"]["Slug"][];
                 };
+                /**
+                 * @description Canonical flat-garment dimension names: lower snake case, no unit suffix. N1, N2, K3 and the app use exactly these; new names are added here by PR.
+                 * @enum {string}
+                 */
+                GarmentDimension: "shoulder_to_hem" | "chest_flat_width" | "chest_circumference" | "waist_flat_width" | "hem_width" | "shoulder_width" | "sleeve_length" | "placket_end_from_shoulder";
+                /** @description GarmentDimension -> measured value. */
+                GarmentDimensionMap: {
+                    [key: string]: components["schemas"]["MeasurementValue"];
+                };
             };
         };
         MeasurementIssue: {
             dimension: components["schemas"]["Slug"];
             /** @enum {string} */
-            code: "MISSING_DIMENSION" | "UNCONFIRMED" | "IMPLAUSIBLE_DIMENSION" | "CONFLICTING_DIMENSIONS" | "POSSIBLE_UNIT_ERROR";
+            code: "MISSING_DIMENSION" | "UNCONFIRMED_DIMENSION" | "IMPLAUSIBLE_DIMENSION" | "CONFLICTING_DIMENSIONS" | "POSSIBLE_UNIT_ERROR";
             message: string;
         };
+        /** @description A non-negative length in millimetres. */
+        LengthMm: number;
         /** @description Structured attributes parsed from the request (Stage B). Lengths are mm. */
         RequestedFeatures: {
             /** @enum {string} */
@@ -741,8 +761,13 @@ export interface components {
             inspiration: components["schemas"]["InspirationInput"];
         };
         JobResult: {
+            /**
+             * @description Summary of the run for the progress screen. Not a design state: each design's state is on its revision. designs = at least one design passed; needs_input = none passed and at least one needs input; no_feasible_design = designs were checked and none passed; unsupported = no reviewed recipe fits (IDEA_ONLY at most); blocked = the content-safety screen stopped the run; needs_confirmation = garment attributes need user confirmation before any check runs.
+             * @enum {string}
+             */
+            outcome: "designs" | "needs_input" | "no_feasible_design" | "unsupported" | "blocked" | "needs_confirmation";
             design_ids: components["schemas"]["Id"][];
-        };
+        } & (unknown & unknown);
         /**
          * Job
          * @description Async generation job (POST /v1/projects/{id}/generate). Poll GET /v1/jobs/{job_id}. A complete job may still have zero designs.
@@ -765,8 +790,13 @@ export interface components {
             updated_at: components["schemas"]["Timestamp"];
             $defs: {
                 JobResult: {
+                    /**
+                     * @description Summary of the run for the progress screen. Not a design state: each design's state is on its revision. designs = at least one design passed; needs_input = none passed and at least one needs input; no_feasible_design = designs were checked and none passed; unsupported = no reviewed recipe fits (IDEA_ONLY at most); blocked = the content-safety screen stopped the run; needs_confirmation = garment attributes need user confirmation before any check runs.
+                     * @enum {string}
+                     */
+                    outcome: "designs" | "needs_input" | "no_feasible_design" | "unsupported" | "blocked" | "needs_confirmation";
                     design_ids: components["schemas"]["Id"][];
-                };
+                } & (unknown & unknown);
                 /** @description Body of POST /v1/projects/{project_id}/generate. Retries with the same Idempotency-Key header return the original job. */
                 GenerateRequest: {
                     inspiration: components["schemas"]["InspirationInput"];
@@ -786,19 +816,17 @@ export interface components {
         "design-state.schema": "IDEA_ONLY" | "NEEDS_INPUT" | "FAILED_CHECKS" | "PASS_SUPPORTED_CHECKS" | "SUPERSEDED";
         /** @description Reviewed recipe identifier from content/recipes. The server checks it against the allow-list. */
         RecipeId: string;
-        /** @description A signed length in millimetres (for residuals and coordinates). */
-        SignedLengthMm: number;
-        /** @description Recipe parameters picked from the recipe's allow-list. Lengths must use a key ending in _mm; counts end in _count; everything else is a string or boolean option. Unitless numeric lengths are rejected. */
+        /** @description Recipe parameters picked from the recipe's allow-list. Lengths must use a key ending in _mm and are non-negative; counts end in _count; everything else is a string or boolean option. Unitless, centimetre and negative lengths are rejected. Used for user edits and engine output; AI output uses AiParameters instead. */
         Parameters: {
             [key: string]: number | string | boolean;
         } & {
             [key: string]: string | boolean;
         };
         /**
-         * @description Hard-gate failure codes (§5.4). Owned by N1; new codes are added here by PR before the engine emits them.
+         * @description Hard-gate failure codes (§5.4). Owned by N1; new codes are added here by PR before the engine emits them. Input problems (MISSING_*, UNCONFIRMED_DIMENSION, IMPLAUSIBLE_DIMENSION, CONFLICTING_DIMENSIONS, POSSIBLE_UNIT_ERROR, *_UNKNOWN, INVALID_PARAMETER, NON_FINITE_VALUE) lead to NEEDS_INPUT; the rest lead to FAILED_CHECKS or IDEA_ONLY.
          * @enum {string}
          */
-        FailureCode: "UNSUPPORTED_RECIPE" | "UNSUPPORTED_GARMENT_CATEGORY" | "UNSUPPORTED_MATERIAL" | "MATERIAL_UNKNOWN" | "MISSING_DIMENSION" | "CONFLICTING_DIMENSIONS" | "IMPLAUSIBLE_DIMENSION" | "INSUFFICIENT_LENGTH" | "EXCEEDS_USABLE_AREA" | "CUT_INTERSECTS_PROHIBITED_REGION" | "INSUFFICIENT_EASE" | "MISSING_CONSTRUCTION_TECHNIQUE" | "UNPROVEN_PIECE_JOIN" | "CALIBRATION_UNSTABLE";
+        FailureCode: "UNSUPPORTED_RECIPE" | "UNSUPPORTED_GARMENT_CATEGORY" | "UNSUPPORTED_MATERIAL" | "MATERIAL_UNKNOWN" | "MISSING_DIMENSION" | "CONFLICTING_DIMENSIONS" | "IMPLAUSIBLE_DIMENSION" | "INSUFFICIENT_LENGTH" | "EXCEEDS_USABLE_AREA" | "CUT_INTERSECTS_PROHIBITED_REGION" | "INSUFFICIENT_EASE" | "MISSING_CONSTRUCTION_TECHNIQUE" | "UNPROVEN_PIECE_JOIN" | "CALIBRATION_UNSTABLE" | "CATEGORY_UNKNOWN" | "UNCONFIRMED_DIMENSION" | "POSSIBLE_UNIT_ERROR" | "NON_FINITE_VALUE" | "MISSING_PARAMETER" | "INVALID_PARAMETER" | "NO_POSITIVE_REMAINDER" | "MISSING_PROHIBITED_ZONES";
         /** @description Visual concept for this revision. Always approximate; never evidence that the design can be cut. */
         PreviewRef: {
             preview_id: components["schemas"]["Id"];
@@ -857,6 +885,8 @@ export interface components {
                 };
             };
         };
+        /** @description A signed length in millimetres (for residuals and coordinates). */
+        SignedLengthMm: number;
         Residual: {
             check_id: components["schemas"]["Slug"];
             quantity: components["schemas"]["Slug"];
@@ -865,6 +895,8 @@ export interface components {
             residual_mm: components["schemas"]["SignedLengthMm"];
             tolerance_mm?: components["schemas"]["LengthMm"] | null;
         };
+        /** @description Upper snake case, like FailureCode. Open set; the examples are ones N1 emits today. */
+        UncertaintyFlag: string;
         CheckOutcome: {
             check_id: components["schemas"]["Slug"];
             /** @enum {string} */
@@ -882,14 +914,15 @@ export interface components {
          * @description Output of the deterministic feasibility check (blueprint §5.2, §5.4). Never a bare yes/no: always codes, residuals, missing inputs and the engine version.
          */
         "constraint-result.schema": {
-            /** @description true only if every hard gate ran and passed. Missing inputs make this false. */
+            /** @description true only if every hard gate ran and passed. Enforced here: at least one check passed, no check failed, needed input or was not run, and no residual is negative. Missing inputs make this false. */
             hard_pass: boolean;
             failure_codes: components["schemas"]["FailureCode"][];
             /** @description Numeric margins per check. residual_mm = available_mm - required_mm; negative means the design overshoots. */
             residuals: components["schemas"]["Residual"][];
-            /** @description Dimension names (Measurements keys) that are absent or unconfirmed and block a decision. */
+            /** @description Dimension names (Measurements keys) that block a decision because they are absent, unconfirmed (confirmed_at = null), implausible or in conflict with another value. The app re-asks exactly these. */
             missing_dimensions: components["schemas"]["Slug"][];
-            uncertainty_flags: components["schemas"]["Slug"][];
+            /** @description Non-blocking cautions shown with the result. */
+            uncertainty_flags: components["schemas"]["UncertaintyFlag"][];
             /** @description Every gate that was evaluated, in order. */
             checks: components["schemas"]["CheckOutcome"][];
             /** @description Supported changes the engine verified would pass (or would need less input). Shown when the request fails. */
@@ -898,10 +931,10 @@ export interface components {
             checked_at: components["schemas"]["Timestamp"];
             $defs: {
                 /**
-                 * @description Hard-gate failure codes (§5.4). Owned by N1; new codes are added here by PR before the engine emits them.
+                 * @description Hard-gate failure codes (§5.4). Owned by N1; new codes are added here by PR before the engine emits them. Input problems (MISSING_*, UNCONFIRMED_DIMENSION, IMPLAUSIBLE_DIMENSION, CONFLICTING_DIMENSIONS, POSSIBLE_UNIT_ERROR, *_UNKNOWN, INVALID_PARAMETER, NON_FINITE_VALUE) lead to NEEDS_INPUT; the rest lead to FAILED_CHECKS or IDEA_ONLY.
                  * @enum {string}
                  */
-                FailureCode: "UNSUPPORTED_RECIPE" | "UNSUPPORTED_GARMENT_CATEGORY" | "UNSUPPORTED_MATERIAL" | "MATERIAL_UNKNOWN" | "MISSING_DIMENSION" | "CONFLICTING_DIMENSIONS" | "IMPLAUSIBLE_DIMENSION" | "INSUFFICIENT_LENGTH" | "EXCEEDS_USABLE_AREA" | "CUT_INTERSECTS_PROHIBITED_REGION" | "INSUFFICIENT_EASE" | "MISSING_CONSTRUCTION_TECHNIQUE" | "UNPROVEN_PIECE_JOIN" | "CALIBRATION_UNSTABLE";
+                FailureCode: "UNSUPPORTED_RECIPE" | "UNSUPPORTED_GARMENT_CATEGORY" | "UNSUPPORTED_MATERIAL" | "MATERIAL_UNKNOWN" | "MISSING_DIMENSION" | "CONFLICTING_DIMENSIONS" | "IMPLAUSIBLE_DIMENSION" | "INSUFFICIENT_LENGTH" | "EXCEEDS_USABLE_AREA" | "CUT_INTERSECTS_PROHIBITED_REGION" | "INSUFFICIENT_EASE" | "MISSING_CONSTRUCTION_TECHNIQUE" | "UNPROVEN_PIECE_JOIN" | "CALIBRATION_UNSTABLE" | "CATEGORY_UNKNOWN" | "UNCONFIRMED_DIMENSION" | "POSSIBLE_UNIT_ERROR" | "NON_FINITE_VALUE" | "MISSING_PARAMETER" | "INVALID_PARAMETER" | "NO_POSITIVE_REMAINDER" | "MISSING_PROHIBITED_ZONES";
                 CheckOutcome: {
                     check_id: components["schemas"]["Slug"];
                     /** @enum {string} */
@@ -922,6 +955,8 @@ export interface components {
                     parameters: components["schemas"]["Parameters"];
                     reason: string;
                 };
+                /** @description Upper snake case, like FailureCode. Open set; the examples are ones N1 emits today. */
+                UncertaintyFlag: string;
             };
         } & unknown;
         /** @description Body of POST /v1/designs/{design_id}/revisions. The server copies the parent, applies the changed parameters, reruns the feasibility engine and returns a new revision. The parent is never modified, apart from being marked SUPERSEDED when it had passed. */
@@ -1408,18 +1443,19 @@ export interface components {
             media_consent?: "none" | "report_only" | "report_and_demo" | null;
             recorded_at: components["schemas"]["Timestamp"];
         };
+        /** @description Parameters an AI model may propose: named levels and switches from the recipe's allow-list only. No numbers at all, so the model can never supply a length (non-negotiable 4). The recipe maps each level to millimetres before the feasibility engine runs. */
+        AiParameters: {
+            [key: string]: string | boolean;
+        };
         /**
          * AiCandidateProposal
-         * @description Structured output of AI Stage D (§4.2). The model may only pick recipe IDs and parameters; the server then checks recipe_id against the allow-list and parameter keys/ranges against the recipe before the feasibility engine runs. The model never supplies geometry, coordinates or a design state.
+         * @description Structured output of AI Stage D (§4.2). The model may only pick recipe IDs and named parameter levels (AiParameters, no numbers). The server checks recipe_id against the allow-list and each level against the recipe; the recipe maps levels to mm before the feasibility engine runs. The model never supplies geometry, lengths, coordinates, a design state or free text. An empty proposals list sends the request down the IDEA_ONLY path.
          */
         "ai-candidate-proposal.schema": {
             proposals: {
                 recipe_id: components["schemas"]["RecipeId"];
-                parameters: components["schemas"]["Parameters"];
-                rationale: string;
+                parameters: components["schemas"]["AiParameters"];
             }[];
-            /** @description When nothing in the allow-list matches, a short description of the idea for the inspiration-only path. */
-            idea_only_notes?: string | null;
         };
         /**
          * FixtureScenario

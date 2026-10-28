@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from . import common_schema
 
@@ -21,20 +21,26 @@ class Proposal(BaseModel):
     """
     Reviewed recipe identifier from content/recipes. The server checks it against the allow-list.
     """
-    parameters: common_schema.Parameters
-    rationale: Annotated[str, Field(max_length=300)]
+    parameters: Annotated[
+        dict[
+            Annotated[
+                str, StringConstraints(pattern=r'^[a-z][a-z0-9_]*$', max_length=64)
+            ],
+            common_schema.AiParameters1 | bool,
+        ],
+        Field(examples=[{'crop_level': 'cropped', 'hem_finish': 'double_fold'}]),
+    ]
+    """
+    Parameters an AI model may propose: named levels and switches from the recipe's allow-list only. No numbers at all, so the model can never supply a length (non-negotiable 4). The recipe maps each level to millimetres before the feasibility engine runs.
+    """
 
 
 class AiCandidateProposal(BaseModel):
     """
-    Structured output of AI Stage D (§4.2). The model may only pick recipe IDs and parameters; the server then checks recipe_id against the allow-list and parameter keys/ranges against the recipe before the feasibility engine runs. The model never supplies geometry, coordinates or a design state.
+    Structured output of AI Stage D (§4.2). The model may only pick recipe IDs and named parameter levels (AiParameters, no numbers). The server checks recipe_id against the allow-list and each level against the recipe; the recipe maps levels to mm before the feasibility engine runs. The model never supplies geometry, lengths, coordinates, a design state or free text. An empty proposals list sends the request down the IDEA_ONLY path.
     """
 
     model_config = ConfigDict(
         extra='forbid',
     )
     proposals: Annotated[list[Proposal], Field(max_length=6, min_length=0)]
-    idea_only_notes: Annotated[str | None, Field(max_length=600)] = None
-    """
-    When nothing in the allow-list matches, a short description of the idea for the inspiration-only path.
-    """

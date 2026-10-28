@@ -78,6 +78,9 @@ def check_fixture_invariants(name: str, fx: dict[str, Any]) -> list[str]:
         job_ids = sorted(fx["job"]["result"]["design_ids"])
         if job_ids != sorted(d["design_id"] for d in designs):
             errors.append(f"{name}: job result design_ids do not match the design list")
+        any_pass = any(d["status"] == "PASS_SUPPORTED_CHECKS" for d in designs)
+        if (fx["job"]["result"]["outcome"] == "designs") != any_pass:
+            errors.append(f"{name}: job outcome 'designs' must mean at least one design passed, and only then")
     for rev in revisions.values():
         parent = rev["parent_revision_id"]
         if parent is not None and parent not in revisions:

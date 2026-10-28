@@ -65,7 +65,7 @@ class Version(RootModel[str]):
 
 class Parameters(BaseModel):
     """
-    Recipe parameters picked from the recipe's allow-list. Lengths must use a key ending in _mm; counts end in _count; everything else is a string or boolean option. Unitless numeric lengths are rejected.
+    Recipe parameters picked from the recipe's allow-list. Lengths must use a key ending in _mm and are non-negative; counts end in _count; everything else is a string or boolean option. Unitless, centimetre and negative lengths are rejected. Used for user edits and engine output; AI output uses AiParameters instead.
     """
 
     model_config = ConfigDict(
@@ -126,3 +126,7 @@ class Money(BaseModel):
     )
     amount_minor: Annotated[int, Field(ge=0)]
     currency: Annotated[str, Field(pattern='^[A-Z]{3}$')]
+
+
+class AiParameters1(RootModel[str]):
+    root: Annotated[str, Field(max_length=64, pattern='^[a-z][a-z0-9_]*$')]

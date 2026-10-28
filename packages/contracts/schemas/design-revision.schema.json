@@ -45,9 +45,7 @@
       "oneOf": [{ "$ref": "common.schema.json#/$defs/RecipeId" }, { "type": "null" }],
       "description": "null only for IDEA_ONLY revisions with no matching reviewed recipe."
     },
-    "recipe_version": {
-      "oneOf": [{ "$ref": "common.schema.json#/$defs/Version" }, { "type": "null" }]
-    },
+    "recipe_version": { "oneOf": [{ "$ref": "common.schema.json#/$defs/Version" }, { "type": "null" }] },
     "parameters": { "$ref": "common.schema.json#/$defs/Parameters" },
     "units": { "$ref": "common.schema.json#/$defs/Units" },
     "geometry_mm": {
@@ -67,19 +65,13 @@
       "description": "Checks the user must still do in person before cutting (e.g. verify collar-to-hem reference with a ruler).",
       "items": { "type": "string", "maxLength": 200 }
     },
-    "fit": {
-      "oneOf": [{ "$ref": "fit-assessment.schema.json" }, { "type": "null" }]
-    },
+    "fit": { "oneOf": [{ "$ref": "fit-assessment.schema.json" }, { "type": "null" }] },
     "cut_plan_id": {
       "oneOf": [{ "$ref": "common.schema.json#/$defs/Id" }, { "type": "null" }],
       "description": "Present only for PASS_SUPPORTED_CHECKS (or a SUPERSEDED revision that had passed)."
     },
-    "preview": {
-      "oneOf": [{ "$ref": "#/$defs/PreviewRef" }, { "type": "null" }]
-    },
-    "superseded_by_revision_id": {
-      "oneOf": [{ "$ref": "common.schema.json#/$defs/Id" }, { "type": "null" }]
-    },
+    "preview": { "oneOf": [{ "$ref": "#/$defs/PreviewRef" }, { "type": "null" }] },
+    "superseded_by_revision_id": { "oneOf": [{ "$ref": "common.schema.json#/$defs/Id" }, { "type": "null" }] },
     "provenance": { "$ref": "common.schema.json#/$defs/Provenance" },
     "created_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
   },
@@ -108,25 +100,25 @@
     {
       "if": { "properties": { "status": { "const": "NEEDS_INPUT" } } },
       "then": {
-        "properties": {
-          "checks": { "properties": { "hard_pass": { "const": false }, "missing_dimensions": { "minItems": 1 } } },
-          "cut_plan_id": { "type": "null" }
-        }
+        "properties": { "checks": { "properties": { "hard_pass": { "const": false } } }, "cut_plan_id": { "type": "null" } },
+        "anyOf": [
+          { "properties": { "checks": { "properties": { "missing_dimensions": { "minItems": 1 } } } } },
+          { "properties": { "checks": { "properties": { "failure_codes": { "minItems": 1 } } } } }
+        ]
       }
     },
     {
       "if": { "properties": { "status": { "const": "IDEA_ONLY" } } },
       "then": {
-        "properties": {
-          "checks": { "properties": { "hard_pass": { "const": false } } },
-          "cut_plan_id": { "type": "null" }
-        }
+        "properties": { "checks": { "properties": { "hard_pass": { "const": false } } }, "cut_plan_id": { "type": "null" } }
       }
     },
     {
       "if": { "properties": { "status": { "const": "SUPERSEDED" } } },
       "then": {
-        "properties": { "superseded_by_revision_id": { "$ref": "common.schema.json#/$defs/Id" } }
+        "properties": { "superseded_by_revision_id": { "$ref": "common.schema.json#/$defs/Id" } },
+        "if": { "properties": { "checks": { "properties": { "hard_pass": { "const": false } } } } },
+        "then": { "properties": { "cut_plan_id": { "type": "null" } } }
       }
     }
   ],
@@ -140,17 +132,11 @@
       "description": "Exactly what the engine checked, so the result can be reproduced.",
       "required": ["measurements_id", "garment_category", "fabric_family"],
       "properties": {
-        "measurements_id": {
-          "oneOf": [{ "$ref": "common.schema.json#/$defs/Id" }, { "type": "null" }]
-        },
+        "measurements_id": { "oneOf": [{ "$ref": "common.schema.json#/$defs/Id" }, { "type": "null" }] },
         "garment_category": { "$ref": "garment.schema.json#/$defs/GarmentCategory" },
         "fabric_family": { "$ref": "garment.schema.json#/$defs/FabricFamily" },
-        "inspiration_id": {
-          "oneOf": [{ "$ref": "common.schema.json#/$defs/Id" }, { "type": "null" }]
-        },
-        "calibration_id": {
-          "oneOf": [{ "$ref": "common.schema.json#/$defs/Id" }, { "type": "null" }]
-        }
+        "inspiration_id": { "oneOf": [{ "$ref": "common.schema.json#/$defs/Id" }, { "type": "null" }] },
+        "calibration_id": { "oneOf": [{ "$ref": "common.schema.json#/$defs/Id" }, { "type": "null" }] }
       },
       "additionalProperties": false
     },

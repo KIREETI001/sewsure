@@ -6,14 +6,14 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Annotated
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, RootModel
 
 from . import common_schema
 
 
 class FailureCode(StrEnum):
     """
-    Hard-gate failure codes (§5.4). Owned by N1; new codes are added here by PR before the engine emits them.
+    Hard-gate failure codes (§5.4). Owned by N1; new codes are added here by PR before the engine emits them. Input problems (MISSING_*, UNCONFIRMED_DIMENSION, IMPLAUSIBLE_DIMENSION, CONFLICTING_DIMENSIONS, POSSIBLE_UNIT_ERROR, *_UNKNOWN, INVALID_PARAMETER, NON_FINITE_VALUE) lead to NEEDS_INPUT; the rest lead to FAILED_CHECKS or IDEA_ONLY.
     """
 
     UNSUPPORTED_RECIPE = 'UNSUPPORTED_RECIPE'
@@ -30,6 +30,14 @@ class FailureCode(StrEnum):
     MISSING_CONSTRUCTION_TECHNIQUE = 'MISSING_CONSTRUCTION_TECHNIQUE'
     UNPROVEN_PIECE_JOIN = 'UNPROVEN_PIECE_JOIN'
     CALIBRATION_UNSTABLE = 'CALIBRATION_UNSTABLE'
+    CATEGORY_UNKNOWN = 'CATEGORY_UNKNOWN'
+    UNCONFIRMED_DIMENSION = 'UNCONFIRMED_DIMENSION'
+    POSSIBLE_UNIT_ERROR = 'POSSIBLE_UNIT_ERROR'
+    NON_FINITE_VALUE = 'NON_FINITE_VALUE'
+    MISSING_PARAMETER = 'MISSING_PARAMETER'
+    INVALID_PARAMETER = 'INVALID_PARAMETER'
+    NO_POSITIVE_REMAINDER = 'NO_POSITIVE_REMAINDER'
+    MISSING_PROHIBITED_ZONES = 'MISSING_PROHIBITED_ZONES'
 
 
 class Result(StrEnum):
@@ -108,6 +116,20 @@ class Alternative(BaseModel):
     reason: Annotated[str, Field(max_length=300)]
 
 
+class UncertaintyFlag(RootModel[str]):
+    root: Annotated[
+        str,
+        Field(
+            examples=['SIDE_SEAMS_NOT_VERIFIED', 'SELF_REPORTED_MEASUREMENTS'],
+            max_length=64,
+            pattern='^[A-Z][A-Z0-9_]*$',
+        ),
+    ]
+    """
+    Upper snake case, like FailureCode. Open set; the examples are ones N1 emits today.
+    """
+
+
 class ConstraintResult(BaseModel):
     """
     Output of the deterministic feasibility check (blueprint §5.2, §5.4). Never a bare yes/no: always codes, residuals, missing inputs and the engine version.
@@ -118,7 +140,7 @@ class ConstraintResult(BaseModel):
     )
     hard_pass: bool
     """
-    true only if every hard gate ran and passed. Missing inputs make this false.
+    true only if every hard gate ran and passed. Enforced here: at least one check passed, no check failed, needed input or was not run, and no residual is negative. Missing inputs make this false.
     """
     failure_codes: list[FailureCode]
     residuals: list[Residual]
@@ -127,12 +149,12 @@ class ConstraintResult(BaseModel):
     """
     missing_dimensions: list[common_schema.Slug]
     """
-    Dimension names (Measurements keys) that are absent or unconfirmed and block a decision.
+    Dimension names (Measurements keys) that block a decision because they are absent, unconfirmed (confirmed_at = null), implausible or in conflict with another value. The app re-asks exactly these.
     """
-    uncertainty_flags: Annotated[
-        list[common_schema.Slug],
-        Field(examples=[['side_seams_not_verified', 'self_reported_measurements']]),
-    ]
+    uncertainty_flags: list[UncertaintyFlag]
+    """
+    Non-blocking cautions shown with the result.
+    """
     checks: list[CheckOutcome]
     """
     Every gate that was evaluated, in order.

@@ -125,14 +125,14 @@ def inspiration(key: str, text: str, features: dict[str, Any]) -> dict[str, Any]
     }
 
 
-def job(key: str, state: str, design_ids: list[str] | None, error: dict[str, Any] | None = None) -> dict[str, Any]:
+def job(key: str, state: str, design_ids: list[str] | None, outcome: str | None = None, error: dict[str, Any] | None = None) -> dict[str, Any]:
     return {
         "job_id": f"job-{key}",
         "kind": "generate_designs",
         "project_id": f"prj-{key}",
         "state": state,
         "stage": None,
-        "result": None if design_ids is None else {"design_ids": design_ids},
+        "result": None if design_ids is None else {"outcome": outcome, "design_ids": design_ids},
         "error": error,
         "created_at": T0,
         "updated_at": T1,
@@ -279,18 +279,18 @@ def woven_shirt_crop_pass() -> dict[str, Any]:
     pending = ["Verify the shoulder-to-hem reference with a ruler on the garment before cutting."]
     a1 = revision(
         key, "crop-a", 1, parameters=a1_params, geometry=crop_geometry(780, 500, 30),
-        check=checks(True, PASS_OUTCOMES, [length_residual(530, 780)], flags=["side_seams_not_verified"]),
+        check=checks(True, PASS_OUTCOMES, [length_residual(530, 780)], flags=["SIDE_SEAMS_NOT_VERIFIED"]),
         status="SUPERSEDED", pending=pending, cut_plan_id="cut-crop-a-1", superseded_by="rev-crop-a-2", **common,
     )
     a2 = revision(
         key, "crop-a", 2, parameters=a2_params, geometry=crop_geometry(780, 500, 25),
-        check=checks(True, PASS_OUTCOMES, [length_residual(525, 780)], flags=["side_seams_not_verified"]),
+        check=checks(True, PASS_OUTCOMES, [length_residual(525, 780)], flags=["SIDE_SEAMS_NOT_VERIFIED"]),
         status="PASS_SUPPORTED_CHECKS", pending=pending, cut_plan_id="cut-crop-a-2", parent="rev-crop-a-1", **common,
     )
     b_params = {"finished_length_mm": 450, "hem_allowance_mm": 30, "hem_finish": "double_fold"}
     b1 = revision(
         key, "crop-b", 1, parameters=b_params, geometry=crop_geometry(780, 450, 30),
-        check=checks(True, PASS_OUTCOMES, [length_residual(480, 780)], flags=["side_seams_not_verified"]),
+        check=checks(True, PASS_OUTCOMES, [length_residual(480, 780)], flags=["SIDE_SEAMS_NOT_VERIFIED"]),
         status="PASS_SUPPORTED_CHECKS", pending=pending, cut_plan_id="cut-crop-b-1", **common,
     )
     panels = ["back_panel", "front_left", "front_right"]
@@ -450,7 +450,7 @@ def woven_shirt_crop_pass() -> dict[str, Any]:
         "garment": garment(key, "woven_shirt", "woven", ["button_placket", "chest_pocket", "curved_hem"]),
         "measurements": measurements(key, SHIRT_DIMS, [], []),
         "inspiration": inspiration(key, "Make it a cropped shirt I can wear over a dress.", {"transformation": "crop", "target_finished_length_mm": 500, "closure_preservation": True}),
-        "job": job(key, "complete", ["des-crop-a", "des-crop-b"]),
+        "job": job(key, "complete", ["des-crop-a", "des-crop-b"], "designs"),
         "designs": {"project_id": f"prj-{key}", "job_id": f"job-{key}", "designs": designs, "binding_constraint": None},
         "revisions": [a1, a2, b1],
         "cut_plan": cut_plan,
@@ -496,7 +496,7 @@ def lengthening_impossible() -> dict[str, Any]:
         "garment": garment(key, "woven_shirt", "woven", ["button_placket", "curved_hem"]),
         "measurements": measurements(key, SHIRT_DIMS, [], []),
         "inspiration": inspiration(key, "Make this shirt into a longer shirt dress.", {"transformation": "lengthen", "target_finished_length_mm": 900}),
-        "job": job(key, "complete", ["des-longer-a"]),
+        "job": job(key, "complete", ["des-longer-a"], "no_feasible_design"),
         "designs": {
             "project_id": f"prj-{key}",
             "job_id": f"job-{key}",
@@ -517,13 +517,13 @@ def needs_input() -> dict[str, Any]:
         "shoulder_to_hem": mv(760, origin="vision_suggested", confirmed=None, entered_unit="mm"),
         "chest_flat_width": mv(550),
     }
-    issues = [{"dimension": "shoulder_to_hem", "code": "UNCONFIRMED", "message": "Measure shoulder to hem with a tape and confirm the value."}]
+    issues = [{"dimension": "shoulder_to_hem", "code": "UNCONFIRMED_DIMENSION", "message": "Measure shoulder to hem with a tape and confirm the value."}]
     params = {"finished_length_mm": 500, "hem_allowance_mm": 30, "hem_finish": "double_fold"}
     check = checks(
         False,
         [
             ("supported_material", "pass", None),
-            ("required_dimensions", "needs_input", "MISSING_DIMENSION"),
+            ("required_dimensions", "needs_input", "UNCONFIRMED_DIMENSION"),
             ("length_gate", "not_run", None),
             ("structure", "not_run", None),
             ("construction", "not_run", None),
@@ -543,7 +543,7 @@ def needs_input() -> dict[str, Any]:
         "garment": garment(key, "woven_shirt", "woven", ["button_placket"]),
         "measurements": measurements(key, dims, issues, ["shoulder_to_hem"]),
         "inspiration": inspiration(key, "Crop it to just above the waist.", {"transformation": "crop", "target_finished_length_mm": 500}),
-        "job": job(key, "complete", ["des-unsure-a"]),
+        "job": job(key, "complete", ["des-unsure-a"], "needs_input"),
         "designs": {
             "project_id": f"prj-{key}",
             "job_id": f"job-{key}",
@@ -596,7 +596,7 @@ def idea_only() -> dict[str, Any]:
         "garment": garment(key, "jersey_tee", "knit", ["crew_neck", "short_sleeves"]),
         "measurements": measurements(key, dims, [], []),
         "inspiration": inspiration(key, "Turn this into a corset top with boning.", {"transformation": "other", "waist_shaping": True}),
-        "job": job(key, "complete", ["des-idea-a"]),
+        "job": job(key, "complete", ["des-idea-a"], "unsupported"),
         "designs": {
             "project_id": f"prj-{key}",
             "job_id": f"job-{key}",
@@ -629,7 +629,7 @@ def job_failed_no_designs() -> dict[str, Any]:
         "project": project(key, f"msr-{key}", f"job-{key}"),
         "garment": garment(key, "woven_shirt", "woven", ["button_placket"]),
         "measurements": measurements(key, SHIRT_DIMS, [], []),
-        "job": job(key, "failed", None, error),
+        "job": job(key, "failed", None, error=error),
         "designs": {"project_id": f"prj-{key}", "job_id": f"job-{key}", "designs": [], "binding_constraint": None},
         "revisions": [],
         "cut_plan": None,

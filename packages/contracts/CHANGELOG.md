@@ -4,6 +4,98 @@ Status: **DRAFT, not frozen.** Consumers may build against v1 now, but field nam
 
 Every entry says what changed, why, and which consumers are affected.
 
+## 1.0.0-draft.2 (2026-10-28)
+
+Fixes from the X1 review on PR #15, plus canonical vocabularies after the cross-PR check against N1 #12, N2 #9, K2 #5 and K3 #10. Still DRAFT.
+
+**What and why**
+
+- **A pass now means every hard gate ran and passed** (X1 finding 1, major). Under `hard_pass: true`, `constraint-result` now also requires:
+  - at least one check, every check `pass` or `not_applicable`, and at least one `pass`;
+  - every `residuals[].residual_mm >= 0`.
+
+  Before, a `PASS_SUPPORTED_CHECKS` revision validated with a −150 mm residual, a failed check, or no checks at all.
+- **AI output can no longer carry numbers or free text** (finding 2, major):
+  - `ai-candidate-proposal` uses a new `AiParameters`: named levels (lower snake case) and booleans only. Keys ending `_mm`, `_cm`, `_in` or `_count` are rejected.
+  - `rationale` and `idea_only_notes` are removed. This matches K3 #10, which forbids free text in model output.
+  - An empty `proposals` list means the IDEA_ONLY path.
+  - The recipe maps levels to mm.
+- **Recipe `parameters` lengths are non-negative** (finding 2). `*_mm` values are now `LengthMm` (0–5000) instead of `SignedLengthMm`. This applies to RevisionCreate, revisions and alternatives.
+- **SUPERSEDED cannot keep a cut plan unless it had passed** (finding 3, minor): a SUPERSEDED revision with `checks.hard_pass = false` must have `cut_plan_id = null`.
+- **Measurements must be > 0 mm** (finding 4, minor). The new `common#/$defs/PositiveLengthMm` is used for `MeasurementValue.value_mm`.
+- **Canonical garment dimension names.** The new `measurements#/$defs/GarmentDimension` enum covers:
+  - `shoulder_to_hem`
+  - `chest_flat_width`
+  - `chest_circumference`
+  - `waist_flat_width`
+  - `hem_width`
+  - `shoulder_width`
+  - `sleeve_length`
+  - `placket_end_from_shoulder`
+
+  `Measurements.garment` and `MeasurementsInput.garment` only accept these keys. Names with unit suffixes and other spellings are rejected. Body measurement names stay open for now.
+- **FailureCode additions the engine needs.** N1 #12 emits these and the old enum had no equivalent:
+  - `CATEGORY_UNKNOWN`
+  - `UNCONFIRMED_DIMENSION`
+  - `POSSIBLE_UNIT_ERROR`
+  - `NON_FINITE_VALUE`
+  - `MISSING_PARAMETER`
+  - `INVALID_PARAMETER`
+  - `NO_POSITIVE_REMAINDER`
+  - `MISSING_PROHIBITED_ZONES`
+
+  No existing code was renamed.
+- **NEEDS_INPUT may be explained by a failure code** as well as by `missing_dimensions`. N1 returns NEEDS_INPUT for implausible, conflicting or unit-error values and for an unknown material, where no dimension is absent. A NEEDS_INPUT revision now needs at least one missing dimension or at least one failure code. Implausible or conflicting dimensions should still be listed in `missing_dimensions`, so the app knows which field to ask for again.
+- **`MeasurementIssue.code` `UNCONFIRMED` is renamed `UNCONFIRMED_DIMENSION`** so it matches the FailureCode.
+- **Uncertainty flags are UPPER_SNAKE**, matching FailureCode and N1. They use the new `constraint-result#/$defs/UncertaintyFlag`. Fixtures now use `SIDE_SEAMS_NOT_VERIFIED`.
+- **`Job.result.outcome` is required.** Its values are `designs | needs_input | no_feasible_design | unsupported | blocked | needs_confirmation`, which are the run summaries K3's pipeline produces.
+  - `designs` requires at least one design id.
+  - `blocked` and `needs_confirmation` require none.
+  - `validate.py` checks that `designs` is used if and only if a design passed.
+  - The outcome is a summary for the progress screen, not a design state.
+
+**Kept stable on purpose** (the contract is the reference; consumers adopt it):
+
+- Garment category `woven_shirt`, fabric family `woven`, and measurement origin `user_tape_measured`.
+- Recipe ID `woven_shirt_crop_v1`, which must match `^[a-z][a-z0-9_]*_v[0-9]+$`.
+- Existing FailureCode names. The engine should map to them:
+  - `RECIPE_NOT_ALLOWED` → `UNSUPPORTED_RECIPE`
+  - `CATEGORY_NOT_SUPPORTED` → `UNSUPPORTED_GARMENT_CATEGORY`
+  - `MATERIAL_NOT_SUPPORTED` → `UNSUPPORTED_MATERIAL`
+  - `DIMENSION_IMPLAUSIBLE` → `IMPLAUSIBLE_DIMENSION`
+  - `UNIT_MIX_UP_SUSPECTED` → `POSSIBLE_UNIT_ERROR`
+  - `MISSING_PARAM` → `MISSING_PARAMETER`
+  - `FINISHED_LENGTH_EXCEEDS_AVAILABLE` → `INSUFFICIENT_LENGTH`
+  - `PROHIBITED_ZONE_INTERSECTION` → `CUT_INTERSECTS_PROHIBITED_REGION`
+- `ConstraintResult` shape: `residuals` is a list of `Residual` objects (not a flat dict), and `checks` and `checked_at` are required.
+- Routes and field names (`revision_id`, `status`, `POST /v1/projects/{id}/generate`, `POST /v1/designs/{id}/revisions`), and supersede-only-if-passed.
+
+**Tests:**
+- 17 new negative schema cases in `tests/test_contract.py`, 6 parametrised AI-parameter rejections, and tests for the AI `rationale` field and RevisionCreate's negative-length check, plus positive tests:
+  - NEEDS_INPUT explained by `IMPLAUSIBLE_DIMENSION` alone
+  - a passed SUPERSEDED revision keeps its cut plan
+  - an empty AI proposal list
+- New invariant test for the job outcome.
+- The old "needs_input without missing dimensions" case is replaced by "needs_input with no reason".
+
+**Consumers affected**
+
+- N1 (#12):
+  - FailureCode names (mapping above)
+  - flag casing
+  - `Residual` objects
+  - `checks` and `checked_at`
+  - dimension keys (`shoulder_to_hem`, `chest_flat_width`)
+  - category `woven_shirt`
+  - a pass needs every gate to have run
+- N2 (#9): dimension keys without `_mm`, origin `user_tape_measured`, category `woven_shirt`, and FailureCode names.
+- K3 (#10):
+  - `AiCandidateProposal` now matches its level-only, no-free-text design
+  - recipe IDs must be `*_vN`
+  - fill `Job.result.outcome`
+- K2 (#5): routes and field names as above, and `Job.result.outcome`.
+- D2/D3: `Job.result.outcome` for the progress screen, the `GarmentDimension` enum for the measurement form, and UPPER_SNAKE flags.
+
 ## 1.0.0-draft.1 (2026-10-28)
 
 First draft of contract v1 (K1).

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: SewSure API
-  version: 1.0.0-draft.1
+  version: 1.0.0-draft.2
   summary: DRAFT contract v1. Not frozen; consumers may build against it but expect changes until the freeze.
   description: |
     Routes from blueprint §3.4. Record shapes live in `../schemas/*.schema.json` (JSON Schema 2020-12)

@@ -11,15 +11,21 @@
     "state": { "type": "string", "enum": ["queued", "running", "complete", "failed"] },
     "stage": {
       "type": ["string", "null"],
-      "enum": ["A_garment", "B_inspiration", "C_load_inputs", "D_propose", "E_check", "F_refine_rank", "G_preview", "H_save", null],
+      "enum": [
+        "A_garment",
+        "B_inspiration",
+        "C_load_inputs",
+        "D_propose",
+        "E_check",
+        "F_refine_rank",
+        "G_preview",
+        "H_save",
+        null
+      ],
       "description": "Pipeline stage (§4.2) while running. For progress display only."
     },
-    "result": {
-      "oneOf": [{ "$ref": "#/$defs/JobResult" }, { "type": "null" }]
-    },
-    "error": {
-      "oneOf": [{ "$ref": "api-error.schema.json" }, { "type": "null" }]
-    },
+    "result": { "oneOf": [{ "$ref": "#/$defs/JobResult" }, { "type": "null" }] },
+    "error": { "oneOf": [{ "$ref": "api-error.schema.json" }, { "type": "null" }] },
     "created_at": { "$ref": "common.schema.json#/$defs/Timestamp" },
     "updated_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
   },
@@ -27,34 +33,48 @@
   "allOf": [
     {
       "if": { "properties": { "state": { "const": "complete" } } },
-      "then": { "required": ["result"], "properties": { "result": { "$ref": "#/$defs/JobResult" }, "error": { "type": "null" } } }
+      "then": {
+        "required": ["result"],
+        "properties": { "result": { "$ref": "#/$defs/JobResult" }, "error": { "type": "null" } }
+      }
     },
     {
       "if": { "properties": { "state": { "const": "failed" } } },
-      "then": { "required": ["error"], "properties": { "error": { "$ref": "api-error.schema.json" }, "result": { "type": "null" } } }
+      "then": {
+        "required": ["error"],
+        "properties": { "error": { "$ref": "api-error.schema.json" }, "result": { "type": "null" } }
+      }
     }
   ],
   "$defs": {
     "JobResult": {
       "type": "object",
-      "required": ["design_ids"],
+      "required": ["outcome", "design_ids"],
       "properties": {
-        "design_ids": {
-          "type": "array",
-          "items": { "$ref": "common.schema.json#/$defs/Id" },
-          "minItems": 0,
-          "maxItems": 3
-        }
+        "outcome": {
+          "type": "string",
+          "enum": ["designs", "needs_input", "no_feasible_design", "unsupported", "blocked", "needs_confirmation"],
+          "description": "Summary of the run for the progress screen. Not a design state: each design's state is on its revision. designs = at least one design passed; needs_input = none passed and at least one needs input; no_feasible_design = designs were checked and none passed; unsupported = no reviewed recipe fits (IDEA_ONLY at most); blocked = the content-safety screen stopped the run; needs_confirmation = garment attributes need user confirmation before any check runs."
+        },
+        "design_ids": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Id" }, "minItems": 0, "maxItems": 3 }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "outcome": { "const": "designs" } } },
+          "then": { "properties": { "design_ids": { "minItems": 1 } } }
+        },
+        {
+          "if": { "properties": { "outcome": { "enum": ["blocked", "needs_confirmation"] } } },
+          "then": { "properties": { "design_ids": { "maxItems": 0 } } }
+        }
+      ]
     },
     "GenerateRequest": {
       "type": "object",
       "description": "Body of POST /v1/projects/{project_id}/generate. Retries with the same Idempotency-Key header return the original job.",
       "required": ["inspiration"],
-      "properties": {
-        "inspiration": { "$ref": "inspiration.schema.json#/$defs/InspirationInput" }
-      },
+      "properties": { "inspiration": { "$ref": "inspiration.schema.json#/$defs/InspirationInput" } },
       "additionalProperties": false
     }
   }

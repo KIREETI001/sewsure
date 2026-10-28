@@ -84,7 +84,7 @@
     "issues": [
       {
         "dimension": "shoulder_to_hem",
-        "code": "UNCONFIRMED",
+        "code": "UNCONFIRMED_DIMENSION",
         "message": "Measure shoulder to hem with a tape and confirm the value."
       }
     ],
@@ -121,6 +121,7 @@
     "state": "complete",
     "stage": null,
     "result": {
+      "outcome": "needs_input",
       "design_ids": [
         "des-unsure-a"
       ]
@@ -153,7 +154,7 @@
         ],
         "explanation": "We need a confirmed shoulder-to-hem length before we can check this crop. The photo suggestion has not been confirmed with a tape.",
         "failure_codes": [
-          "MISSING_DIMENSION"
+          "UNCONFIRMED_DIMENSION"
         ],
         "missing_dimensions": [
           "shoulder_to_hem"
@@ -204,7 +205,7 @@
       "checks": {
         "hard_pass": false,
         "failure_codes": [
-          "MISSING_DIMENSION"
+          "UNCONFIRMED_DIMENSION"
         ],
         "residuals": [],
         "missing_dimensions": [
@@ -221,7 +222,7 @@
           {
             "check_id": "required_dimensions",
             "result": "needs_input",
-            "failure_code": "MISSING_DIMENSION",
+            "failure_code": "UNCONFIRMED_DIMENSION",
             "detail": null
           },
           {

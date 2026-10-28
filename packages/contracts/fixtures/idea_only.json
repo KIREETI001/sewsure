@@ -114,6 +114,7 @@
     "state": "complete",
     "stage": null,
     "result": {
+      "outcome": "unsupported",
       "design_ids": [
         "des-idea-a"
       ]

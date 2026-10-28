@@ -38,10 +38,27 @@ class Stage(Enum):
     NoneType_None = None
 
 
+class Outcome(StrEnum):
+    """
+    Summary of the run for the progress screen. Not a design state: each design's state is on its revision. designs = at least one design passed; needs_input = none passed and at least one needs input; no_feasible_design = designs were checked and none passed; unsupported = no reviewed recipe fits (IDEA_ONLY at most); blocked = the content-safety screen stopped the run; needs_confirmation = garment attributes need user confirmation before any check runs.
+    """
+
+    designs = 'designs'
+    needs_input = 'needs_input'
+    no_feasible_design = 'no_feasible_design'
+    unsupported = 'unsupported'
+    blocked = 'blocked'
+    needs_confirmation = 'needs_confirmation'
+
+
 class JobResult(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
+    outcome: Outcome
+    """
+    Summary of the run for the progress screen. Not a design state: each design's state is on its revision. designs = at least one design passed; needs_input = none passed and at least one needs input; no_feasible_design = designs were checked and none passed; unsupported = no reviewed recipe fits (IDEA_ONLY at most); blocked = the content-safety screen stopped the run; needs_confirmation = garment attributes need user confirmation before any check runs.
+    """
     design_ids: Annotated[list[common_schema.Id], Field(max_length=3, min_length=0)]
 
 

@@ -137,6 +137,7 @@
     "state": "complete",
     "stage": null,
     "result": {
+      "outcome": "designs",
       "design_ids": [
         "des-crop-a",
         "des-crop-b"
@@ -271,7 +272,7 @@
         ],
         "missing_dimensions": [],
         "uncertainty_flags": [
-          "side_seams_not_verified"
+          "SIDE_SEAMS_NOT_VERIFIED"
         ],
         "checks": [
           {
@@ -377,7 +378,7 @@
         ],
         "missing_dimensions": [],
         "uncertainty_flags": [
-          "side_seams_not_verified"
+          "SIDE_SEAMS_NOT_VERIFIED"
         ],
         "checks": [
           {
@@ -483,7 +484,7 @@
         ],
         "missing_dimensions": [],
         "uncertainty_flags": [
-          "side_seams_not_verified"
+          "SIDE_SEAMS_NOT_VERIFIED"
         ],
         "checks": [
           {

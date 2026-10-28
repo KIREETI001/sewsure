@@ -36,9 +36,9 @@ class MeasurementValue(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
-    value_mm: Annotated[float, Field(ge=0.0, le=5000.0)]
+    value_mm: Annotated[float, Field(gt=0.0, le=5000.0)]
     """
-    A non-negative length in millimetres.
+    A strictly positive length in millimetres (measured values; 0 mm is never a real measurement).
     """
     origin: MeasurementOrigin
     confirmed_at: AwareDatetime | None
@@ -79,31 +79,9 @@ class BodyMeasurements(BaseModel):
     """
 
 
-class MeasurementsInput(BaseModel):
-    """
-    Body of PUT /v1/projects/{project_id}/measurements. Replaces the project's measurements and creates a new measurements_id; designs computed from the old values become stale until rechecked.
-    """
-
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    units: Literal['mm']
-    """
-    Every stored and computed length is millimetres.
-    """
-    garment: dict[
-        Annotated[str, StringConstraints(pattern=r'^[a-z][a-z0-9_]*$', max_length=64)],
-        MeasurementValue,
-    ]
-    """
-    Dimension name -> measured value. Names are lower snake case without a unit suffix; the unit lives in value_mm.
-    """
-    body: BodyMeasurements | None = None
-
-
 class Code(StrEnum):
     MISSING_DIMENSION = 'MISSING_DIMENSION'
-    UNCONFIRMED = 'UNCONFIRMED'
+    UNCONFIRMED_DIMENSION = 'UNCONFIRMED_DIMENSION'
     IMPLAUSIBLE_DIMENSION = 'IMPLAUSIBLE_DIMENSION'
     CONFLICTING_DIMENSIONS = 'CONFLICTING_DIMENSIONS'
     POSSIBLE_UNIT_ERROR = 'POSSIBLE_UNIT_ERROR'
@@ -116,6 +94,21 @@ class MeasurementIssue(BaseModel):
     dimension: Annotated[str, Field(max_length=64, pattern='^[a-z][a-z0-9_]*$')]
     code: Code
     message: Annotated[str, Field(max_length=300)]
+
+
+class GarmentDimension(StrEnum):
+    """
+    Canonical flat-garment dimension names: lower snake case, no unit suffix. N1, N2, K3 and the app use exactly these; new names are added here by PR.
+    """
+
+    shoulder_to_hem = 'shoulder_to_hem'
+    chest_flat_width = 'chest_flat_width'
+    chest_circumference = 'chest_circumference'
+    waist_flat_width = 'waist_flat_width'
+    hem_width = 'hem_width'
+    shoulder_width = 'shoulder_width'
+    sleeve_length = 'sleeve_length'
+    placket_end_from_shoulder = 'placket_end_from_shoulder'
 
 
 class Measurements(BaseModel):
@@ -150,10 +143,7 @@ class Measurements(BaseModel):
     """
     Every stored and computed length is millimetres.
     """
-    garment: dict[
-        Annotated[str, StringConstraints(pattern=r'^[a-z][a-z0-9_]*$', max_length=64)],
-        MeasurementValue,
-    ]
+    garment: dict[GarmentDimension, MeasurementValue]
     """
     Flat garment dimensions, e.g. shoulder_to_hem, chest_flat_width, sleeve_length, hem_width.
     """
@@ -165,6 +155,25 @@ class Measurements(BaseModel):
     """
     RFC 3339 timestamp in UTC.
     """
+
+
+class MeasurementsInput(BaseModel):
+    """
+    Body of PUT /v1/projects/{project_id}/measurements. Replaces the project's measurements and creates a new measurements_id; designs computed from the old values become stale until rechecked.
+    """
+
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    units: Literal['mm']
+    """
+    Every stored and computed length is millimetres.
+    """
+    garment: dict[GarmentDimension, MeasurementValue]
+    """
+    GarmentDimension -> measured value.
+    """
+    body: BodyMeasurements | None = None
 
 
 class MeasurementsResult(BaseModel):
