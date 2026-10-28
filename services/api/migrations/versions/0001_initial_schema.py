@@ -2,20 +2,21 @@
 
 Revision ID: 0001
 Revises:
-Create Date: 2026-10-28 09:10:35.874663
+Create Date: 2026-10-28 11:05:44.259098
 
 """
 
-from collections.abc import Sequence
+from typing import Sequence, Union
 
-import sqlalchemy as sa
 from alembic import op
+import sqlalchemy as sa
+
 
 # revision identifiers, used by Alembic.
 revision: str = "0001"
-down_revision: str | Sequence[str] | None = None
-branch_labels: str | Sequence[str] | None = None
-depends_on: str | Sequence[str] | None = None
+down_revision: Union[str, Sequence[str], None] = None
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
@@ -92,16 +93,14 @@ def upgrade() -> None:
         sa.Column("error_code", sa.String(length=64), nullable=True),
         sa.Column("error_message", sa.Text(), nullable=True),
         sa.Column("recoverable", sa.Boolean(), nullable=True),
-        sa.Column("result_revision_id", sa.String(length=36), nullable=True),
+        sa.Column("stage", sa.String(length=32), nullable=True),
+        sa.Column("result_outcome", sa.String(length=32), nullable=True),
+        sa.Column("result_design_ids", sa.JSON(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
             ["project_id"],
             ["projects.id"],
-        ),
-        sa.ForeignKeyConstraint(
-            ["result_revision_id"],
-            ["design_revisions.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
     )

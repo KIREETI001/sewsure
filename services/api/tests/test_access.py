@@ -16,13 +16,13 @@ import pytest
 from fastapi.routing import APIRoute
 from fastapi.testclient import TestClient
 
-from tests.conftest import ALICE, BOB, RECIPE
+from tests.conftest import ALICE, BOB, GENERATE_BODY, RECIPE
 
 ROUTES: list[tuple[str, str, dict[str, Any] | None]] = [
     ("GET", "/v1/projects/{project_id}", None),
     ("GET", "/v1/projects/{project_id}/designs", None),
     ("POST", "/v1/projects/{project_id}/designs", {"recipe_id": RECIPE, "parameters": {}}),
-    ("POST", "/v1/projects/{project_id}/generate", None),
+    ("POST", "/v1/projects/{project_id}/generate", GENERATE_BODY),
     ("GET", "/v1/revisions/{revision_id}", None),
     (
         "POST",

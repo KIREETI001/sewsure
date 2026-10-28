@@ -104,7 +104,7 @@ def test_lost_race_maps_to_conflict_not_500(
     checker = StubChecker()
     real_evaluate = checker.evaluate
 
-    def racing_evaluate(request):  # type: ignore[no-untyped-def]
+    def racing_evaluate(*args: Any, **kwargs: Any) -> Any:
         with session_factory() as other:
             other.execute(
                 update(DesignRevision)
@@ -112,7 +112,7 @@ def test_lost_race_maps_to_conflict_not_500(
                 .values(superseded_by_revision_id="rev-winner")
             )
             other.commit()
-        return real_evaluate(request)
+        return real_evaluate(*args, **kwargs)
 
     checker.evaluate = racing_evaluate  # type: ignore[method-assign]
     with session_factory() as db:

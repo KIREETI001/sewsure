@@ -3,6 +3,7 @@ indistinguishable (NotFound)."""
 
 import hashlib
 import json
+import re
 from collections.abc import Callable
 from typing import Any, cast
 
@@ -12,7 +13,7 @@ from sqlalchemy.orm import Session
 
 from sewsure_api.db import utcnow
 from sewsure_api.errors import Conflict, NotFound, Unprocessable
-from sewsure_api.feasibility import EvaluationRequest, EvaluationResult, FeasibilityChecker
+from sewsure_api.feasibility import ConstraintResult, FeasibilityChecker, checks_json
 from sewsure_api.models import (
     DesignRevision,
     DesignState,
@@ -154,11 +155,13 @@ def _check_params(checker: FeasibilityChecker, recipe_id: str, parameters: dict[
         raise Unprocessable(f"parameters not allowed for {recipe_id}: {', '.join(unknown)}")
 
 
-def _revision_from(result: EvaluationResult, **fields: Any) -> DesignRevision:
+def _revision_from(result: ConstraintResult, **fields: Any) -> DesignRevision:
+    # Only values the engine returned are stored; the API derives nothing. Garment and
+    # measurement snapshots are passed once those routes exist (empty until then).
     return DesignRevision(
-        inputs_hash=result.inputs_hash,
-        geometry_mm=result.geometry_mm,
-        checks=result.checks,
+        inputs_hash=result.input_fingerprint,
+        geometry_mm={} if result.cut_mark_mm is None else {"cut_mark_mm": result.cut_mark_mm},
+        checks=checks_json(result),
         engine_version=result.engine_version,
         recipe_version=result.recipe_version,
         status=result.status.value,
@@ -175,9 +178,11 @@ def create_design(
 ) -> DesignRevision:
     project = get_project(db, owner_id, project_id)
     _check_params(checker, body.recipe_id, body.parameters)
-    result = checker.evaluate(EvaluationRequest(body.recipe_id, body.parameters))
+    revision_id = new_id()
+    result = checker.evaluate({}, {}, body.recipe_id, body.parameters, revision_ref=revision_id)
     revision = _revision_from(
         result,
+        id=revision_id,
         project_id=project.id,
         design_id=new_id(),
         revision_number=1,
@@ -208,7 +213,8 @@ def edit_revision(
 
     merged = {**parent.parameters, **body.parameters}
     _check_params(checker, parent.recipe_id, merged)
-    result = checker.evaluate(EvaluationRequest(parent.recipe_id, merged))
+    new_revision_id = new_id()
+    result = checker.evaluate({}, {}, parent.recipe_id, merged, revision_ref=new_revision_id)
     latest = db.scalar(
         select(func.max(DesignRevision.revision_number)).where(
             DesignRevision.design_id == parent.design_id
@@ -216,7 +222,7 @@ def edit_revision(
     )
     new = _revision_from(
         result,
-        id=new_id(),
+        id=new_revision_id,
         project_id=parent.project_id,
         design_id=parent.design_id,
         revision_number=(latest or 0) + 1,
@@ -245,7 +251,7 @@ def edit_revision(
         raise Conflict("design was edited concurrently; reload and retry") from None
     db.refresh(parent)
     if parent.status == DesignState.PASS_SUPPORTED_CHECKS.value:
-        parent.status = checker.supersede(DesignState.PASS_SUPPORTED_CHECKS).value
+        parent.status = checker.supersede_status(DesignState.PASS_SUPPORTED_CHECKS).value
     return new
 
 
@@ -281,15 +287,21 @@ def enqueue_job(
 
 
 def enqueue_job_idempotent(
-    db: Session, owner_id: str, project_id: str, key: str, kind: str, max_attempts: int
+    db: Session,
+    owner_id: str,
+    project_id: str,
+    key: str,
+    request: dict[str, Any],
+    max_attempts: int,
 ) -> tuple[Job, bool]:
+    kind = "generate_designs"
     get_project(db, owner_id, project_id)  # authorise before touching idempotency state
 
     def create() -> str:
         return enqueue_job(db, owner_id, project_id, kind, max_attempts).id
 
     job_id, created = idempotent_create(
-        db, owner_id, f"POST /v1/projects/{project_id}/{kind}", key, hash_body({}), create
+        db, owner_id, f"POST /v1/projects/{project_id}/generate", key, hash_body(request), create
     )
     return get_job(db, owner_id, job_id), created
 
@@ -309,12 +321,30 @@ def start_job(job: Job) -> None:
     job.recoverable = None
 
 
-def complete_job(job: Job, result_revision_id: str | None = None) -> None:
+JOB_OUTCOMES = frozenset(
+    {"designs", "needs_input", "no_feasible_design", "unsupported", "blocked", "needs_confirmation"}
+)
+
+
+def complete_job(job: Job, outcome: str, design_ids: list[str] | None = None) -> None:
+    """Record the run summary (contract JobResult). `outcome` is not a design state."""
+    ids = design_ids or []
+    if outcome not in JOB_OUTCOMES:
+        raise ValueError(f"unknown job outcome {outcome!r}")
+    if outcome == "designs" and not ids:
+        raise ValueError("outcome 'designs' needs at least one design id")
+    if outcome in {"blocked", "needs_confirmation"} and ids:
+        raise ValueError(f"outcome {outcome!r} carries no designs")
+    if len(ids) > 3:
+        raise ValueError("a job reports at most three designs")
     _move(job, JobStatus.COMPLETE)
-    job.result_revision_id = result_revision_id
+    job.result_outcome = outcome
+    job.result_design_ids = ids
 
 
 def fail_job(job: Job, code: str, message: str, recoverable: bool) -> None:
+    if not re.fullmatch(r"[A-Z][A-Z0-9_]*", code):
+        raise ValueError("error code must be UPPER_SNAKE (contract ApiError)")
     _move(job, JobStatus.FAILED)
     job.error_code = code
     job.error_message = message

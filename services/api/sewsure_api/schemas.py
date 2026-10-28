@@ -8,9 +8,12 @@ omitted until the swap. Every route imports its shapes from this module only.
 
 import re
 from datetime import datetime
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any, Self
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+if TYPE_CHECKING:
+    from sewsure_api.models import Job
 
 _KEY = re.compile(r"^[a-z][a-z0-9_]*$")
 _RECIPE_ID = re.compile(r"^[a-z][a-z0-9_]*_v[0-9]+$")
@@ -19,15 +22,15 @@ _MM_LIMIT = 5000
 
 def validate_parameters(params: dict[str, Any]) -> dict[str, Any]:
     """Mirror of common.schema.json#/$defs/Parameters: `_mm` keys are numbers within
-    +/-5000, `_count` keys are integers 0..100, everything else is a string or boolean.
+    0..5000, `_count` keys are integers 0..100, everything else is a string or boolean.
     Unitless numbers, lists and objects (e.g. invented cut-line points) are rejected."""
     for key, value in params.items():
         if not _KEY.match(key) or len(key) > 64:
             raise ValueError(f"parameter key {key!r} is not allowed")
         if key.endswith("_mm"):
             ok = isinstance(value, int | float) and not isinstance(value, bool)
-            if not ok or abs(value) > _MM_LIMIT:
-                raise ValueError(f"{key} must be a number of millimetres within +/-{_MM_LIMIT}")
+            if not ok or not 0 <= value <= _MM_LIMIT:
+                raise ValueError(f"{key} must be a millimetre length from 0 to {_MM_LIMIT}")
         elif key.endswith("_count"):
             if not isinstance(value, int) or isinstance(value, bool) or not 0 <= value <= 100:
                 raise ValueError(f"{key} must be an integer 0..100")
@@ -103,17 +106,66 @@ class RevisionOut(BaseModel):
     created_at: datetime
 
 
-class JobOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+class GenerateRequest(BaseModel):
+    """POST /v1/projects/{id}/generate body (contract GenerateRequest). The inspiration input is
+    validated against the contract once generated models replace this module."""
 
-    id: str
-    project_id: str
+    model_config = ConfigDict(extra="forbid")
+
+    inspiration: dict[str, Any]
+
+
+class JobResultOut(BaseModel):
+    outcome: str
+    design_ids: list[str]
+
+
+class ApiErrorOut(BaseModel):
+    code: str
+    message: str
+    recoverable: bool
+    retry_after_s: int | None = None
+    field_errors: list[dict[str, str]] | None = None
+    request_id: str | None = None
+
+
+class JobOut(BaseModel):
+    """Contract Job: job_id, kind, project_id, state, stage, result, error, timestamps."""
+
+    job_id: str
     kind: str
-    status: str
-    attempts: int
-    error_code: str | None
-    error_message: str | None
-    recoverable: bool | None
-    result_revision_id: str | None
+    project_id: str
+    state: str
+    stage: str | None
+    result: JobResultOut | None
+    error: ApiErrorOut | None
     created_at: datetime
     updated_at: datetime
+
+    @classmethod
+    def from_job(cls, job: "Job") -> "JobOut":
+        result = (
+            JobResultOut(outcome=job.result_outcome, design_ids=list(job.result_design_ids or []))
+            if job.status == "complete" and job.result_outcome
+            else None
+        )
+        error = (
+            ApiErrorOut(
+                code=job.error_code or "INTERNAL_ERROR",
+                message=job.error_message or "",
+                recoverable=bool(job.recoverable),
+            )
+            if job.status == "failed"
+            else None
+        )
+        return cls(
+            job_id=job.id,
+            kind=job.kind,
+            project_id=job.project_id,
+            state=job.status,
+            stage=job.stage,
+            result=result,
+            error=error,
+            created_at=job.created_at,
+            updated_at=job.updated_at,
+        )

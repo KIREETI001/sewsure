@@ -1,7 +1,10 @@
 from collections.abc import Iterator
 
 from fastapi import APIRouter, Depends, FastAPI, Header, Request, Response, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session, sessionmaker
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from sewsure_api import services
 from sewsure_api.auth import AuthProvider, CurrentUser, RejectAllAuth, get_current_user
@@ -9,6 +12,7 @@ from sewsure_api.db import make_engine, make_session_factory, session_scope
 from sewsure_api.feasibility import FeasibilityChecker, UnconfiguredFeasibility
 from sewsure_api.schemas import (
     DesignCreate,
+    GenerateRequest,
     JobOut,
     ProjectCreate,
     ProjectOut,
@@ -112,6 +116,7 @@ def create_revision(
 )
 def generate(
     project_id: str,
+    body: GenerateRequest,
     request: Request,
     response: Response,
     idempotency_key: str = Header(min_length=1, max_length=255),
@@ -120,12 +125,12 @@ def generate(
 ):
     settings: Settings = request.app.state.settings
     job, created = services.enqueue_job_idempotent(
-        db, user.id, project_id, idempotency_key, "generate", settings.job_max_attempts
+        db, user.id, project_id, idempotency_key, body.model_dump(), settings.job_max_attempts
     )
     _replayed(response, created)
     if not created:
         response.status_code = status.HTTP_202_ACCEPTED
-    return job
+    return JobOut.from_job(job)
 
 
 @router.get("/jobs/{job_id}", response_model=JobOut)
@@ -134,7 +139,45 @@ def read_job(
     user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return services.get_job(db, user.id, job_id)
+    return JobOut.from_job(services.get_job(db, user.id, job_id))
+
+
+_CODES = {
+    400: "BAD_REQUEST",
+    401: "UNAUTHENTICATED",
+    404: "NOT_FOUND",
+    409: "CONFLICT",
+    422: "VALIDATION_FAILED",
+}
+
+
+def _http_error(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+    """Contract ApiError body for every non-2xx response."""
+    code = _CODES.get(exc.status_code, "ERROR")
+    return JSONResponse(
+        {"code": code, "message": str(exc.detail), "recoverable": exc.status_code == 409},
+        status_code=exc.status_code,
+    )
+
+
+def _validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
+    fields = [
+        {
+            "field": "/" + "/".join(str(p) for p in e["loc"][1:]),
+            "code": "INVALID",
+            "message": str(e["msg"])[:300],
+        }
+        for e in exc.errors()
+    ]
+    return JSONResponse(
+        {
+            "code": "VALIDATION_FAILED",
+            "message": "request validation failed",
+            "recoverable": True,
+            "field_errors": fields,
+        },
+        status_code=422,
+    )
 
 
 def create_app(
@@ -157,4 +200,6 @@ def create_app(
         return {"status": "ok"}
 
     app.include_router(router)
+    app.add_exception_handler(StarletteHTTPException, _http_error)  # type: ignore[arg-type]
+    app.add_exception_handler(RequestValidationError, _validation_error)  # type: ignore[arg-type]
     return app

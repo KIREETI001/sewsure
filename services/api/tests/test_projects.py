@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from tests.conftest import ALICE, BOB
+from tests.conftest import ALICE, BOB, GENERATE_BODY
 
 
 def test_healthz(client: TestClient) -> None:
@@ -41,14 +41,29 @@ def test_validation_rejects_empty_name(client: TestClient) -> None:
 
 def test_generate_is_idempotent_and_requires_key(client: TestClient, project_id: str) -> None:
     url = f"/v1/projects/{project_id}/generate"
-    assert client.post(url, headers=ALICE).status_code == 422
+    assert client.post(url, json=GENERATE_BODY, headers=ALICE).status_code == 422
     h = {**ALICE, "Idempotency-Key": "once"}
-    first = client.post(url, headers=h)
-    second = client.post(url, headers=h)
+    first = client.post(url, json=GENERATE_BODY, headers=h)
+    second = client.post(url, json=GENERATE_BODY, headers=h)
     assert first.status_code == second.status_code == 202
-    assert first.json()["id"] == second.json()["id"]
+    assert first.json()["job_id"] == second.json()["job_id"]
     assert second.headers["Idempotent-Replayed"] == "true"
+    assert first.json()["kind"] == "generate_designs"
+    assert first.json()["state"] == "queued"
+    assert first.json()["result"] is None
+    other = {"inspiration": {"kind": "other"}}
+    assert client.post(url, json=other, headers=h).status_code == 409
 
 
 def test_empty_design_list_is_valid(client: TestClient, project_id: str) -> None:
     assert client.get(f"/v1/projects/{project_id}/designs", headers=ALICE).json() == []
+
+
+def test_errors_use_api_error_shape(client: TestClient) -> None:
+    r = client.get("/v1/projects/nope", headers=ALICE)
+    assert r.status_code == 404
+    assert set(r.json()) == {"code", "message", "recoverable"}
+    assert r.json()["code"] == "NOT_FOUND"
+    v = client.post("/v1/projects", json={"name": ""}, headers={**ALICE, "Idempotency-Key": "k"})
+    assert v.json()["code"] == "VALIDATION_FAILED"
+    assert v.json()["field_errors"][0]["field"] == "/name"

@@ -86,9 +86,9 @@ class Job(Base):
     error_code: Mapped[str | None] = mapped_column(String(64), default=None)
     error_message: Mapped[str | None] = mapped_column(Text, default=None)
     recoverable: Mapped[bool | None] = mapped_column(default=None)
-    result_revision_id: Mapped[str | None] = mapped_column(
-        ForeignKey("design_revisions.id"), default=None
-    )
+    stage: Mapped[str | None] = mapped_column(String(32), default=None)
+    result_outcome: Mapped[str | None] = mapped_column(String(32), default=None)
+    result_design_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow, onupdate=utcnow)
 

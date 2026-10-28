@@ -1,4 +1,6 @@
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
+from datetime import UTC, datetime
+from typing import Any
 
 import pytest
 from fastapi import Request
@@ -9,7 +11,7 @@ from sewsure_api import models  # noqa: F401
 from sewsure_api.app import create_app
 from sewsure_api.auth import CurrentUser
 from sewsure_api.db import Base, make_engine, make_session_factory
-from sewsure_api.feasibility import EvaluationRequest, EvaluationResult
+from sewsure_api.feasibility import ConstraintResult
 from sewsure_api.models import DesignState
 from sewsure_api.settings import Settings
 
@@ -18,6 +20,7 @@ BOB = {"X-Test-User": "bob"}
 
 
 RECIPE = "woven_shirt_crop_v1"
+GENERATE_BODY = {"inspiration": {"kind": "surprise_me"}}
 
 
 class StubChecker:
@@ -36,22 +39,47 @@ class StubChecker:
             return None
         return frozenset({"outcome", "hem", "crop_length_mm", "fold_count"})
 
-    def evaluate(self, request: EvaluationRequest) -> EvaluationResult:
-        status = self.VERDICTS[str(request.parameters.get("outcome", "pass"))]
-        return EvaluationResult(
+    def evaluate(
+        self,
+        garment: Mapping[str, Any],
+        measurements: Mapping[str, Any],
+        recipe_id: str,
+        params: Mapping[str, Any],
+        *,
+        revision_ref: str | None = None,
+        checked_at: datetime | None = None,
+    ) -> ConstraintResult:
+        status = self.VERDICTS[str(params.get("outcome", "pass"))]
+        failed = status == DesignState.FAILED_CHECKS
+        return ConstraintResult(
             status=status,
-            checks={
-                "hard_pass": status == DesignState.PASS_SUPPORTED_CHECKS,
-                "failure_codes": ["INSUFFICIENT_LENGTH"] if status == "FAILED_CHECKS" else [],
-                "engine_version": "test",
-            },
-            geometry_mm={"finished_length_mm": 530.0},
-            engine_version="test",
+            failure_codes=["INSUFFICIENT_LENGTH"] if failed else [],
+            residuals=(
+                [
+                    {
+                        "check_id": "length_gate",
+                        "quantity": "garment_length",
+                        "required_mm": 600.0,
+                        "available_mm": 450.0,
+                        "residual_mm": -150.0,
+                    }
+                ]
+                if failed
+                else []
+            ),
+            missing_dimensions=["shoulder_to_hem"] if status == DesignState.NEEDS_INPUT else [],
+            uncertainty_flags=[],
+            checks=[{"check_id": "length_gate", "result": "fail" if failed else "pass"}],
+            alternatives=[],
+            cut_mark_mm=530.0,
+            recipe_id=recipe_id,
             recipe_version="1.0",
-            inputs_hash="0" * 64,
+            engine_version="test",
+            checked_at=checked_at or datetime(2026, 10, 28, tzinfo=UTC),
+            input_fingerprint="0" * 64,
         )
 
-    def supersede(self, previous: DesignState) -> DesignState:
+    def supersede_status(self, previous: DesignState) -> DesignState:
         return DesignState.SUPERSEDED
 
 
@@ -103,9 +131,11 @@ def revision_id(client: TestClient, project_id: str) -> str:
 @pytest.fixture
 def job_id(client: TestClient, project_id: str) -> str:
     r = client.post(
-        f"/v1/projects/{project_id}/generate", headers={**ALICE, "Idempotency-Key": "g"}
+        f"/v1/projects/{project_id}/generate",
+        json=GENERATE_BODY,
+        headers={**ALICE, "Idempotency-Key": "g"},
     )
-    return r.json()["id"]
+    return r.json()["job_id"]
 
 
 @pytest.fixture
