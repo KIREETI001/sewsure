@@ -11,3 +11,8 @@ class NotFound(HTTPException):
 class Conflict(HTTPException):
     def __init__(self, message: str) -> None:
         super().__init__(status.HTTP_409_CONFLICT, message)
+
+
+class Unprocessable(HTTPException):
+    def __init__(self, message: str) -> None:
+        super().__init__(422, message)

@@ -16,8 +16,9 @@ def new_id() -> str:
 
 
 class DesignState(enum.StrEnum):
-    """Set by packages/feasibility only. SUPERSEDED is the one lifecycle value the revision
-    store applies itself, when an edit creates a newer revision."""
+    """Names per contract v1. Values come from packages/feasibility only; the API stores them.
+    SUPERSEDED is applied through the engine's supersede rule, and only to a revision that
+    had passed."""
 
     IDEA_ONLY = "IDEA_ONLY"
     NEEDS_INPUT = "NEEDS_INPUT"
@@ -44,7 +45,11 @@ class Project(Base):
 
 
 class DesignRevision(Base):
-    """Immutable except for `state` moving to SUPERSEDED. An edit inserts a new row."""
+    """Immutable once written, except for the supersession link (and the engine's own
+    SUPERSEDED transition for a revision that had passed). An edit inserts a new row.
+
+    `status` and `checks` are the engine's verdict and are never overwritten by an edit;
+    `superseded_by_revision_id` records that a newer revision exists, for any status."""
 
     __tablename__ = "design_revisions"
     __table_args__ = (UniqueConstraint("design_id", "revision_number"),)
@@ -56,9 +61,15 @@ class DesignRevision(Base):
     parent_revision_id: Mapped[str | None] = mapped_column(
         ForeignKey("design_revisions.id"), default=None
     )
+    superseded_by_revision_id: Mapped[str | None] = mapped_column(String(36), default=None)
     recipe_id: Mapped[str] = mapped_column(String(100))
+    recipe_version: Mapped[str | None] = mapped_column(String(32), default=None)
     parameters: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
-    state: Mapped[str] = mapped_column(String(32))
+    inputs_hash: Mapped[str] = mapped_column(String(64))
+    geometry_mm: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    checks: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    engine_version: Mapped[str] = mapped_column(String(32))
+    status: Mapped[str] = mapped_column(String(32))
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
 
 

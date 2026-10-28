@@ -2,7 +2,7 @@
 
 Revision ID: 0001
 Revises:
-Create Date: 2026-10-28 03:08:17.111322
+Create Date: 2026-10-28 09:10:35.874663
 
 """
 
@@ -53,9 +53,15 @@ def upgrade() -> None:
         sa.Column("design_id", sa.String(length=36), nullable=False),
         sa.Column("revision_number", sa.Integer(), nullable=False),
         sa.Column("parent_revision_id", sa.String(length=36), nullable=True),
+        sa.Column("superseded_by_revision_id", sa.String(length=36), nullable=True),
         sa.Column("recipe_id", sa.String(length=100), nullable=False),
+        sa.Column("recipe_version", sa.String(length=32), nullable=True),
         sa.Column("parameters", sa.JSON(), nullable=False),
-        sa.Column("state", sa.String(length=32), nullable=False),
+        sa.Column("inputs_hash", sa.String(length=64), nullable=False),
+        sa.Column("geometry_mm", sa.JSON(), nullable=False),
+        sa.Column("checks", sa.JSON(), nullable=False),
+        sa.Column("engine_version", sa.String(length=32), nullable=False),
+        sa.Column("status", sa.String(length=32), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
             ["parent_revision_id"],

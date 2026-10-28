@@ -3,14 +3,16 @@ indistinguishable (NotFound)."""
 
 import hashlib
 import json
+from collections.abc import Callable
+from typing import Any, cast
 
-from sqlalchemy import func, select
+from sqlalchemy import CursorResult, func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from sewsure_api.db import utcnow
-from sewsure_api.errors import Conflict, NotFound
-from sewsure_api.feasibility import FeasibilityChecker
+from sewsure_api.errors import Conflict, NotFound, Unprocessable
+from sewsure_api.feasibility import EvaluationRequest, EvaluationResult, FeasibilityChecker
 from sewsure_api.models import (
     DesignRevision,
     DesignState,
@@ -20,7 +22,63 @@ from sewsure_api.models import (
     Project,
     new_id,
 )
-from sewsure_api.schemas import ProjectCreate, RevisionCreate, RevisionEdit
+from sewsure_api.schemas import DesignCreate, ProjectCreate, RevisionCreate
+
+# ---- idempotency ----------------------------------------------------------------------
+
+
+def hash_body(body: Any) -> str:
+    return hashlib.sha256(json.dumps(body, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def idempotent_create(
+    db: Session,
+    owner_id: str,
+    scope: str,
+    key: str,
+    request_hash: str,
+    create: Callable[[], str],
+) -> tuple[str, bool]:
+    """Return (resource_id, created). Same key + same request replays the original resource;
+    same key + different request is a 409. `create` must add the resource and return its ID."""
+
+    def lookup() -> IdempotencyRecord | None:
+        return db.scalar(
+            select(IdempotencyRecord).where(
+                IdempotencyRecord.owner_id == owner_id,
+                IdempotencyRecord.scope == scope,
+                IdempotencyRecord.key == key,
+            )
+        )
+
+    def replay(record: IdempotencyRecord) -> tuple[str, bool]:
+        if record.request_hash != request_hash:
+            raise Conflict("Idempotency-Key was already used with a different request")
+        return record.resource_id, False
+
+    existing = lookup()
+    if existing is not None:
+        return replay(existing)
+    try:
+        with db.begin_nested():
+            resource_id = create()
+            db.add(
+                IdempotencyRecord(
+                    owner_id=owner_id,
+                    scope=scope,
+                    key=key,
+                    request_hash=request_hash,
+                    resource_id=resource_id,
+                )
+            )
+    except IntegrityError:
+        # A concurrent request with the same key won the race.
+        raced = lookup()
+        if raced is None:
+            raise
+        return replay(raced)
+    return resource_id, True
+
 
 # ---- projects -------------------------------------------------------------------------
 
@@ -34,56 +92,20 @@ def get_project(db: Session, owner_id: str, project_id: str) -> Project:
     return project
 
 
-def _hash_body(body: ProjectCreate) -> str:
-    return hashlib.sha256(json.dumps(body.model_dump(), sort_keys=True).encode()).hexdigest()
-
-
 def create_project_idempotent(
     db: Session, owner_id: str, key: str, body: ProjectCreate
 ) -> tuple[Project, bool]:
-    """Return (project, created). Same key + same body replays the original project;
-    same key + different body is a 409."""
-    scope = "POST /v1/projects"
-    request_hash = _hash_body(body)
+    def create() -> str:
+        project = Project(owner_id=owner_id, name=body.name, intention=body.intention)
+        project.id = new_id()
+        db.add(project)
+        return project.id
 
-    def lookup() -> IdempotencyRecord | None:
-        return db.scalar(
-            select(IdempotencyRecord).where(
-                IdempotencyRecord.owner_id == owner_id,
-                IdempotencyRecord.scope == scope,
-                IdempotencyRecord.key == key,
-            )
-        )
-
-    def replay(record: IdempotencyRecord) -> tuple[Project, bool]:
-        if record.request_hash != request_hash:
-            raise Conflict("Idempotency-Key was already used with a different request body")
-        return get_project(db, owner_id, record.resource_id), False
-
-    existing = lookup()
-    if existing is not None:
-        return replay(existing)
-
-    project = Project(id=new_id(), owner_id=owner_id, name=body.name, intention=body.intention)
-    try:
-        with db.begin_nested():
-            db.add(project)
-            db.add(
-                IdempotencyRecord(
-                    owner_id=owner_id,
-                    scope=scope,
-                    key=key,
-                    request_hash=request_hash,
-                    resource_id=project.id,
-                )
-            )
-    except IntegrityError:
-        # A concurrent request with the same key won the race.
-        raced = lookup()
-        if raced is None:
-            raise
-        return replay(raced)
-    return project, True
+    project_id, created = idempotent_create(
+        db, owner_id, "POST /v1/projects", key, hash_body(body.model_dump()), create
+    )
+    db.flush()
+    return get_project(db, owner_id, project_id), created
 
 
 # ---- revisions ------------------------------------------------------------------------
@@ -100,21 +122,67 @@ def get_revision(db: Session, owner_id: str, revision_id: str) -> DesignRevision
     return revision
 
 
+def list_designs(db: Session, owner_id: str, project_id: str) -> list[DesignRevision]:
+    """Current (latest) revision of each design. Zero is a valid answer; callers must not
+    assume any particular count."""
+    get_project(db, owner_id, project_id)
+    latest = (
+        select(DesignRevision.design_id, func.max(DesignRevision.revision_number).label("n"))
+        .where(DesignRevision.project_id == project_id)
+        .group_by(DesignRevision.design_id)
+        .subquery()
+    )
+    rows = db.scalars(
+        select(DesignRevision)
+        .join(
+            latest,
+            (DesignRevision.design_id == latest.c.design_id)
+            & (DesignRevision.revision_number == latest.c.n),
+        )
+        .order_by(DesignRevision.created_at, DesignRevision.id)
+    )
+    return list(rows)
+
+
+def _check_params(checker: FeasibilityChecker, recipe_id: str, parameters: dict[str, Any]) -> None:
+    """Rule 4: only a reviewed recipe and its allow-listed parameter keys are accepted."""
+    allowed = checker.allowed_parameter_keys(recipe_id)
+    if allowed is None:
+        raise Unprocessable(f"recipe {recipe_id!r} is not a reviewed recipe")
+    unknown = sorted(set(parameters) - allowed)
+    if unknown:
+        raise Unprocessable(f"parameters not allowed for {recipe_id}: {', '.join(unknown)}")
+
+
+def _revision_from(result: EvaluationResult, **fields: Any) -> DesignRevision:
+    return DesignRevision(
+        inputs_hash=result.inputs_hash,
+        geometry_mm=result.geometry_mm,
+        checks=result.checks,
+        engine_version=result.engine_version,
+        recipe_version=result.recipe_version,
+        status=result.status.value,
+        **fields,
+    )
+
+
 def create_design(
     db: Session,
     checker: FeasibilityChecker,
     owner_id: str,
     project_id: str,
-    body: RevisionCreate,
+    body: DesignCreate,
 ) -> DesignRevision:
     project = get_project(db, owner_id, project_id)
-    revision = DesignRevision(
+    _check_params(checker, body.recipe_id, body.parameters)
+    result = checker.evaluate(EvaluationRequest(body.recipe_id, body.parameters))
+    revision = _revision_from(
+        result,
         project_id=project.id,
         design_id=new_id(),
         revision_number=1,
         recipe_id=body.recipe_id,
         parameters=body.parameters,
-        state=checker.evaluate(body.recipe_id, body.parameters).value,
     )
     db.add(revision)
     db.flush()
@@ -125,34 +193,59 @@ def edit_revision(
     db: Session,
     checker: FeasibilityChecker,
     owner_id: str,
-    revision_id: str,
-    body: RevisionEdit,
+    design_id: str,
+    body: RevisionCreate,
 ) -> DesignRevision:
-    """An edit never changes the old revision's content: it inserts a new revision and marks
-    the old one SUPERSEDED. Downstream artefacts of the old revision stay tied to its ID."""
-    old = get_revision(db, owner_id, revision_id)
-    if old.state == DesignState.SUPERSEDED.value:
-        raise Conflict("revision is superseded; edit the latest revision of this design")
+    """An edit never changes the parent's content or verdict. It inserts a new revision, links
+    the parent to it via `superseded_by_revision_id`, and asks the engine (`supersede`) for the
+    parent's new status, which applies only to a revision that had passed: a FAILED_CHECKS,
+    NEEDS_INPUT or IDEA_ONLY parent keeps its own status and `checks`."""
+    parent = get_revision(db, owner_id, body.parent_revision_id)
+    if parent.design_id != design_id:
+        raise NotFound("revision")
+    if parent.superseded_by_revision_id is not None:
+        raise Conflict("parent revision is not the current revision of this design")
 
-    recipe_id = body.recipe_id if body.recipe_id is not None else old.recipe_id
-    parameters = body.parameters if body.parameters is not None else dict(old.parameters)
+    merged = {**parent.parameters, **body.parameters}
+    _check_params(checker, parent.recipe_id, merged)
+    result = checker.evaluate(EvaluationRequest(parent.recipe_id, merged))
     latest = db.scalar(
         select(func.max(DesignRevision.revision_number)).where(
-            DesignRevision.design_id == old.design_id
+            DesignRevision.design_id == parent.design_id
         )
     )
-    new = DesignRevision(
-        project_id=old.project_id,
-        design_id=old.design_id,
+    new = _revision_from(
+        result,
+        id=new_id(),
+        project_id=parent.project_id,
+        design_id=parent.design_id,
         revision_number=(latest or 0) + 1,
-        parent_revision_id=old.id,
-        recipe_id=recipe_id,
-        parameters=parameters,
-        state=checker.evaluate(recipe_id, parameters).value,
+        parent_revision_id=parent.id,
+        recipe_id=parent.recipe_id,
+        parameters=merged,
     )
-    old.state = DesignState.SUPERSEDED.value
-    db.add(new)
-    db.flush()
+
+    # Compare-and-set on the parent so two concurrent edits cannot both succeed.
+    # The new row goes in first because the link is a plain column, not an enforced FK.
+    try:
+        with db.begin_nested():
+            db.add(new)
+            db.flush()
+            claimed = db.execute(
+                update(DesignRevision)
+                .where(
+                    DesignRevision.id == parent.id,
+                    DesignRevision.superseded_by_revision_id.is_(None),
+                )
+                .values(superseded_by_revision_id=new.id)
+            )
+            if cast(CursorResult[Any], claimed).rowcount != 1:
+                raise Conflict("parent revision is not the current revision of this design")
+    except IntegrityError:
+        raise Conflict("design was edited concurrently; reload and retry") from None
+    db.refresh(parent)
+    if parent.status == DesignState.PASS_SUPPORTED_CHECKS.value:
+        parent.status = checker.supersede(DesignState.PASS_SUPPORTED_CHECKS).value
     return new
 
 
@@ -185,6 +278,20 @@ def enqueue_job(
     db.add(job)
     db.flush()
     return job
+
+
+def enqueue_job_idempotent(
+    db: Session, owner_id: str, project_id: str, key: str, kind: str, max_attempts: int
+) -> tuple[Job, bool]:
+    get_project(db, owner_id, project_id)  # authorise before touching idempotency state
+
+    def create() -> str:
+        return enqueue_job(db, owner_id, project_id, kind, max_attempts).id
+
+    job_id, created = idempotent_create(
+        db, owner_id, f"POST /v1/projects/{project_id}/{kind}", key, hash_body({}), create
+    )
+    return get_job(db, owner_id, job_id), created
 
 
 def _move(job: Job, target: JobStatus) -> None:

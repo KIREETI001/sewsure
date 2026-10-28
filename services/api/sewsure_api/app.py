@@ -1,6 +1,6 @@
 from collections.abc import Iterator
 
-from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, FastAPI, Header, Request, Response, status
 from sqlalchemy.orm import Session, sessionmaker
 
 from sewsure_api import services
@@ -8,12 +8,11 @@ from sewsure_api.auth import AuthProvider, CurrentUser, RejectAllAuth, get_curre
 from sewsure_api.db import make_engine, make_session_factory, session_scope
 from sewsure_api.feasibility import FeasibilityChecker, UnconfiguredFeasibility
 from sewsure_api.schemas import (
-    JobCreate,
+    DesignCreate,
     JobOut,
     ProjectCreate,
     ProjectOut,
     RevisionCreate,
-    RevisionEdit,
     RevisionOut,
 )
 from sewsure_api.settings import Settings, get_settings
@@ -30,20 +29,22 @@ def get_checker(request: Request) -> FeasibilityChecker:
 router = APIRouter(prefix="/v1")
 
 
+def _replayed(response: Response, created: bool) -> None:
+    if not created:
+        response.status_code = status.HTTP_200_OK
+        response.headers["Idempotent-Replayed"] = "true"
+
+
 @router.post("/projects", response_model=ProjectOut, status_code=status.HTTP_201_CREATED)
 def create_project(
     body: ProjectCreate,
     response: Response,
-    idempotency_key: str | None = Header(default=None, max_length=255),
+    idempotency_key: str = Header(min_length=1, max_length=255),
     user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    if not idempotency_key:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Idempotency-Key header required")
     project, created = services.create_project_idempotent(db, user.id, idempotency_key, body)
-    if not created:
-        response.status_code = status.HTTP_200_OK
-        response.headers["Idempotent-Replayed"] = "true"
+    _replayed(response, created)
     return project
 
 
@@ -56,6 +57,15 @@ def read_project(
     return services.get_project(db, user.id, project_id)
 
 
+@router.get("/projects/{project_id}/designs", response_model=list[RevisionOut])
+def list_designs(
+    project_id: str,
+    user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return services.list_designs(db, user.id, project_id)
+
+
 @router.post(
     "/projects/{project_id}/designs",
     response_model=RevisionOut,
@@ -63,7 +73,7 @@ def read_project(
 )
 def create_design(
     project_id: str,
-    body: RevisionCreate,
+    body: DesignCreate,
     user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
     checker: FeasibilityChecker = Depends(get_checker),
@@ -81,34 +91,41 @@ def read_revision(
 
 
 @router.post(
-    "/revisions/{revision_id}/edits",
+    "/designs/{design_id}/revisions",
     response_model=RevisionOut,
     status_code=status.HTTP_201_CREATED,
 )
-def edit_revision(
-    revision_id: str,
-    body: RevisionEdit,
+def create_revision(
+    design_id: str,
+    body: RevisionCreate,
     user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
     checker: FeasibilityChecker = Depends(get_checker),
 ):
-    return services.edit_revision(db, checker, user.id, revision_id, body)
+    return services.edit_revision(db, checker, user.id, design_id, body)
 
 
 @router.post(
-    "/projects/{project_id}/jobs",
+    "/projects/{project_id}/generate",
     response_model=JobOut,
     status_code=status.HTTP_202_ACCEPTED,
 )
-def create_job(
+def generate(
     project_id: str,
-    body: JobCreate,
     request: Request,
+    response: Response,
+    idempotency_key: str = Header(min_length=1, max_length=255),
     user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     settings: Settings = request.app.state.settings
-    return services.enqueue_job(db, user.id, project_id, body.kind, settings.job_max_attempts)
+    job, created = services.enqueue_job_idempotent(
+        db, user.id, project_id, idempotency_key, "generate", settings.job_max_attempts
+    )
+    _replayed(response, created)
+    if not created:
+        response.status_code = status.HTTP_202_ACCEPTED
+    return job
 
 
 @router.get("/jobs/{job_id}", response_model=JobOut)
