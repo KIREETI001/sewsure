@@ -10,14 +10,14 @@ Owner: Delfine (approver). Drafted by agent D9 Community & Waitlist.
 2. Replace every `[PLACEHOLDER]`. The sending founder's name goes where `[FOUNDER_NAME]` appears. Use the founder's own name, not a team name.
 3. Check the message against the rules below.
 4. Send it yourself, from your own account.
-5. Add a row to your tracker (see `tracker-template.csv`), using a code such as `T01` or `C01`. Do not copy the person's name or contact details into the repo.
+5. Add a row to your tracker (see `tracker-template.csv`), using a code such as `P01` (customer conversation) or `T01` (tailor). These match the codes used in `docs/research/`. Do not copy the person's name or contact details into the repo.
 
 Placeholders used across the folder:
 
 | Placeholder | Replace with |
 |---|---|
 | `[FOUNDER_NAME]` | The sending founder's first name |
-| `[SITE_URL]` | The public website address, once it is live |
+| `[SITE_URL]` | The public website address. Use only after the sign-up forms are connected to a private store (see the gate below) |
 | `[GROUP_NAME]` | The name of the channel, club or shop |
 | `[SHOP_NAME]` | The alteration shop or tailor's name |
 | `[MEETING_DETAIL]` | A time and place the founder has agreed to |
@@ -31,6 +31,9 @@ Placeholders used across the folder:
 - Include an easy way to say no, and stop after one follow-up unless the person replies.
 - Do not ask for photos of people or body measurements in writing. If someone offers a photo of their garment, thank them and ask them to wait until the research consent form is ready.
 - Do not add anyone to a mailing list from a message.
+- **Gate:** do not send `[SITE_URL]` or any waitlist link until the sign-up forms are connected to a private store (K2/K8). Today the forms send and store nothing, so a link now would invite people to sign up and lose their details.
+- **Session length:** the first contact is a short chat of about 10 to 15 minutes. Say so. Any longer research session is arranged separately, after a consent form is in place, and the invitation must not promise a length that the research guide does not match.
+- **Consent before notes:** until the research consent form is approved (open item H-05 in `docs/research/`), a visit or chat produces a count only. Write down no names, quotes or photos.
 
 ## Weekly outreach targets (proposed)
 

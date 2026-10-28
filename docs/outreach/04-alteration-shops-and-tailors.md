@@ -2,7 +2,9 @@
 
 Draft for [FOUNDER_NAME] to edit. Tailors are contacted for two things: a short visit or call to learn how they work, and, if they want, a pilot later. The pilot is not running yet, so do not offer one as if it were. Target: 15 to 20 contacted in total, aiming for 2 to 3 pilot tailors (proposed; see `README.md`).
 
-## Visit script (in person, about 10 minutes)
+## Visit script (in person, a short first visit of about 10 minutes)
+
+Until the research consent form is approved (open item H-05 in `docs/research/`), this visit is informal: count the visit and the questions answered, and write down nothing that identifies a person or shop. Do not record quotes.
 
 Before you go:
 - Introduce yourself and say you are a student. Bring a business card only if the founder has one, with the founder's own name.
@@ -10,7 +12,8 @@ Before you go:
 
 At the shop:
 
-1. "Hi, I'm [FOUNDER_NAME], a student at NTU. Do you have 10 minutes? I'm researching how alteration work is requested and quoted. I'm not selling anything."
+0. Consent first: "Are you happy for me to ask you a few questions? I won't write down your name, and you can stop at any time." If they say no, thank them and leave.
+1. "Hi, I'm [FOUNDER_NAME], a student at NTU. Do you have a few minutes? I'm researching how alteration work is requested and quoted. I'm not selling anything."
 2. Ask: "What alterations come in most often?"
 3. Ask: "When a customer wants a bigger change than a normal alteration, what happens?"
 4. Ask: "How do you explain what's possible before someone commits?"
@@ -21,8 +24,7 @@ At the shop:
 9. Thank them. Do not leave any contact form for customers.
 
 After the visit:
-- Write notes within the same day. Keep notes in the research folder, not in the repo, and do not record the shop's private details in the repo.
-- Log a row in the tracker with code `T` and a note of what they said about the brief.
+- Log a row in the tracker with code `T`, the visit date, and the number of questions answered. Do not write down what they said or who said it until the consent form is approved.
 
 ## Message to a shop or independent tailor (email, call or DM)
 
@@ -34,7 +36,7 @@ I'm [FOUNDER_NAME], a final-year student at NTU. My team is researching how tail
 
 We're building a tool called SewSure. It is in development and not available to the public. Before we build anything else, we'd like to learn from people who do this work every day.
 
-Would you be willing to talk for 10 minutes, in person or by phone, at a time that suits you? I'd like to ask how you quote, what you need from a customer, and what would make a request brief clear to you. I'm not selling anything, and I won't add you to any list.
+Would you be willing to talk for a short first chat of about 10 minutes, in person or by phone, at a time that suits you? I'd like to ask how you quote, what you need from a customer, and what would make a request brief clear to you. I'm not selling anything, and I won't add you to any list.
 
 If now isn't a good time, or you'd rather not take part, just reply and I won't follow up.
 

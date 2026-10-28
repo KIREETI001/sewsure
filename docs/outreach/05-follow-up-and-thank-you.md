@@ -16,7 +16,7 @@ Hi [NAME_OR_HANDLE], thank you for the time today. Your answers about [TOPIC_YOU
 Thanks again,
 [FOUNDER_NAME]
 
-Notes: send the waitlist link only if the person asked to hear more, and only once the site is live. Do not add anyone to the waitlist on their behalf.
+Notes: send the waitlist link only if the person asked to hear more, and only after the sign-up forms are connected to a private store (see the gate in `README.md`). Do not add anyone to the waitlist on their behalf.
 
 ## Thank-you after a tailor visit or call
 

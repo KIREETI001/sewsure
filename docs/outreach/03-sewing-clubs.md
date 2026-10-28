@@ -22,7 +22,7 @@ Best,
 1. Who we are, in one sentence.
 2. The problem: clothes that could be changed but aren't.
 3. What we are testing. Be clear that the tool is not finished.
-4. What we would like from members: 15 minutes of their time, one question each.
+4. What we would like from members: a short first chat of about 15 minutes, if they want one.
 5. How to contact us, and how to say no.
 
 Do not show a demo of features that are not built yet. Label anything planned as planned.
@@ -31,4 +31,4 @@ Do not show a demo of features that are not built yet. Label anything planned as
 
 - Bring printed or written notes only if the organiser agrees.
 - Do not collect names or emails at the meeting unless each person opts in on the spot. Log the count, not the names.
-- Record the visit with code `C` and the channel, with the date and the number of people reached.
+- Record the visit with the channel and the date, and the number of people reached. Use code `P` only for individual first chats, and never write down names.

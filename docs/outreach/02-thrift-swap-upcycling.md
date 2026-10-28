@@ -17,14 +17,14 @@ Thank you for considering it,
 
 ## Post for members (after moderator approval only)
 
-Hi everyone, I'm [FOUNDER_NAME], a student researching how people decide to alter or upcycle clothes they already own. If you have a garment you wanted to change but didn't, I'd love to hear what stopped you. It's a 15-minute chat, and it's not a sales pitch. Reply here or send me a message if you're open to it. You can say no and I won't follow up.
+Hi everyone, I'm [FOUNDER_NAME], a student researching how people decide to alter or upcycle clothes they already own. If you have a garment you wanted to change but didn't, I'd love to hear what stopped you. It's a short first chat of about 15 minutes, and it's not a sales pitch. Reply here or send me a message if you're open to it. You can say no and I won't follow up.
 
 ## Direct message to a member who has replied to a post
 
-Hi [NAME_OR_HANDLE], thanks for replying. I'm [FOUNDER_NAME] from NTU. I'm building a tool called SewSure that helps people redesign a garment they own. It isn't available yet. I'd like to ask a few questions about what made you keep or change a garment. Would a 15-minute call or chat next week work? I won't send anything else unless you reply.
+Hi [NAME_OR_HANDLE], thanks for replying. I'm [FOUNDER_NAME] from NTU. I'm building a tool called SewSure that helps people redesign a garment they own. It isn't available yet. I'd like to ask a few questions about what made you keep or change a garment. Would a short first call or chat of about 15 minutes next week work? I won't send anything else unless you reply.
 
 ## Notes for the founder
 
 - Do not message anyone who has not replied to a public post.
 - Do not ask for photos of garments in the first message. Ask about the garment in words.
-- Log each conversation with code `C` and the channel only.
+- Log each conversation with code `P` and the channel only.

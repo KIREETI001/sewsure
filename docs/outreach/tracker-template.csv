@@ -1,3 +1,3 @@
 code,type,channel,founder,status,date_first_contact,date_last_contact,next_follow_up_due,outcome_note,source_of_figure
-C01,customer,ntu-student-group,[FOUNDER_NAME],not_contacted,,,,,
+P01,customer,ntu-student-group,[FOUNDER_NAME],not_contacted,,,,,
 T01,tailor,alteration-shop,[FOUNDER_NAME],not_contacted,,,,,
