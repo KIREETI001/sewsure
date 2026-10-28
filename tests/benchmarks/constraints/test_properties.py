@@ -63,7 +63,7 @@ def test_cm_and_mm_inputs_give_same_result(length, hem, extra_hundredths, engine
 def test_exact_fit_has_no_positive_remainder_and_fails(length, hem, engine):
     out = engine(_with(length, length - hem, hem))
     assert out.status == "FAILED_CHECKS", "zero remainder must not pass (blueprint 5.3)"
-    assert out.failure_codes == ["INSUFFICIENT_LENGTH"]
+    assert out.failure_codes == ["NO_POSITIVE_REMAINDER"]
 
 
 @settings(max_examples=200, deadline=None)
@@ -71,7 +71,7 @@ def test_exact_fit_has_no_positive_remainder_and_fails(length, hem, engine):
 def test_overshoot_under_1mm_never_passes(length, hem, over_hundredths, engine):
     out = engine(_with(length, length - hem + over_hundredths / 100, hem))
     assert out.status != adapter.PASS, f"false acceptance at {over_hundredths / 100} mm overshoot"
-    assert out.failure_codes == ["INSUFFICIENT_LENGTH"]
+    assert out.failure_codes == ["NO_POSITIVE_REMAINDER"]
 
 
 @settings(max_examples=100, deadline=None)

@@ -11,7 +11,7 @@ ALL = C.load_cases()
 
 
 def test_suite_has_the_expected_class_split():
-    assert len(ALL) == 26  # 24 from blueprint 17.2 + MU-05, MU-06 added after X1 review
+    assert len(ALL) == 27  # 24 from blueprint 17.2 + MU-05, MU-06, MU-07 added after review
     assert collections.Counter(c["class"] for c in ALL) == C.CLASS_COUNTS
 
 
@@ -46,7 +46,7 @@ def test_every_failing_length_case_overshoots_by_arithmetic():
     """The expected result must follow from the stated numbers, not from the engine."""
     for case in ALL:
         for step in C.steps_of(case):
-            if step["expected"]["failure_codes"] == ["INSUFFICIENT_LENGTH"]:
+            if step["expected"]["failure_codes"] in (["INSUFFICIENT_LENGTH"], ["NO_POSITIVE_REMAINDER"]):
                 i = step["inputs"]
                 length = i["measurements"]["shoulder_to_hem"]["value_mm"]
                 mark = i["params"]["finished_length_mm"] + i["params"]["hem_allowance_mm"]
@@ -106,7 +106,7 @@ def test_report_clean_when_engine_matches_expectations(monkeypatch, capsys):
     monkeypatch.setattr(adapter, "evaluate_inputs", oracle)
     assert report.main(["--strict"]) == 0
     out = capsys.readouterr().out
-    assert re.search(r"false acceptance\s+0/20", out) and re.search(r"false rejection\s+0/8", out)
+    assert re.search(r"false acceptance\s+0/\d+", out) and re.search(r"false rejection\s+0/\d+", out)
 
 
 def test_report_exits_2_when_engine_missing(monkeypatch):

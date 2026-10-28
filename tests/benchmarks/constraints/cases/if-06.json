@@ -3,14 +3,20 @@
   "class": "insufficient_fabric_or_placement",
   "synthetic": true,
   "description": "Negative hem allowance of -30 mm",
-  "reason": "Implausible parameter (negative hem) stops the engine before geometry runs; it asks for input.",
+  "reason": "A negative hem allowance is an invalid parameter (contract lengths are non-negative); it stops the engine before geometry runs and asks for input.",
   "destructive_cut": true,
   "inputs": {
     "garment": {
       "category": "woven_shirt",
       "fabric_family": "woven",
       "closure": "button_placket",
-      "prohibited_regions": [],
+      "prohibited_regions": [
+        {
+          "name": "armhole",
+          "from_shoulder_mm": 0,
+          "to_shoulder_mm": 150
+        }
+      ],
       "seam_margin_mm": 0
     },
     "measurements": {
@@ -34,7 +40,7 @@
   "expected": {
     "status": "NEEDS_INPUT",
     "failure_codes": [
-      "IMPLAUSIBLE_DIMENSION"
+      "INVALID_PARAMETER"
     ]
   }
 }

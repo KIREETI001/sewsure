@@ -10,7 +10,13 @@
       "category": "jersey_tee",
       "fabric_family": "knit",
       "closure": "button_placket",
-      "prohibited_regions": [],
+      "prohibited_regions": [
+        {
+          "name": "armhole",
+          "from_shoulder_mm": 0,
+          "to_shoulder_mm": 150
+        }
+      ],
       "seam_margin_mm": 0
     },
     "measurements": {

@@ -3,14 +3,20 @@
   "class": "insufficient_fabric_or_placement",
   "synthetic": true,
   "description": "Finished 760 mm + 30 mm hem = 790 mm cut mark on a 780 mm shirt",
-  "reason": "Hem allowance pushes the cut mark 10 mm past the hem edge, so the remainder is negative.",
+  "reason": "Finished length alone fits (760 < 780) but the hem allowance pushes the cut mark 10 mm past the hem edge, so the remainder is negative.",
   "destructive_cut": true,
   "inputs": {
     "garment": {
       "category": "woven_shirt",
       "fabric_family": "woven",
       "closure": "button_placket",
-      "prohibited_regions": [],
+      "prohibited_regions": [
+        {
+          "name": "armhole",
+          "from_shoulder_mm": 0,
+          "to_shoulder_mm": 150
+        }
+      ],
       "seam_margin_mm": 0
     },
     "measurements": {
@@ -34,7 +40,7 @@
   "expected": {
     "status": "FAILED_CHECKS",
     "failure_codes": [
-      "INSUFFICIENT_LENGTH"
+      "NO_POSITIVE_REMAINDER"
     ]
   }
 }

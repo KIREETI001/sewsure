@@ -13,7 +13,7 @@ CASES_DIR = Path(__file__).parent / "cases"
 CLASS_COUNTS = {
     "supported_success": 6,
     "insufficient_fabric_or_placement": 6,
-    "missing_unit_implausible": 6,
+    "missing_unit_implausible": 7,
     "unsupported_garment_or_material": 4,
     "revision_seam_edge": 4,
 }

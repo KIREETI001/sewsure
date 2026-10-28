@@ -10,7 +10,13 @@
       "category": "woven_shirt",
       "fabric_family": "woven",
       "closure": "button_placket",
-      "prohibited_regions": [],
+      "prohibited_regions": [
+        {
+          "name": "armhole",
+          "from_shoulder_mm": 0,
+          "to_shoulder_mm": 150
+        }
+      ],
       "seam_margin_mm": 0
     },
     "measurements": {
@@ -34,7 +40,7 @@
   "expected": {
     "status": "FAILED_CHECKS",
     "failure_codes": [
-      "INSUFFICIENT_LENGTH"
+      "NO_POSITIVE_REMAINDER"
     ]
   }
 }

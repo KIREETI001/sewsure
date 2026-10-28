@@ -3,10 +3,8 @@
 Everything in this suite reaches the engine through ``evaluate_inputs``. If the
 engine's entry point changes, this is the only file to touch.
 
-Case files use the contract v1 vocabulary (packages/contracts, K1): dimension names
-without unit suffix, ``woven_shirt`` / ``fabric_family``, contract failure codes. This
-adapter translates to N1's ``sewsure_feasibility`` types and back, so a rename on either
-side is a change to the tables below and nothing else.
+Case files use the contract vocabulary (packages/contracts 1.0.0-draft.2, K1), which N1's
+``sewsure_feasibility`` now shares, so this adapter only builds N1's types from case data.
 
 Engine shape (N1, PR #12):
 
@@ -95,28 +93,8 @@ def load_engine():
     )
 
 
-# --- vocabulary translation (contract v1 <-> N1) -------------------------------
-
-DIMENSION_TO_ENGINE = {
-    "shoulder_to_hem": "shoulder_to_hem_length",
-    "chest_flat_width": "chest_width",
-}
-CATEGORY_TO_ENGINE = {"woven_shirt": "button_up_shirt", "jersey_tee": "jersey_tee", "other": "other", "unknown": None}
-FABRIC_TO_ENGINE = {"woven": "woven", "knit": "knit", "unknown": None}
-
-# N1 failure code -> contract FailureCode. Codes with no entry pass through unchanged.
-CODE_FROM_ENGINE = {
-    "RECIPE_NOT_ALLOWED": "UNSUPPORTED_RECIPE",
-    "CATEGORY_NOT_SUPPORTED": "UNSUPPORTED_GARMENT_CATEGORY",
-    "MATERIAL_NOT_SUPPORTED": "UNSUPPORTED_MATERIAL",
-    "MISSING_PARAM": "MISSING_DIMENSION",
-    "DIMENSION_IMPLAUSIBLE": "IMPLAUSIBLE_DIMENSION",
-    "UNIT_MIX_UP_SUSPECTED": "IMPLAUSIBLE_DIMENSION",
-    "NON_FINITE_VALUE": "IMPLAUSIBLE_DIMENSION",
-    "FINISHED_LENGTH_EXCEEDS_AVAILABLE": "INSUFFICIENT_LENGTH",
-    "NO_POSITIVE_REMAINDER": "INSUFFICIENT_LENGTH",
-    "PROHIBITED_ZONE_INTERSECTION": "CUT_INTERSECTS_PROHIBITED_REGION",
-}
+# Case files, the contract (K1 draft.2) and N1 share one vocabulary: dimension names, categories,
+# fabric families and failure codes pass through unchanged. Only types are built here.
 
 _DEFAULT_PANEL_MM = (520.0, 780.0)
 
@@ -139,10 +117,10 @@ def build_engine_args(inputs: dict, models) -> tuple:
     g, ms = inputs["garment"], inputs["measurements"]
     meas = {}
     for name, m in ms.items():
-        meas[DIMENSION_TO_ENGINE.get(name, name)] = models.Measurement(
+        meas[name] = models.Measurement(
             _value_mm(m), m["origin"], _parse_ts(m.get("confirmed_at")))
-    length = meas["shoulder_to_hem_length"].value_mm if "shoulder_to_hem_length" in meas else math.nan
-    width = meas["chest_width"].value_mm if "chest_width" in meas else math.nan
+    length = meas["shoulder_to_hem"].value_mm if "shoulder_to_hem" in meas else math.nan
+    width = meas["chest_flat_width"].value_mm if "chest_flat_width" in meas else math.nan
     w = width if math.isfinite(width) and width > 0 else _DEFAULT_PANEL_MM[0]
     h = length if math.isfinite(length) and length > 0 else _DEFAULT_PANEL_MM[1]
     margin = float(g.get("seam_margin_mm", 0))
@@ -152,9 +130,7 @@ def build_engine_args(inputs: dict, models) -> tuple:
         models.Zone(r["name"], r["name"], rect(r["from_shoulder_mm"] - margin, r["to_shoulder_mm"] + margin))
         for r in g.get("prohibited_regions", []))
     panel = models.FabricPanel("case", models.Side.BACK, rect(0.0, h), prohibited_regions=zones)
-    garment = models.Garment(
-        "case", CATEGORY_TO_ENGINE.get(g["category"], g["category"]),
-        FABRIC_TO_ENGINE.get(g["fabric_family"], g["fabric_family"]), (panel,))
+    garment = models.Garment("case", g["category"], g["fabric_family"], (panel,))
     return garment, meas, inputs["recipe_id"], dict(inputs["params"])
 
 
@@ -165,7 +141,7 @@ def _status_of(raw: Any) -> str | None:
 
 def _codes_of(raw: Any) -> list[str]:
     codes = (str(getattr(c, "value", c)) for c in (getattr(raw, "failure_codes", None) or ()))
-    return sorted({CODE_FROM_ENGINE.get(c, c) for c in codes})
+    return sorted(set(codes))
 
 
 def evaluate_inputs(inputs: dict) -> Outcome:
