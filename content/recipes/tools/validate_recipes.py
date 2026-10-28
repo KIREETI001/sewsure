@@ -25,6 +25,8 @@ from jsonschema import Draft202012Validator
 RECIPES_DIR = Path(__file__).resolve().parents[1]
 SCHEMA_DIR = RECIPES_DIR / "schema"
 
+IRREVERSIBLE_PHASES = {"cut", "trim"}
+
 BANNED_PHRASES = [
     "guaranteed",
     "guarantee",
@@ -85,7 +87,9 @@ def check_recipe_rules(recipe: dict, lesson_ids: set[str], label: str) -> list[s
         if sid in seen:
             errors.append(f"{label}: duplicate step id {sid!r}")
         seen.add(sid)
-        if step.get("irreversible"):
+        if step.get("phase") in IRREVERSIBLE_PHASES and not step.get("irreversible"):
+            errors.append(f"{label}: step {sid!r} is in phase {step['phase']!r} so it must have irreversible: true")
+        if step.get("irreversible") or step.get("phase") in IRREVERSIBLE_PHASES:
             prev = steps[i - 1] if i > 0 else None
             if not prev or not prev.get("checkpoint"):
                 errors.append(f"{label}: irreversible step {sid!r} is not directly preceded by a checkpoint step")

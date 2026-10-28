@@ -17,7 +17,8 @@ eligibility:
   not_eligible:
     - Stretch or knit fabric (for example a jersey or stretch-cotton shirt)
     - Shirts with a pocket, pleat, vent or seam that would be crossed by the cut line
-    - Shirts where the cut line would run through a button or buttonhole
+    - Shirts where a button or buttonhole sits between the cut line and the finished edge (the cut line minus the hem allowance), because it would end up in the hem or under the stitching
+    - Shirts with a strongly curved or shirt-tail bottom edge (the app only offers this recipe when the bottom edge is close to straight)
   required_inputs:
     - finished_length_mm
     - original_length_mm
@@ -142,7 +143,7 @@ steps:
     text: >-
       Find the top of the shoulder where it meets the collar (the highest point
       next to the neck). Place the ruler on the shirt so its zero end is at this
-      point, then run it straight down the front to the bottom edge. Read the
+      point, then run it straight down the front, along the button strip, to the bottom edge at the centre front. If the bottom edge is not straight, stop and use the tailor route. Read the
       number. Enter it in the app.
     checkpoint: false
     irreversible: false
@@ -197,10 +198,10 @@ steps:
     text: >-
       Cutting cannot be undone. Check each of these with your ruler:
       (1) Measure from the shoulder landmark down to the chalk line in three places on
-      the front (left, middle, right). All three should match your cut mark.
+      the front (left, middle, right). All three should match your cut mark to within 2 mm of each other (draft tolerance for the sewist to confirm).
       (2) Do the same on the back.
-      (3) Check the line is straight, with no wobble.
-      (4) Check the line does not run through a button or buttonhole.
+      (3) Check the line is straight. Lay the ruler along it: no gap bigger than 2 mm (draft tolerance).
+      (4) Check that no button or buttonhole sits on the chalk line or in the band above it. That band is folded into the hem and sewn, so measure up from the chalk line by the hem allowance ({hem_allowance_mm} mm) and look for buttons in that space.
       (5) Hold the shirt up. Is this the length you want? Remember that your hem will
       use the extra fabric below the line, so the finished shirt will be shorter than
       the chalk line by the hem allowance.
@@ -232,7 +233,7 @@ steps:
       Lay the shirt flat. Measure from the shoulder landmark to the cut edge in three
       places on the front and three on the back. Look for dips or steps. Do not trim
       anything more yet. Small unevenness can be evened out when you press the hem
-      in the next steps. If the edge is very uneven, stop and use the tailor route in
+      in the next steps. If the cut edge is more than 3 mm away from the chalk line anywhere (draft tolerance for the sewist to confirm), stop and use the tailor route in
       the app.
     checkpoint: true
     irreversible: false

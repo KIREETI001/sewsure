@@ -67,3 +67,13 @@ def test_guarantee_language_is_rejected():
     r = copy.deepcopy(load())
     r["summary"] = "A perfect fit, guaranteed."
     assert v.check_language(r, "t")
+
+
+def test_cut_phase_without_irreversible_flag_still_needs_checkpoint():
+    r = load()
+    i = next(n for n, s in enumerate(r["steps"]) if s["id"] == "cut_along_line")
+    r["steps"][i]["irreversible"] = False
+    r["steps"][i - 1]["checkpoint"] = False
+    errs = v.check_recipe_rules(r, LESSON_IDS, "t")
+    assert any("must have irreversible: true" in e for e in errs)
+    assert any("not directly preceded by a checkpoint" in e for e in errs)

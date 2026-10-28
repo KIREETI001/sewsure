@@ -5,7 +5,7 @@ This recipe was drafted by an AI agent. Nothing here has been tested on a real s
 
 **How to use this packet:** for each item, write one of `accept`, `change` or `reject`, and add a note if you pick `change` or `reject`. Only a named human sewist can move the recipe from `draft` to `reviewed`. Do not change `status` in the YAML until every item has a decision.
 
-Where numbers are shown (30, 10, 20 mm) they are draft defaults from the project plan's worked example, not tested values.
+Where numbers are shown they are untested draft values. Only the 30 mm hem allowance comes from the project plan's worked example (500 + 30 = 530 mm). The 10 mm and 20 mm folds, the 2 mm and 3 mm tolerances, the 2 mm stitch distance and the 6 mm slip-stitch spacing are the author's own and have no source.
 
 ## A. What the recipe does (summary)
 
@@ -30,7 +30,9 @@ Cut a straight line across a non-stretch woven button-up shirt, then finish the 
 | 13 | Hand hem: slip stitch, picking up one or two threads of the shirt, stitches about **6 mm** apart (lesson text) | `hem_hand`, lesson | | |
 | 14 | Both hem options are offered as equal choices. Does either one need extra warning? | `option_group: hem_method` | | |
 | 15 | Eligible fabrics: non-stretch woven, for example cotton poplin or linen blend. Is the list right? Are very thin, slippery or heavy fabrics (silk, satin, denim) excluded? | `eligibility` | | |
-| 16 | Not eligible: pocket, pleat, vent or seam crossing the cut line, and a cut line through a button or buttonhole | `eligibility.not_eligible` | | |
+| 16 | Not eligible: pocket, pleat, vent or seam crossing the cut line, and any button or buttonhole between the cut line and the finished edge (the hem band, which is folded and stitched). Is the band check right, and is the check in the ruler checkpoint clear enough? | `eligibility.not_eligible`, `checkpoint_before_cut` | | |
+| 18 | Draft tolerances: three readings at the pre-cut checkpoint within 2 mm of each other; ruler gap along the chalk line no more than 2 mm; cut edge within 3 mm of the chalk line. Right numbers, or change? | `checkpoint_before_cut`, `checkpoint_after_cut` | | |
+| 19 | Strongly curved or shirt-tail bottom edges are not eligible, and the length is read at centre front. Is that the right rule, and what counts as strongly curved? | `eligibility.not_eligible`, `measure_landmark` | | |
 | 17 | Wording for each step suits a beginner and has no steps that need more skill than "Beginner with practice" (2 out of 5, author estimate) | `difficulty` | | |
 
 ## C. Tools and alternatives
@@ -52,7 +54,7 @@ Question: is a seam gauge or card strictly needed to get the 10 mm and 20 mm fol
 |---|---|---|---|---|
 | R1 | Cutting is permanent. A wrong mark makes the shirt too short. | Ruler checkpoint before the cut; user ticks it in the app | | |
 | R2 | Reading the landmark differently from the app. | App asks user to enter measured length and re-check | | |
-| R3 | Curved or shirt-tail hems become a straight line, which may look different from the original. | Not explained in the draft. Should the app warn about this? | | |
+| R3 | Curved or shirt-tail hems become a straight line, which may look different from the original. | Strongly curved edges are listed as not eligible; length is read at centre front. Should the app also warn about the look change? | | |
 | R4 | Fabric shifts or stretches while marking, especially along the bias or in loose weaves. | "Lay flat and smooth" step only | | |
 | R5 | Chalk or marker may not come out. | Chalk is listed first | | |
 | R6 | Iron too hot burns the fabric or melts blended fibres. | Lesson tells the user to follow the care label | | |
