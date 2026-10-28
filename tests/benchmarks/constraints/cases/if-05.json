@@ -3,7 +3,7 @@
   "class": "insufficient_fabric_or_placement",
   "synthetic": true,
   "description": "Finished length of 0 mm",
-  "reason": "Implausible parameters stop the engine before any geometry runs (CLAUDE.md, feasibility rules); a 0 mm finished length asks for input, it is not a geometry failure.",
+  "reason": "A 0 mm finished length is a non-positive, invalid parameter (draft.2 INVALID_PARAMETER); it stops the engine before any geometry runs and asks for input.",
   "destructive_cut": true,
   "inputs": {
     "garment": {
@@ -40,7 +40,7 @@
   "expected": {
     "status": "NEEDS_INPUT",
     "failure_codes": [
-      "IMPLAUSIBLE_DIMENSION"
+      "INVALID_PARAMETER"
     ]
   }
 }

@@ -57,7 +57,7 @@ Vocabulary is the contract's, 1.0.0-draft.2 (K1, PR #15); N1 (PR #12) uses the s
 |---|---|---|---|
 | `RB-01` exact fit | PASS | FAILED_CHECKS / `NO_POSITIVE_REMAINDER` | Blueprint §5.3 requires a positive remainder; zero remainder removes no fabric. Narthananilaa to confirm. |
 | `RB-02` 0.5 mm overshoot, `IF-02` hem pushes past hem edge | `LENGTH_EXCEEDS_AVAILABLE` / `INSUFFICIENT_LENGTH` | `NO_POSITIVE_REMAINDER` | Finished length alone fits; the remainder after hem is not positive. draft.2 added the code for this. `IF-01` (finished >= available) stays `INSUFFICIENT_LENGTH`. |
-| `IF-05` finished 0 mm | FAILED_CHECKS | NEEDS_INPUT / `IMPLAUSIBLE_DIMENSION` | Implausible values stop before geometry (§5.5). |
+| `IF-05` finished 0 mm | FAILED_CHECKS | NEEDS_INPUT / `INVALID_PARAMETER` | A non-positive length is an invalid parameter (draft.2); invalid values stop before geometry (§5.5). |
 | `IF-06` hem -30 mm | FAILED_CHECKS | NEEDS_INPUT / `INVALID_PARAMETER` | Negative length is an invalid parameter (draft.2). |
 | `MU-02` 60 mm chest | `IMPLAUSIBLE_DIMENSION` | `POSSIBLE_UNIT_ERROR` | 60 mm x 10 is in range: a likely cm/mm slip (draft.2). |
 | `MU-03` bare number | ambiguous unit | `NON_FINITE_VALUE` | No unit means no usable mm value; the adapter passes a non-finite value. |
