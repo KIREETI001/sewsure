@@ -2,8 +2,12 @@
 
 Gate order (hard gates before anything else; a hard failure is never outscored):
 1. recipe allow-list, category, material      -> IDEA_ONLY (no cut points are ever returned)
-2. required dimensions/params, plausibility   -> NEEDS_INPUT (no geometry runs)
+2. required inputs, confirmation, plausibility,
+   consistency                                -> NEEDS_INPUT (no geometry runs)
 3. recipe geometry                            -> FAILED_CHECKS or PASS_SUPPORTED_CHECKS
+
+A measurement with ``confirmed_at=None`` counts as missing (contract #15): it can never
+reach a pass or a cut mark.
 """
 
 from __future__ import annotations
@@ -13,8 +17,11 @@ import hashlib
 import json
 import math
 from collections.abc import Mapping
+from datetime import UTC, datetime
+from typing import Any
 
 from sewsure_feasibility.models import (
+    CheckOutcome,
     ConstraintResult,
     DesignState,
     FailureCode,
@@ -24,14 +31,24 @@ from sewsure_feasibility.models import (
 from sewsure_feasibility.recipes import get_recipe
 from sewsure_feasibility.recipes.base import Recipe
 
-ENGINE_VERSION = "0.1.0"
+ENGINE_VERSION = "0.2.0"
+
+ParamValue = float | str | bool
+
+_CHECK_ORDER = ("supported_material", "required_dimensions", "length_gate", "structure")
+
+
+def _canon(value: Any) -> Any:
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        return value
+    return float(value)
 
 
 def _fingerprint(
     garment: Garment,
     measurements: Mapping[str, Measurement],
     recipe_id: str,
-    params: Mapping[str, float],
+    params: Mapping[str, ParamValue],
 ) -> str:
     payload = {
         "garment": dataclasses.asdict(garment),
@@ -40,13 +57,14 @@ def _fingerprint(
             for k, v in measurements.items()
         },
         "recipe_id": recipe_id,
-        "params": {k: float(v) for k, v in params.items()},
+        "params": {k: _canon(v) for k, v in params.items()},
     }
     blob = json.dumps(payload, sort_keys=True, default=str)
     return hashlib.sha256(blob.encode()).hexdigest()
 
 
-def _plausibility(name: str, value: float, recipe: Recipe) -> tuple[FailureCode, str] | None:
+def _plausibility(name: str, value: float, recipe: Recipe) -> tuple[str, bool] | None:
+    """Return (detail, possible_unit_error) when ``value`` is outside the plausible range."""
     bounds = recipe.plausible_ranges_mm.get(name)
     if bounds is None:
         return None
@@ -55,98 +73,121 @@ def _plausibility(name: str, value: float, recipe: Recipe) -> tuple[FailureCode,
         return None
     if lo <= value * 10 <= hi or lo <= value / 10 <= hi:
         return (
-            FailureCode.UNIT_MIX_UP_SUSPECTED,
             f"{name}={value:g} mm is outside {lo:g}-{hi:g} mm but fits if off by a factor of 10 "
             "(cm entered as mm, or the reverse?)",
+            True,
         )
-    return (FailureCode.DIMENSION_IMPLAUSIBLE, f"{name}={value:g} mm is outside {lo:g}-{hi:g} mm")
+    return (f"{name}={value:g} mm is outside {lo:g}-{hi:g} mm", False)
+
+
+def _is_number(value: object) -> bool:
+    return isinstance(value, int | float) and not isinstance(value, bool)
 
 
 def evaluate(
     garment: Garment,
     measurements: Mapping[str, Measurement],
     recipe_id: str,
-    params: Mapping[str, float],
+    params: Mapping[str, ParamValue],
     *,
     revision_ref: str | None = None,
+    checked_at: datetime | None = None,
 ) -> ConstraintResult:
     """Decide the design state for ``recipe_id`` applied to ``garment``.
 
-    ``measurements`` are :class:`Measurement` (mm, with origin); ``params`` are recipe
-    parameters in mm. Never raises for bad design inputs; returns a state with failure codes.
+    ``measurements`` are :class:`Measurement` (mm, with origin and ``confirmed_at``); ``params``
+    are recipe parameters (lengths in mm; strings/booleans allowed for options). Never raises for
+    bad design inputs; returns a state with failure codes.
     """
     fingerprint = _fingerprint(garment, measurements, recipe_id, params)
     recipe = get_recipe(recipe_id)
+    stamp = checked_at or datetime.now(UTC)
 
     def result(
         status: DesignState,
         codes: list[FailureCode],
         *,
         details: list[str],
+        checks: dict[str, CheckOutcome],
         missing: list[str] | None = None,
         flags: tuple[str, ...] = (),
-        residuals: Mapping[str, float] | None = None,
+        outcome_residuals: tuple[Any, ...] = (),
         cut_mark: float | None = None,
-        alternatives: tuple[str, ...] = (),
     ) -> ConstraintResult:
+        ordered = tuple(checks.get(cid, CheckOutcome(cid, "not_run")) for cid in _CHECK_ORDER)
         return ConstraintResult(
             status=status,
             failure_codes=tuple(dict.fromkeys(codes)),
-            residuals_mm=dict(residuals or {}),
-            missing_dimensions=tuple(missing or ()),
-            uncertainty_flags=flags,
-            suggested_alternatives=alternatives,
+            residuals=outcome_residuals,
+            missing_dimensions=tuple(dict.fromkeys(missing or ())),
+            uncertainty_flags=tuple(dict.fromkeys(flags)),
+            checks=ordered,
+            alternatives=(),
             details=tuple(details),
             cut_mark_mm=cut_mark,
             recipe_id=recipe_id,
             recipe_version=recipe.version if recipe else None,
             engine_version=ENGINE_VERSION,
+            checked_at=stamp,
             input_fingerprint=fingerprint,
             revision_ref=revision_ref,
         )
 
+    def material_gate(code: FailureCode, detail: str, result_kind: str) -> dict[str, CheckOutcome]:
+        return {"supported_material": CheckOutcome("supported_material", result_kind, code, detail)}
+
     # Gate 1: applicability. Fails closed; never yields cut points.
     if recipe is None:
+        detail = f"recipe {recipe_id!r} is not on the allow-list"
         return result(
             DesignState.IDEA_ONLY,
-            [FailureCode.RECIPE_NOT_ALLOWED],
-            details=[f"recipe {recipe_id!r} is not on the allow-list"],
+            [FailureCode.UNSUPPORTED_RECIPE],
+            details=[detail],
+            checks=material_gate(FailureCode.UNSUPPORTED_RECIPE, detail, "fail"),
         )
     category = garment.category.strip().lower() if garment.category else None
     material = garment.material.strip().lower() if garment.material else None
+    if category == "unknown":
+        category = None
+    if material == "unknown":
+        material = None
     if category is None or material is None:
-        unknown: list[FailureCode] = []
-        unknown_names: list[str] = []
+        codes: list[FailureCode] = []
+        names: list[str] = []
         if category is None:
-            unknown.append(FailureCode.CATEGORY_UNKNOWN)
-            unknown_names.append("garment_category")
+            codes.append(FailureCode.MISSING_DIMENSION)
+            names.append("garment_category")
         if material is None:
-            unknown.append(FailureCode.MATERIAL_UNKNOWN)
-            unknown_names.append("material")
+            codes.append(FailureCode.MATERIAL_UNKNOWN)
+            names.append("fabric_family")
+        detail = "confirm garment category and fabric before any rule runs"
         return result(
             DesignState.NEEDS_INPUT,
-            unknown,
-            details=["confirm garment category and fabric before any rule runs"],
-            missing=unknown_names,
-            alternatives=("Confirm the garment category and fabric.",),
+            codes,
+            details=[detail],
+            checks=material_gate(codes[0], detail, "needs_input"),
+            missing=names,
         )
     if category not in recipe.supported_categories:
+        detail = f"category {category!r} is not supported by {recipe.recipe_id}"
         return result(
             DesignState.IDEA_ONLY,
-            [FailureCode.CATEGORY_NOT_SUPPORTED],
-            details=[f"category {category!r} is not supported by {recipe.recipe_id}"],
-            alternatives=("Use a reviewed recipe for this garment category.",),
+            [FailureCode.UNSUPPORTED_GARMENT_CATEGORY],
+            details=[detail],
+            checks=material_gate(FailureCode.UNSUPPORTED_GARMENT_CATEGORY, detail, "fail"),
         )
     if material not in recipe.supported_materials:
+        detail = f"material {material!r} is not supported by {recipe.recipe_id}"
         return result(
             DesignState.IDEA_ONLY,
-            [FailureCode.MATERIAL_NOT_SUPPORTED],
-            details=[f"material {material!r} is not supported by {recipe.recipe_id}"],
-            alternatives=("Treat as inspiration only, or use a recipe reviewed for this fabric.",),
+            [FailureCode.UNSUPPORTED_MATERIAL],
+            details=[detail],
+            checks=material_gate(FailureCode.UNSUPPORTED_MATERIAL, detail, "fail"),
         )
+    gate1 = {"supported_material": CheckOutcome("supported_material", "pass")}
 
-    # Gate 2: required inputs and plausibility, before any geometry.
-    codes: list[FailureCode] = []
+    # Gate 2: required inputs, confirmation, plausibility, consistency. No geometry yet.
+    codes = []
     details: list[str] = []
     missing: list[str] = []
     flags: list[str] = []
@@ -157,37 +198,71 @@ def evaluate(
         if m is None:
             codes.append(FailureCode.MISSING_DIMENSION)
             missing.append(name)
+        elif m.confirmed_at is None:
+            codes.append(FailureCode.MISSING_DIMENSION)
+            missing.append(name)
+            details.append(f"{name} is unconfirmed ({m.origin}); confirm it to continue")
         elif not math.isfinite(m.value_mm):
-            codes.append(FailureCode.NON_FINITE_VALUE)
+            codes.append(FailureCode.IMPLAUSIBLE_DIMENSION)
+            missing.append(name)
             details.append(f"{name} is not a finite number")
         else:
             values[name] = m.value_mm
-            if m.confirmed_at is None and "MEASUREMENT_UNCONFIRMED" not in flags:
-                flags.append("MEASUREMENT_UNCONFIRMED")
     for name in recipe.required_params:
         p = params.get(name)
-        if p is None or isinstance(p, bool):
-            codes.append(FailureCode.MISSING_PARAM)
+        if p is None:
+            codes.append(FailureCode.MISSING_DIMENSION)
             missing.append(name)
-        elif not math.isfinite(p):
-            codes.append(FailureCode.NON_FINITE_VALUE)
-            details.append(f"{name} is not a finite number")
+        elif not _is_number(p) or not math.isfinite(float(p)):  # type: ignore[arg-type]
+            codes.append(FailureCode.IMPLAUSIBLE_DIMENSION)
+            missing.append(name)
+            details.append(f"{name} must be a finite number of mm, got {p!r}")
         else:
-            params_mm[name] = float(p)
+            params_mm[name] = float(p)  # type: ignore[arg-type]
+    ignored = sorted(set(params) - set(recipe.required_params) - recipe.optional_params)
+    if ignored:
+        flags.append("ignored_parameters")
+        details.append(f"parameters not on the recipe allow-list were ignored: {ignored}")
+    for name in recipe.missing_garment_inputs(garment):
+        codes.append(FailureCode.MISSING_DIMENSION)
+        missing.append(name)
+        details.append(f"{name} are required to check the cut line and were not provided")
     for name, value in {**values, **params_mm}.items():
         issue = _plausibility(name, value, recipe)
         if issue is not None:
-            codes.append(issue[0])
-            details.append(issue[1])
+            codes.append(FailureCode.IMPLAUSIBLE_DIMENSION)
+            missing.append(name)
+            details.append(issue[0])
+            if issue[1]:
+                flags.append("possible_unit_error")
+    for pair in recipe.consistency_pairs:
+        flat = values.get(pair.flat_key)
+        other_m = measurements.get(pair.other_key)
+        if flat is None or other_m is None or other_m.confirmed_at is None:
+            continue
+        expected = flat * pair.factor
+        if abs(other_m.value_mm - expected) > pair.tolerance_fraction * expected:
+            codes.append(FailureCode.CONFLICTING_DIMENSIONS)
+            missing.extend([pair.flat_key, pair.other_key])
+            details.append(
+                f"{pair.flat_key}={flat:g} mm implies {pair.other_key}~{expected:g} mm, "
+                f"got {other_m.value_mm:g} mm"
+            )
     if codes:
         return result(
             DesignState.NEEDS_INPUT,
             codes,
             details=details,
+            checks={
+                **gate1,
+                "required_dimensions": CheckOutcome(
+                    "required_dimensions", "needs_input", codes[0], details[0] if details else None
+                ),
+            },
             missing=missing,
             flags=tuple(flags),
-            alternatives=("Re-check the highlighted measurements and units.",),
         )
+    gate2 = {**gate1, "required_dimensions": CheckOutcome("required_dimensions", "pass")}
 
     # Gate 3: recipe geometry.
     outcome = recipe.check(garment, values, params_mm)
@@ -197,14 +272,20 @@ def evaluate(
     return result(
         status,
         list(outcome.failure_codes),
-        details=list(outcome.details),
-        flags=tuple(dict.fromkeys([*flags, *outcome.uncertainty_flags])),
-        residuals=outcome.residuals_mm,
+        details=[*details, *outcome.details],
+        checks={**gate2, **{c.check_id: c for c in outcome.checks}},
+        flags=(*flags, *outcome.uncertainty_flags),
+        outcome_residuals=outcome.residuals,
         cut_mark=outcome.cut_mark_mm,
-        alternatives=outcome.suggested_alternatives,
     )
 
 
 def supersede(previous: ConstraintResult) -> ConstraintResult:
-    """Mark an earlier revision's result SUPERSEDED. The original object is left untouched."""
+    """Mark a passed revision's result SUPERSEDED (the original object is left untouched).
+
+    Only a ``PASS_SUPPORTED_CHECKS`` result can be superseded (contract #15); anything else
+    raises ``ValueError`` so a failed or incomplete state is never overwritten.
+    """
+    if previous.status is not DesignState.PASS_SUPPORTED_CHECKS:
+        raise ValueError(f"only a passed result can be superseded, got {previous.status.value}")
     return dataclasses.replace(previous, status=DesignState.SUPERSEDED)
