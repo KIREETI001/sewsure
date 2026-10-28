@@ -63,21 +63,28 @@ def _fingerprint(
     return hashlib.sha256(blob.encode()).hexdigest()
 
 
-def _plausibility(name: str, value: float, recipe: Recipe) -> tuple[str, bool] | None:
-    """Return (detail, possible_unit_error) when ``value`` is outside the plausible range."""
+def _plausibility(
+    name: str, value: float, recipe: Recipe, *, is_param: bool
+) -> tuple[FailureCode, str] | None:
+    """Return (code, detail) when ``value`` is outside the plausible range."""
     bounds = recipe.plausible_ranges_mm.get(name)
     if bounds is None:
         return None
     lo, hi = bounds
     if lo <= value <= hi:
         return None
+    if value <= 0 and is_param:
+        return (FailureCode.INVALID_PARAMETER, f"{name}={value:g} mm must be positive")
     if lo <= value * 10 <= hi or lo <= value / 10 <= hi:
         return (
+            FailureCode.POSSIBLE_UNIT_ERROR,
             f"{name}={value:g} mm is outside {lo:g}-{hi:g} mm but fits if off by a factor of 10 "
             "(cm entered as mm, or the reverse?)",
-            True,
         )
-    return (f"{name}={value:g} mm is outside {lo:g}-{hi:g} mm", False)
+    return (
+        FailureCode.IMPLAUSIBLE_DIMENSION,
+        f"{name}={value:g} mm is outside {lo:g}-{hi:g} mm",
+    )
 
 
 def _is_number(value: object) -> bool:
@@ -155,7 +162,7 @@ def evaluate(
         codes: list[FailureCode] = []
         names: list[str] = []
         if category is None:
-            codes.append(FailureCode.MISSING_DIMENSION)
+            codes.append(FailureCode.CATEGORY_UNKNOWN)
             names.append("garment_category")
         if material is None:
             codes.append(FailureCode.MATERIAL_UNKNOWN)
@@ -199,11 +206,11 @@ def evaluate(
             codes.append(FailureCode.MISSING_DIMENSION)
             missing.append(name)
         elif m.confirmed_at is None:
-            codes.append(FailureCode.MISSING_DIMENSION)
+            codes.append(FailureCode.UNCONFIRMED_DIMENSION)
             missing.append(name)
             details.append(f"{name} is unconfirmed ({m.origin}); confirm it to continue")
         elif not math.isfinite(m.value_mm):
-            codes.append(FailureCode.IMPLAUSIBLE_DIMENSION)
+            codes.append(FailureCode.NON_FINITE_VALUE)
             missing.append(name)
             details.append(f"{name} is not a finite number")
         else:
@@ -211,30 +218,32 @@ def evaluate(
     for name in recipe.required_params:
         p = params.get(name)
         if p is None:
-            codes.append(FailureCode.MISSING_DIMENSION)
+            codes.append(FailureCode.MISSING_PARAMETER)
             missing.append(name)
-        elif not _is_number(p) or not math.isfinite(float(p)):  # type: ignore[arg-type]
-            codes.append(FailureCode.IMPLAUSIBLE_DIMENSION)
+        elif not _is_number(p):
+            codes.append(FailureCode.INVALID_PARAMETER)
             missing.append(name)
-            details.append(f"{name} must be a finite number of mm, got {p!r}")
+            details.append(f"{name} must be a number of mm, got {p!r}")
+        elif not math.isfinite(float(p)):  # type: ignore[arg-type]
+            codes.append(FailureCode.NON_FINITE_VALUE)
+            missing.append(name)
+            details.append(f"{name} is not a finite number")
         else:
             params_mm[name] = float(p)  # type: ignore[arg-type]
     ignored = sorted(set(params) - set(recipe.required_params) - recipe.optional_params)
     if ignored:
-        flags.append("ignored_parameters")
+        flags.append("IGNORED_PARAMETERS")
         details.append(f"parameters not on the recipe allow-list were ignored: {ignored}")
     for name in recipe.missing_garment_inputs(garment):
-        codes.append(FailureCode.MISSING_DIMENSION)
+        codes.append(FailureCode.MISSING_PROHIBITED_ZONES)
         missing.append(name)
         details.append(f"{name} are required to check the cut line and were not provided")
     for name, value in {**values, **params_mm}.items():
-        issue = _plausibility(name, value, recipe)
+        issue = _plausibility(name, value, recipe, is_param=name in params_mm)
         if issue is not None:
-            codes.append(FailureCode.IMPLAUSIBLE_DIMENSION)
+            codes.append(issue[0])
             missing.append(name)
-            details.append(issue[0])
-            if issue[1]:
-                flags.append("possible_unit_error")
+            details.append(issue[1])
     for pair in recipe.consistency_pairs:
         flat = values.get(pair.flat_key)
         other_m = measurements.get(pair.other_key)

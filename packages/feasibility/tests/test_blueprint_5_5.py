@@ -27,7 +27,7 @@ def test_1_normal_crop_positive_remainder_and_hem(good_shirt: Garment) -> None:
     assert r.residual_mm("garment_length") == 250.0
     assert r.failure_codes == ()
     assert r.recipe_version == "1.0.0" and r.engine_version
-    assert "side_seams_not_verified" in r.uncertainty_flags
+    assert "SIDE_SEAMS_NOT_VERIFIED" in r.uncertainty_flags
     assert [c.result for c in r.checks] == ["pass"] * 4
 
 
@@ -42,8 +42,8 @@ def test_2_finished_length_greater_than_available(good_shirt: Garment) -> None:
     ("finished", "hem", "status", "code"),
     [
         (749.5, 30.0, DesignState.PASS_SUPPORTED_CHECKS, None),  # 0.5 mm remainder
-        (750.0, 30.0, DesignState.FAILED_CHECKS, FailureCode.INSUFFICIENT_LENGTH),  # exact fit
-        (750.5, 30.0, DesignState.FAILED_CHECKS, FailureCode.INSUFFICIENT_LENGTH),  # -0.5 mm
+        (750.0, 30.0, DesignState.FAILED_CHECKS, FailureCode.NO_POSITIVE_REMAINDER),  # exact fit
+        (750.5, 30.0, DesignState.FAILED_CHECKS, FailureCode.NO_POSITIVE_REMAINDER),  # -0.5 mm
     ],
 )
 def test_3_near_boundary_allowance(
@@ -89,8 +89,7 @@ def test_4_cm_mm_agree_for_any_length(cm: int) -> None:
 def test_5_chest_width_6cm_for_60cm_flagged_before_geometry(good_shirt: Garment) -> None:
     r = evaluate(good_shirt, meas(chest_mm=60.0))
     assert r.status is DesignState.NEEDS_INPUT
-    assert r.failure_codes == (FailureCode.IMPLAUSIBLE_DIMENSION,)
-    assert "possible_unit_error" in r.uncertainty_flags
+    assert r.failure_codes == (FailureCode.POSSIBLE_UNIT_ERROR,)
     assert r.missing_dimensions == ("chest_flat_width",)  # NEEDS_INPUT always names something
     assert r.cut_mark_mm is None and r.residuals == ()
 

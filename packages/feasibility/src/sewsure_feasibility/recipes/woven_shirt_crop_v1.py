@@ -4,7 +4,7 @@ Rule (blueprint §5.3): cut mark from shoulder = finished length + hem allowance
 remainder (original length - cut mark) must be strictly positive; the horizontal cut line
 must not intersect any prohibited zone (placket end, side-seam features). Zone data is
 required: a gate that did not run is never reported as passed. The rule alone does not
-verify side seams, so a pass is always flagged ``side_seams_not_verified``.
+verify side seams, so a pass is always flagged ``SIDE_SEAMS_NOT_VERIFIED``.
 
 Plausible ranges and the consistency tolerance are provisional engineering values pending
 Narthananilaa's review.
@@ -64,10 +64,10 @@ def _check(
         details.append(msg)
         checks.append(CheckOutcome("length_gate", "fail", FailureCode.INSUFFICIENT_LENGTH, msg))
     elif remainder <= EPS_MM:
-        codes.append(FailureCode.INSUFFICIENT_LENGTH)
+        codes.append(FailureCode.NO_POSITIVE_REMAINDER)
         msg = f"remainder {remainder:g} mm is not positive after hem allowance"
         details.append(msg)
-        checks.append(CheckOutcome("length_gate", "fail", FailureCode.INSUFFICIENT_LENGTH, msg))
+        checks.append(CheckOutcome("length_gate", "fail", FailureCode.NO_POSITIVE_REMAINDER, msg))
     else:
         checks.append(CheckOutcome("length_gate", "pass"))
 
@@ -105,7 +105,7 @@ def _check(
         residuals=tuple(residuals),
         checks=tuple(checks),
         cut_mark_mm=cut_mark,
-        uncertainty_flags=("side_seams_not_verified",),
+        uncertainty_flags=("SIDE_SEAMS_NOT_VERIFIED",),
         details=tuple(details),
     )
 

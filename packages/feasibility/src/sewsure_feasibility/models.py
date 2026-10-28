@@ -33,14 +33,22 @@ class DesignState(StrEnum):
 
 
 class FailureCode(StrEnum):
-    """Hard-gate failure codes. Values are exactly K1's ``FailureCode`` enum (contract #15);
+    """Hard-gate failure codes. Values are K1's ``FailureCode`` (draft.2);
     a new code is added to the contract by PR before the engine may emit it."""
 
     UNSUPPORTED_RECIPE = "UNSUPPORTED_RECIPE"
     UNSUPPORTED_GARMENT_CATEGORY = "UNSUPPORTED_GARMENT_CATEGORY"
     UNSUPPORTED_MATERIAL = "UNSUPPORTED_MATERIAL"
     MATERIAL_UNKNOWN = "MATERIAL_UNKNOWN"
+    CATEGORY_UNKNOWN = "CATEGORY_UNKNOWN"
     MISSING_DIMENSION = "MISSING_DIMENSION"
+    UNCONFIRMED_DIMENSION = "UNCONFIRMED_DIMENSION"
+    MISSING_PARAMETER = "MISSING_PARAMETER"
+    INVALID_PARAMETER = "INVALID_PARAMETER"
+    NON_FINITE_VALUE = "NON_FINITE_VALUE"
+    POSSIBLE_UNIT_ERROR = "POSSIBLE_UNIT_ERROR"
+    MISSING_PROHIBITED_ZONES = "MISSING_PROHIBITED_ZONES"
+    NO_POSITIVE_REMAINDER = "NO_POSITIVE_REMAINDER"
     CONFLICTING_DIMENSIONS = "CONFLICTING_DIMENSIONS"
     IMPLAUSIBLE_DIMENSION = "IMPLAUSIBLE_DIMENSION"
     INSUFFICIENT_LENGTH = "INSUFFICIENT_LENGTH"
@@ -199,7 +207,7 @@ class Alternative:
 
 @dataclass(frozen=True)
 class ConstraintResult:
-    """Never a bare boolean. Field names follow K1's ``ConstraintResult`` (contract #15) plus
+    """Never a bare boolean. Field names follow K1's ``ConstraintResult`` (draft.2) plus
     the engine's ``status`` (the design state, which only this package decides)."""
 
     status: DesignState

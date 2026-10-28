@@ -18,8 +18,9 @@ uv run pyright
 ```python
 from sewsure_feasibility import evaluate, Garment, Measurement
 
-result = evaluate(garment, measurements, "woven_shirt_crop_v1", params,
-                  revision_ref="rev-1")          # optional: checked_at=<datetime>
+result = evaluate(
+    garment, measurements, "woven_shirt_crop_v1", params, revision_ref="rev-1"
+)  # optional: checked_at=<datetime>
 ```
 
 | Argument | Type | Notes |
@@ -27,16 +28,16 @@ result = evaluate(garment, measurements, "woven_shirt_crop_v1", params,
 | `garment` | `Garment` | `category` (`"woven_shirt"`), `material` (`"woven"`, = contract `fabric_family`); `None` or `"unknown"` = unknown. `panels` carry `prohibited_regions` (placket end, side-seam features); at least one back/front panel must have one, otherwise the cut cannot be checked and the result is `NEEDS_INPUT`. |
 | `measurements` | `Mapping[str, Measurement]` | Contract keys, mm, each with `origin` and `confirmed_at`. Required: `shoulder_to_hem`, `chest_flat_width`. Optional `chest_circumference` is cross-checked (flat x 2, +-10 %). **`confirmed_at=None` counts as missing.** Use `Measurement.from_cm` at the UI boundary. |
 | `recipe_id` | `str` | Must be on the allow-list (`ALLOWED_RECIPE_IDS`); anything else returns `IDEA_ONLY` + `UNSUPPORTED_RECIPE`. |
-| `params` | `Mapping[str, float \| str \| bool]` | `finished_length_mm`, `hem_allowance_mm` (numbers, mm). `hem_finish` allowed. Other names are ignored and flagged `ignored_parameters`. |
+| `params` | `Mapping[str, float \| str \| bool]` | `finished_length_mm`, `hem_allowance_mm` (numbers, mm). `hem_finish` allowed. Other names are ignored and flagged `IGNORED_PARAMETERS`. |
 | `revision_ref` | `str \| None` | Echoed into the result. |
 | `checked_at` | `datetime \| None` | Defaults to now (UTC); pass a fixed value for reproducible results. |
 
 Inputs are typed objects, not dicts: callers (N2's suite, K2's API) map their records to `Garment`,
 `Measurement` and `FabricPanel`.
 
-Returns a frozen `ConstraintResult`. Field names follow K1's contract `ConstraintResult` (PR #15):
+Returns a frozen `ConstraintResult`. Field names follow K1's contract `ConstraintResult` (PR #15, 1.0.0-draft.2):
 `failure_codes`, `residuals` (`Residual`: `check_id`, `quantity`, `required_mm`, `available_mm`,
-`residual_mm`), `missing_dimensions`, `uncertainty_flags` (lowercase slugs), `checks`
+`residual_mm`), `missing_dimensions`, `uncertainty_flags` (UPPER_SNAKE), `checks`
 (`CheckOutcome`), `alternatives`, `engine_version`, `checked_at`; `hard_pass` is derived. The engine adds
 `status` (`DesignState`, values = contract enum), `details`, `cut_mark_mm`, `recipe_id`,
 `recipe_version`, `input_fingerprint`, `revision_ref`. `to_contract_dict()` is exactly the contract
@@ -51,9 +52,9 @@ plausibility, consistency (`NEEDS_INPUT`, always names at least one missing dime
 ## `woven_shirt_crop_v1` (v1.0.0)
 
 Cut mark from shoulder = `finished_length_mm + hem_allowance_mm`. Remainder = original length - cut mark
-and must be strictly positive (`INSUFFICIENT_LENGTH` otherwise, including an exact fit). The horizontal
+and must be strictly positive (`NO_POSITIVE_REMAINDER`, including an exact fit; `INSUFFICIENT_LENGTH` when the finished length alone exceeds the garment). The horizontal
 cut line must not touch any prohibited region on the back or front panels (sleeves ignored). A pass is
-`PASS_SUPPORTED_CHECKS` only and is always flagged `side_seams_not_verified`.
+`PASS_SUPPORTED_CHECKS` only and is always flagged `SIDE_SEAMS_NOT_VERIFIED`.
 Panel coordinates: origin at the shoulder seam, y down, mm.
 
 Failure codes are the contract enum values the engine can emit (see `FailureCode`); every code has a test
@@ -62,5 +63,5 @@ in `tests/test_failure_codes.py`.
 ## Provisional values needing Narthananilaa's review
 
 Plausible ranges (mm): shoulder-to-hem 250-1100, flat chest width 300-800, finished length 150-1100,
-hem allowance 5-80. A value outside its range but inside it when multiplied or divided by 10 also sets
-`possible_unit_error`. Flat/circumference tolerance 10 %. Exact fit (remainder 0) fails.
+hem allowance 5-80. A value outside its range but inside it when multiplied or divided by 10 is reported as
+`POSSIBLE_UNIT_ERROR`. Flat/circumference tolerance 10 %. Exact fit (remainder 0) fails.
