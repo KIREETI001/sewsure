@@ -34,7 +34,7 @@ var tags = {
 // Stable per resource group + environment, short enough for storage/ACR/Key Vault limits.
 var token = toLower(uniqueString(subscription().id, resourceGroup().id, environmentName))
 var prefix = 'sewsure-${environmentName}'
-var compact = 'sewsure${take(environmentName, 6)}${take(token, 8)}'
+var compact = 'sewsure${take(toLower(replace(environmentName, '-', '')), 6)}${take(token, 8)}'
 
 module identity '../modules/identity.bicep' = {
   name: 'identity'

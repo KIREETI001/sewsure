@@ -15,9 +15,9 @@ on:
         type: boolean
         default: true
       deploy:
-        description: "Run azd deploy (api image and site)"
+        description: "Run azd deploy (api image and site). Leave off until services/api/Dockerfile and the site layout are merged"
         type: boolean
-        default: true
+        default: false
 
 permissions:
   id-token: write # request the OIDC token

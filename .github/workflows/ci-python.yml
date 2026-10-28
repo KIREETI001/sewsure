@@ -33,7 +33,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [services/api, packages/feasibility]
+        package: [services/api, packages/feasibility, packages/contracts]
     defaults:
       run:
         working-directory: ${{ matrix.package }}
@@ -68,12 +68,23 @@ jobs:
         run: |
           if [ -f uv.lock ]; then uv sync --frozen --all-extras; else uv sync --all-extras; fi
 
-      - name: Ruff lint
+      - name: Detect ruff
+        id: ruff
         if: steps.detect.outputs.exists == 'true'
+        run: |
+          if uv run ruff --version >/dev/null 2>&1; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::ruff is not a dependency of ${{ matrix.package }}; lint skipped."
+          fi
+
+      - name: Ruff lint
+        if: steps.ruff.outputs.present == 'true'
         run: uv run ruff check .
 
       - name: Ruff format check
-        if: steps.detect.outputs.exists == 'true'
+        if: steps.ruff.outputs.present == 'true'
         run: uv run ruff format --check .
 
       - name: Pyright
@@ -91,3 +102,42 @@ jobs:
           name: pytest-${{ strategy.job-index }}
           path: ${{ matrix.package }}/pytest-report.xml
           if-no-files-found: ignore
+
+  contracts-ts:
+    name: packages/contracts (TypeScript)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: packages/contracts
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect package
+        id: detect
+        run: |
+          if [ -f package.json ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::packages/contracts has no package.json yet; skipping."
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.detect.outputs.exists == 'true'
+        with:
+          node-version: lts/*
+
+      - name: Install
+        if: steps.detect.outputs.exists == 'true'
+        run: if [ -f package-lock.json ]; then npm ci; else npm install --no-audit --no-fund; fi
+
+      - name: Regenerate types and check they are committed
+        if: steps.detect.outputs.exists == 'true'
+        run: |
+          npm run --if-present gen:ts
+          git diff --exit-code -- generated/ts
+
+      - name: Type-check
+        if: steps.detect.outputs.exists == 'true'
+        run: npm run --if-present check:ts

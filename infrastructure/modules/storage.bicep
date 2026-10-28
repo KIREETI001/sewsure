@@ -12,6 +12,8 @@ param containerNames array = [
 ]
 @description('Raw garment photos are deleted after this many days (privacy by default).')
 param uploadRetentionDays int = 30
+@description('Previews derive from user photos; briefs in exports/ may carry measurements. K6 to confirm the final period.')
+param derivedRetentionDays int = 90
 
 resource account 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: name
@@ -84,6 +86,50 @@ resource lifecycle 'Microsoft.Storage/storageAccounts/managementPolicies@2023-05
               baseBlob: {
                 delete: {
                   daysAfterModificationGreaterThan: uploadRetentionDays
+                }
+              }
+            }
+          }
+        }
+        {
+          name: 'delete-previews'
+          enabled: true
+          type: 'Lifecycle'
+          definition: {
+            filters: {
+              blobTypes: [
+                'blockBlob'
+              ]
+              prefixMatch: [
+                'previews/'
+              ]
+            }
+            actions: {
+              baseBlob: {
+                delete: {
+                  daysAfterModificationGreaterThan: derivedRetentionDays
+                }
+              }
+            }
+          }
+        }
+        {
+          name: 'delete-exports'
+          enabled: true
+          type: 'Lifecycle'
+          definition: {
+            filters: {
+              blobTypes: [
+                'blockBlob'
+              ]
+              prefixMatch: [
+                'exports/'
+              ]
+            }
+            actions: {
+              baseBlob: {
+                delete: {
+                  daysAfterModificationGreaterThan: derivedRetentionDays
                 }
               }
             }

@@ -96,16 +96,18 @@ Agents and CI skip this step on purpose. Run it from your own terminal with the 
 2. `azd env new staging`
 3. Set values: `azd env set AZURE_SUBSCRIPTION_ID <id>`, `AZURE_RESOURCE_GROUP rg-sewsure-staging`, `AZURE_LOCATION southeastasia`, `BUDGET_CONTACT_EMAIL <email>`.
 4. Provision the infrastructure with `azd provision`. Read the preview, check it matches the Bicep modules, then confirm.
-5. Deploy the services with `azd deploy` once `services/api/Dockerfile` (K2) and `apps/site` build output exist. Before then the API runs a placeholder image.
+5. Deploy the services with `azd deploy` (the workflow's `deploy` input defaults to off) once `services/api/Dockerfile` (K2) and `apps/site` build output exist. Before then the API runs a placeholder image.
 6. Save the outputs (`azd env get-values`): API URL, Key Vault URI, site hostname.
 
 After this first run, later deploys can use the **Deploy Staging** workflow (manual trigger, reviewer-gated).
+
+Retention: `uploads/` blobs expire after 30 days; `previews/` and `exports/` after 90 days (`derivedRetentionDays`). K6 confirms the final periods.
 
 Cost expectations (verify in the Azure pricing calculator before running; do not quote these as guarantees): Container Apps scales to zero; Postgres B1ms, Container Registry Basic and Log Analytics ingestion are the steady costs.
 
 ## 8. Post-provision (Kireeti)
 
-1. **Database access.** Password auth is off. The managed identity `id-sewsure-staging` is the Entra administrator. To run migrations from a laptop, add yourself as an Entra admin or use a short-lived token for the identity; do not enable password auth.
+1. **Database access.** Password auth is off. The managed identity `id-sewsure-staging` is the Entra administrator, so it is only usable from Azure (the API and Job). A managed identity cannot be used from a laptop: to connect yourself, add your own Entra user as a temporary second administrator on the server (portal > PostgreSQL > Authentication) and remove it afterwards. Do not enable password auth. Follow-up (K2/K6): create a least-privilege database role for the app identity so an API compromise does not hold admin rights.
 2. **Secrets in Key Vault.** Add model endpoints/keys (K3) in the portal or with `az keyvault secret set` under *your own* identity. Grant yourself `Key Vault Secrets Officer` on the vault first. Never paste values into chat, issues or the repo.
 3. **API port.** Once the API Dockerfile exists, set `API_TARGET_PORT` to its port (GitHub variable and `azd env set`), and run a provision again.
 4. **Foundry/OpenAI.** Model deployments are not in this Bicep (region and quota are per-subscription decisions). Create the deployments by hand and give the managed identity `Cognitive Services OpenAI User` (K3 documents the exact names).

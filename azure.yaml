@@ -22,9 +22,8 @@ services:
       remoteBuild: true
 
   # Resolved by tag azd-service-name=site on the Static Web App.
-  # Deploys the built output of apps/site (D9).
+  # apps/site is plain static HTML (D9), so it is published as-is from its folder.
   site:
     project: ./apps/site
-    language: js
     host: staticwebapp
-    dist: dist
+    dist: .
