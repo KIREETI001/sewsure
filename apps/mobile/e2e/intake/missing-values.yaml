@@ -1,0 +1,11 @@
+# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
+# §9.1 row 4: missing values. Upload lists what is still needed and does not upload.
+appId: com.sewsure.mobile
+---
+- runFlow:
+    file: ../seed/apply.yaml
+    env:
+      SEED: measurements-signed-in
+- tapOn: "Upload"
+- assertVisible: "Still needed: .*Chest.*"
+- assertVisible: "○ Not uploaded.*"

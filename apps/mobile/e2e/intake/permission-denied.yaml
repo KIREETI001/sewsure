@@ -1,14 +1,16 @@
-# Camera permission denied: the screen explains it and the library route stays available.
-# Run on a device or emulator with camera permission revoked (adb shell pm revoke com.sewsure.mobile android.permission.CAMERA).
+# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
+# §9.1 row 2 and §18.2 #1: camera permission denied -> the screen explains and the library route stays.
+# Permission is denied at launch so no system dialog (whose button text differs by Android version) is involved.
 appId: com.sewsure.mobile
 ---
 - launchApp:
     clearState: true
+    permissions:
+      camera: deny
+- tapOn: "Maker or owner"
 - tapOn: "Try demo mode"
 - tapOn: "Start"
-- tapOn:
-    text: "Take photo"
-    index: 0
-- tapOn: "Deny"
+- tapOn: "Take photo: Front"
 - assertVisible: "Camera access is off.*"
-- assertVisible: "Choose from library"
+- assertVisible: "Open settings"
+- assertVisible: "Choose from library: Front"

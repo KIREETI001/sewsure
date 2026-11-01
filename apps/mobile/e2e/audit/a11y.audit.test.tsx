@@ -6,7 +6,7 @@
  * error states. What it cannot show: real layout at 200% font scale, TalkBack behaviour, or
  * actual touch-target pixels. See docs/qa/accessibility-checklist.md for what is verified how.
  *
- * Run from apps/mobile:  npm run audit:a11y
+ * Run from apps/mobile (no npm script: package.json is outside D6 paths):
  * (`npx jest --testPathIgnorePatterns /node_modules/ --testMatch "**\/e2e/audit/*.test.tsx"`)
  *
  * `it.failing` marks a known bug that has an issue. It turns red when the bug is fixed, which
@@ -47,15 +47,23 @@ beforeEach(() => {
 });
 
 type Host = {
-  type: unknown;
+  type: string;
   props: Record<string, unknown>;
   children: unknown[];
 };
 
-const hosts = (): Host[] =>
-  (screen.root as unknown as { findAll: (p: (n: Host) => boolean) => Host[] }).findAll(
-    (n) => typeof n.type === "string",
-  );
+const hosts = (): Host[] => {
+  const out: Host[] = [];
+  const walk = (n: unknown) => {
+    if (!n || typeof n !== "object") return;
+    const node = n as Host;
+    out.push({ ...node, children: node.children ?? [] });
+    for (const c of node.children ?? []) walk(c);
+  };
+  const json = screen.toJSON() as unknown;
+  for (const r of Array.isArray(json) ? json : [json]) walk(r);
+  return out;
+};
 
 const INTERACTIVE = ["button", "radio", "checkbox"];
 const interactive = () =>
@@ -184,7 +192,9 @@ describe("states do not rely on colour alone", () => {
     await renderScreen(<MeasurementsScreen />);
     await fireEvent.changeText(screen.getByLabelText("Chest, flat across (cm)"), "6");
     expect(screen.getByText(/looks small. Did you mean 60 cm/)).toBeTruthy();
-    expect(textOf(screen.getByRole("alert") as unknown as Host)).toMatch(/^[!✗i]/);
+    const alert = hosts().find((n) => n.props.accessibilityRole === "alert");
+    expect(alert).toBeDefined();
+    expect(textOf(alert as Host)).toMatch(/^[!✗i]/);
   });
 
   it("selected chips carry a tick symbol and a checked state", async () => {
