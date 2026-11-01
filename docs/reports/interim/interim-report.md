@@ -4,12 +4,13 @@
 |---|---|
 | Project | SewSure: turning a garment the user already owns into a redesign they can make |
 | Students | Kireeti, Narthananilaa, Delfine `[FOUNDER INPUT NEEDED: full names, matric numbers, project code as they appear on the NTU report template]` |
-| Supervisor | Dr Wesley `[FOUNDER INPUT NEEDED: full name and title; examiner's name]` |
+| Supervisor | Dr Wesley (the advisor deck is addressed to Dr Wesley [S1 slide 1]; `[FOUNDER INPUT NEEDED: confirm Dr Wesley's role, full name and title, and the examiner's name]`) |
 | Programme | School of EEE, Final Year Project, FYP 2026 S1 (Aug 2026 – May 2027) [S5] |
 | Report due | 10 Nov 2026, to supervisor and examiner, with a video presentation [S5] |
-| Draft status | Draft v0.1, written 28 Oct 2026 from the repository at `main@84efce5` and open PRs #1 and #2. Not yet cleared by X2 (claims audit) or by the founders. |
+| Draft status | Draft v0.2, revised 1 Nov 2026 after the X1 and X2 reviews of v0.1. Repository facts are as of 1 Nov 2026 (`main@c46c5d8` plus PRs open that day). Not yet cleared by X2 on this revision or by the founders. |
+| Status date | **As of `[AS-OF DATE: one date shared with the video script (PR #13); founders to set]`**. Every status statement in Sections 2–4 must be re-checked against this date. |
 
-> **How to read this draft.** Facts carry a source tag such as [S3 §12]; `SOURCES.md` maps every tag to a document and location. Text marked **planned** has not happened. Text marked **proposed** is a target that has not been agreed as a threshold. `[FOUNDER INPUT NEEDED: …]` marks work that happens off the repository (sewing, measuring, interviews, meetings) and that this draft cannot know. Nothing in this draft is a result unless it says so.
+> **How to read this draft.** Facts carry a source tag such as [S3 §12]; `SOURCES.md` maps the tags to a document and location. Factual claims are tagged; judgments in the Conclusion are the drafter's. Text marked **planned** has not happened. Text marked **proposed** is a target that has not been agreed as a threshold. `[FOUNDER INPUT NEEDED: …]` marks work that happens off the repository (sewing, measuring, interviews, meetings) and that this draft cannot know. Nothing in this draft is a result unless it says so.
 
 ---
 
@@ -17,7 +18,7 @@
 
 ### 1.1 Background
 
-People own clothes they do not wear because of fit, outdated style or low confidence, and many lack the pattern-making and sewing skill to alter them [S1 slide 2]. An AI-generated image of a redesign does not show whether the design can be cut from the fabric the garment actually contains [S1 slide 2, slide 7].
+The team's problem statement is that people own clothes they do not wear because of fit, outdated style or low confidence, and lack the pattern-making and sewing skill to alter them [S1 slide 2]. The only measured figure behind this is the survey below (24 of 25 had no or beginner sewing experience; n = 25, directional). An AI-generated image of a redesign does not show whether the design can be cut from the fabric the garment actually contains [S1 slide 2, slide 7].
 
 SewSure is a mobile app that addresses this. The user photographs a garment, states an intention, confirms garment and body measurements, and receives up to three ranked redesigns that passed the feasibility checks that are implemented. A checked design can lead to a calibrated cut guide and DIY steps, or to a tailor-ready brief [S2 §01; S1 slide 1].
 
@@ -40,7 +41,7 @@ The project asks whether generative AI can propose garment redesigns while a det
 
 ### 1.3 Scope
 
-Garment coverage is deliberately narrow [S2 §03; S1 slide 4]:
+Garment coverage is deliberately narrow [S2 §03; S1 slide 4]. These are target support levels. **No transformation has been validated yet.**
 
 | Level | Garments | What SewSure may claim |
 |---|---|---|
@@ -71,8 +72,10 @@ Dates below are internal planning windows proposed on 22 Oct 2026. They are not 
 | P0 | 22 Oct – 1 Nov 2026 | Prove one measurable transformation | Fixture, live structured response, unit tests and a dimensioned cut plan, installable build, photo and measurements of a physical outcome [S3 §12] |
 | P1 | 2 – 15 Nov 2026 | Connected alpha | Three-case trace, pass/fail suite, APK video on a device, sign-off checklist [S3 §12] |
 | P2 | 16 Nov – 6 Dec 2026 | MVP integration | Up to three distinct checked results, overlay error report, one user-to-tailor test request [S3 §12] |
-| P3 | 7 – 15 Dec 2026 | Validation and stabilisation | Benchmark with denominators, four physical makes, de-identified task metrics, frozen build [S3 §12] |
-| P4 | 16 Dec 2026 – 7 Jan 2027 | Evidence, demo, submission preparation | Reproducible analysis, rehearsed demo, release runbook [S3 §12] |
+| P3 | 7 – 15 Dec 2026 (blueprint) | Validation and stabilisation | Benchmark with denominators, four physical makes, de-identified task metrics, frozen build [S3 §12] |
+| P4 | 16 Dec 2026 – 7 Jan 2027 (blueprint) | Evidence, demo, submission preparation | Reproducible analysis, rehearsed demo, release runbook [S3 §12] |
+
+P3 and P4 dates follow blueprint §12. Advisor deck slide 13 shows P3 as 7 – 22 Dec and P4 as 23 Dec – 7 Jan, so the two documents disagree [S1 slide 13; S3 §12]; `[FOUNDER INPUT NEEDED: choose one set]`. The proposed P0 window (22 Oct – 1 Nov 2026) has ended [S3 §12].
 
 The advisor deck puts the dependency gate plainly: do not widen garment coverage until the first measured transformation passes validation and a physical make confirms planned against actual dimensions [S1 slide 13].
 
@@ -109,8 +112,10 @@ This report documents what has been achieved so far and what remains, in the NTU
 | 22 Oct 2026 | 14-slide advisor presentation prepared for Dr Wesley, labelled "proposed plan, not results" | [S1 slide 1] |
 | 22 Oct 2026 | Technical Implementation Blueprint and three-person plan V0.1 | [S3 cover] |
 | 28 Oct 2026 | Monorepo, 29 agent definitions, per-area rules, guard hooks and code-owner file on `main` (one commit) | [S6] |
-| 28 Oct 2026 | Branch protection on `main`: pull request, one approving code-owner review | [S8, audit] |
-| 28 Oct 2026 | PR #1 (backup code owners) and PR #2 (baseline P0 audit, digest, risk register, decision log) open for review | [S7, S8] |
+| 28 Oct 2026 | Branch protection on `main` requiring a PR and one approving code-owner review (state on 28 Oct) | [S8 audit] |
+| 1 Nov 2026 | Approval requirement removed from `main`: a PR is still required, including for admins, but GitHub requires 0 approving reviews. Review levels A0–A3 became team guidance (PR #16). `[FOUNDER INPUT NEEDED: who changed it, when, and why]` | [S11; S12] |
+| 1 Nov 2026 | 14 PRs merged between 18:16 and 18:18 SGT, all from the KIREETI001 account with no approving review. They add a contract draft, a feasibility engine and draft recipe, a constraint suite, an API scaffold, an AI pipeline skeleton, staging infrastructure and CI, an Expo scaffold with intake screens on fixtures, design tokens, a research kit, site and outreach drafts, and L0's baseline audit | [S10; S13] |
+| 1 Nov 2026 | 13 PRs open, including this report (#8) and the video script (#13) | [S13] |
 
 `[FOUNDER INPUT NEEDED: supervisor meetings held to date, with dates, and what the supervisor advised.]`
 
@@ -129,7 +134,7 @@ The blueprint defines the system and its checks. These are **designs, not implem
 - **AI boundary.** The model may select recipe IDs and parameters from an allow-list, validated against a JSON schema; hard failures cannot be out-scored by style ranking [S3 §4.1, §4.3; S1 slide 7].
 - **Hard gates and failure codes** for geometry, material, fit and construction, with unit tests written before the app UI [S3 §5.4, §5.5].
 - **Cut guidance.** Calibrated static overlay with a dimensioned-diagram fallback, and a rule that a line on a screen is not proof of a centimetre on fabric [S3 §6; S2 §08].
-- **Worked example.** A cut-line calculation is shown in the deck for illustration only (a 76 cm shirt cropped to 54 cm with hem allowance). **These are illustrative numbers, not measured results** [S1 slide 8; S3 §5.3].
+- **Worked example.** A cut-line calculation is shown in the deck for illustration only (a 76 cm shirt, 52 cm finished length, 2 cm hem allowance, cut mark at 54 cm). **Illustrative numbers, not measured results** [S1 slide 8]. The blueprint's own example uses different numbers [S3 §5.3]; this report and the video script use the deck's.
 
 ### 2.4 Engineering method: human-governed, agent-assisted delivery
 
@@ -149,10 +154,10 @@ A three-person team has to cover backend, AI, geometry, mobile, research and rep
 **Process rules** [S6 `CLAUDE.md`, "How agents work here"]:
 
 1. Agents work on a branch and open a pull request. They never push to `main`, merge or approve.
-2. `main` requires a pull request with one approving review from a code owner, including for admins [S8 audit; S7 body]. `.github/CODEOWNERS` maps each area to its lead, and PR #1 adds a backup owner per area because a lead cannot approve a PR opened under their own account [S7].
+2. `main` requires a pull request, including for admins. On 28 Oct it also required one approving code-owner review [S8 audit]; as of 1 Nov GitHub requires no approving review, and any founder can merge any PR [S11; S12]. `.github/CODEOWNERS` maps each area to its lead, with backup owners added in PR #1 [S7].
 3. Every PR names a user story and carries a test or evidence, following the PR checklist in blueprint §18.1 [S6 `CLAUDE.md`; S3 §18.1].
 4. Work only a human can do (sewing, sending messages, accounts, consent, signing keys, submissions, approvals) is labelled `needs-human` and is not performed by agents [S6 `CLAUDE.md`].
-5. Approval levels A0 (auto) to A3 (all three founders) and H (human only) set who signs off [S6 `CLAUDE.md`].
+5. Review levels A0 (auto) to A3 (all three founders) and H (human only) are team guidance, not enforced by GitHub [S11].
 
 **Guardrails in code.** Four hooks in `.claude/hooks/` run on agent tool calls [S6 hooks]:
 
@@ -165,11 +170,20 @@ A three-person team has to cover backend, AI, geometry, mobile, research and rep
 
 **Non-negotiable rules** that agents and humans both follow include millimetres internally, no invented numeric geometry by the model, no secrets or real photos or body measurements in the repo, no guarantee language ("perfect fit", "precision AR", "100% accurate"), and contract-first changes to API shapes [S6 `CLAUDE.md`].
 
-**Limits of this method, stated honestly.** These controls are written down and the hooks exist, but no CI workflow is on `main` yet, so automated test enforcement is not in place [S8 audit]. The `needs-human` label does not yet exist in the repository [S8 audit]. Agent output is a draft until a human reviews it; agents were not shown to be correct merely by being run.
+**Limits of this method, stated honestly.** These controls are written down and the hooks exist. CI workflows reached `main` on 1 Nov (PR #6), but CI Benchmarks failed there until PR #19, which was still open [S10]. The `needs-human` label did not exist in the repository on 28 Oct [S8 audit] and L0 still listed it as open on 1 Nov [S10]. The "agents never merge or approve" rule is a hook that blocks specific commands (PR merge and approve commands, pushes to `main`), not a GitHub permission [S6 `guard-shell.mjs`; S11], so it does not stop a person or another tool. On 1 Nov all 14 merges were made from one founder account with no approving review [S10]. The review layer is therefore the X1 and X2 agent reviews plus founder judgement, and `[FOUNDER INPUT NEEDED: why approvals were removed and how review is now done]`. Agent output is a draft until a human has checked it.
 
 ### 2.5 Wave 1 of agent work
 
-On 28 Oct 2026 the lead agent (L0) reported 14 agents running in parallel, each in its own worktree and branch, with 15 more queued [S8, daily digest]. As of this draft, `main` holds one commit, and the only open PRs are #1 and #2 [S6; S7; S8]. `[UPDATE BEFORE SUBMISSION: list the wave-1 PRs that have been reviewed and merged by then, with PR numbers and merge dates, and what each contains.]`
+On 28 Oct 2026 the lead agent (L0) reported 14 agents running in parallel, each in its own worktree and branch [S8 digest]. By 1 Nov, 14 PRs had been merged to `main` (list in Section 2.1) and 13 were open [S10; S13]. L0's 1 Nov digest records, for the merged work [S10]:
+
+- The K1 contract is `1.0.0-draft.2`, a draft that is not frozen.
+- The N5 recipe `woven_shirt_crop_v1` is `status: draft`; no sewist or supervisor has been named as reviewer.
+- N3's ease ranges (PR #20, open) are unverified placeholders.
+- X1 reviewed several merged PRs and agents replied with fixes; L0 saw no X1 re-review after the fixes.
+- X2 rated D9's site and outreach drafts (#7) Blocked, with 7 blocking issues, after they had merged; this report (#8) and the video script (#13) were also rated Blocked.
+- CI Benchmarks was failing on `main` (a missing `jsonschema` dependency, so the constraint suite did not run on `main`); PR #19 fixes it and was open.
+
+On a branch, PR #19 reports the constraint suite at 27 cases and 29 checks on synthetic inputs: false acceptance 0/21, correct rejection 21/21, correct acceptance 8/8, false rejection 0/8, indeterminate 0/29 [S10]. These are synthetic-input results from an unmerged branch and say nothing about a real garment. The suite has grown past the 24 cases named as the blueprint target [S10; S3 §17.2]. `[UPDATE AS OF the status date: list PR numbers merged since 1 Nov.]`
 
 ### 2.6 Physical and user work
 
@@ -197,12 +211,13 @@ No measurement, make or participant data is reported in this draft because none 
 
 | Problem | Evidence | Effect |
 |---|---|---|
-| **P0 gate is red.** 0 of 5 exit-evidence items were found in the repository: no contract, no API, no feasibility code or tests, no app. The fifth (physical outcome) is unknown to the repo | [S8 audit] | 4 days remained in the proposed P0 window on 28 Oct |
+| **P0 gate is red.** On 28 Oct, L0 found 0 of 5 exit-evidence items in the repository. On 1 Nov, L0 kept the rating RED: the proposed P0 window ended 1 Nov, the repo holds no physical make record, the recipe is still a draft, and the founders had not answered L0's physical-progress questions | [S8 audit; S10] | P0 did not pass by its proposed exit date; the blueprint's rule is to stay in demonstration mode and not widen the library [S3 §12] |
 | Scope was still being reconciled on 21–22 Oct; decisions D01–D13 are all open | [S2 §14; S3 §20; S8 `docs/decisions.md`] | Features such as the first recipe cannot be built until D01 is agreed at A3 |
-| No CI workflow; no `needs-human` label; no issues | [S8 audit] | PRs carry no automated checks yet |
-| Code-owner reviews blocked for single-owner areas; two collaborators had to accept invites before GitHub could request their review | [S7 body] | PR #1 proposes backup owners |
+| CI workflows were added on 1 Nov (PR #6) but CI Benchmarks failed on `main`; no `needs-human` label | [S8 audit; S10] | The constraint suite had not run on `main` until the PR #19 fix |
+| Code-owner reviews were blocked for single-owner areas, and collaborator invites were pending. One invite was accepted by 1 Nov; Narthananilaa's was still pending, created 27 Oct | [S7 body; S10] | Backup owners merged (PR #1); the pending invite blocks the rules and recipe lead from working in the repo |
 | Imagine Cup 2027 rules and deadline are unverified; the cited competition date is tentative | [S1 slide 13; S3 §12 note] | The internal 7 Jan 2027 date may not match the competition |
-| Ethics, consent and deletion route for user sessions is not yet confirmed with the supervisor | [S8 `human-tasks.md`, H-08; S3 §20 D12] | Participant recruitment cannot start until it is |
+| Founders' answers on physical progress (shirt, measurements, trial, reviewer) were still outstanding on 1 Nov | [S10] | P0 status cannot be raised above red in this report |
+| Ethics, consent and deletion route for user sessions is not yet confirmed with the supervisor | [S10 `human-tasks.md`, H-05; S3 §20 D12] | Participant recruitment cannot start until it is |
 | `[FOUNDER INPUT NEEDED: other obstacles such as time clashes with other modules, access to materials, tool or budget limits.]` | | |
 
 ---
@@ -211,23 +226,23 @@ No measurement, make or participant data is reported in this draft because none 
 
 ### 3.1 In progress
 
-As at 28 Oct 2026, wave 1 of agent work is in progress across the platform, geometry, mobile and documentation areas. Each agent's output reaches `main` only through a reviewed PR [S8 digest; S6 `CLAUDE.md`]. The in-flight items map to the P0 exit evidence [S8 audit]:
+As of 1 Nov 2026, wave-2 work is open as PRs: CI fix (#19), fit and ease module (#20), calibration and overlay (#21), API connected to the contract and engine (#22, draft), AI pipeline connected to the contract and engine (#23), cut guide and DIY steps (#24), Design Studio screens (#25), P0 make kit and record template (#17), security documents (#18) and mobile QA (#32) [S10; S13]. They map to the P0 exit evidence as follows [S8 audit; S10]:
 
-| P0 exit evidence | Area in progress |
+| P0 exit evidence | State on `main`, 1 Nov 2026 |
 |---|---|
-| Approved JSON/OpenAPI fixture | Contract definition in `packages/contracts/` |
-| Real structured response, logs, failure handling | API, AI pipeline and infrastructure in `services/` and `infrastructure/` |
-| Unit tests and a dimensioned cut plan | Geometry engine and constraint tests in `packages/feasibility/` and `tests/benchmarks/` |
-| Installable build / end-to-end mock path | Design system and intake flow in `apps/mobile/`, EAS build wiring |
-| Photo and measurements of the outcome | Human work only; a recipe draft is in preparation |
+| Approved JSON/OpenAPI fixture | Contract `1.0.0-draft.2` merged, **draft, not frozen** (#15) |
+| Real structured response, logs, failure handling | API scaffold and AI pipeline skeleton merged (#5, #10); connected versions open (#22, #23); no live Azure trace (access and cap unconfirmed, H-11); `deploy-staging` has 0 runs |
+| Unit tests and a dimensioned cut plan | Feasibility engine and constraint suite merged (#12, #9); the suite did not run on `main` until #19 |
+| Installable build / end-to-end mock path | Expo scaffold with intake screens 1–4 on fixtures merged (#14); no `eas.json`, device and EAS account unconfirmed (H-06) |
+| Photo and measurements of the outcome | No record in the repo; make kit and template in open PR #17 |
 
-`[UPDATE BEFORE SUBMISSION: replace this table with the actual state of each item as of 9 Nov 2026.]`
+`[UPDATE AS OF the status date: replace this table with the actual state of each item.]`
 
 ### 3.2 To do (planned)
 
 The following are **planned**, not done. Order follows the blueprint's critical path: garment data contract, real measurements, pattern rule correctness, backend check API, app confirmation, accurate cut guide, physical make, evaluated evidence [S3 §13.1].
 
-1. **Finish P0 (planned, by 1 Nov 2026):** agree the first recipe (D01), measure a real shirt, mark and trial a cut, record the deviation in mm, and complete the five exit-evidence items [S3 §12; S8 `human-tasks.md`, H-01 to H-04].
+1. **Finish P0 (planned; the proposed window ended 1 Nov 2026):** agree the first recipe (D01), name the sewist reviewer, measure a real shirt, mark and trial a cut, record the deviation in mm, and complete the five exit-evidence items. L0 proposes 4 Nov for the first make (H-04), up from 1 Nov [S3 §12; S10 `human-tasks.md`, H-01 to H-04].
 2. **P1 connected alpha (planned, 2–15 Nov):** structured candidate parser, a three-case trace, one controlled fit adjustment, an APK demonstration on a real device, auth and versioned revisions [S3 §12].
 3. **P2 MVP integration (planned, 16 Nov – 6 Dec):** up to three distinct checked results, immutable recheck on edit, calibration and the measured overlay error report, saved body profile, a user-to-tailor test request [S3 §12].
 4. **P3 validation (planned, 7–15 Dec):** run the 24 constraint cases including false-pass cases, four physical makes, 8–12 participant sessions and 2–3 maker sessions if consent and recruitment allow, then freeze the build [S3 §12, §17.2].
@@ -248,30 +263,30 @@ If a milestone slips, the fallback order is: protect the shirt crop with a physi
 | Avatar | Measurement-based 2D preview | 2D confirmed; body presets optional; 3D later | [S2 §13] |
 | Optional materials | Not scoped | Opt-in additional materials discussed; details open | [S2 §13] |
 
-Further change is expected if the P0 gate stays red: the blueprint says to keep the app in demonstration mode and not expand the transformation library [S3 §12]. Jersey tee, accessory and tailor work are conditional on the primary gate staying green [S3 §12 P2].
+Further change is expected if the P0 gate stays red: the blueprint says to keep the app in demonstration mode and not expand the transformation library [S3 §12]. Tee and accessory work are conditional on the primary gate staying green [S3 §12 P2]. Marketplace requests and quotes come only after a validated design record exists [S3 executive position].
 
 ### 3.4 Risks to the plan
 
-The blueprint's risk register rates pattern validity and three-person overload as critical, and photo calibration, jersey stretch, AI image mismatch, service access and cost, instruction safety, privacy and the submission schedule as high [S3 §19]. L0 has copied these into a risk register in PR #2 [S8 `docs/risk-register.md`].
+The blueprint's risk register rates pattern validity and three-person overload as critical, and photo calibration, jersey stretch, AI image mismatch, service access and cost, instruction safety, privacy and the submission schedule as high [S3 §19]. L0 copied these into a risk register, merged in PR #2 [S8 `docs/risk-register.md`].
 
 ### 3.5 Needs-human items
 
-Work agents may only prepare, and that is listed for L0 [S8 `human-tasks.md`]. Items relevant to this report: H-10 (review this draft, record the video, complete the NTU GAI declaration form, submit by 10 Nov 2026), H-08 (supervisor ethics and consent route), and the `[FOUNDER INPUT NEEDED]` items above.
+Work agents may only prepare, and that is listed for L0 [S10 `human-tasks.md`]. Items relevant to this report: H-10 (review this draft, record the video, complete the NTU GAI declaration form, submit by 10 Nov 2026), H-05 (supervisor ethics and consent route; the earlier H-08 was merged into it [S10]), and the `[FOUNDER INPUT NEEDED]` items above.
 
 ---
 
 ## 4. Conclusion
 
-**Honest assessment, 28 Oct 2026.** The project has a clear, narrow scope, a documented design and a working governance model, but little built and no physical evidence yet.
+**Assessment as of `[AS-OF DATE]` (draft written 1 Nov 2026).** The project has a narrow, documented scope and design, and a first body of draft code on `main`, but no physical evidence and a P0 gate rated red.
 
-- **Done:** scope V0.2, the technical blueprint, an advisor deck, a small directional survey, and a repository with agent roles, hooks and review rules on `main` [S1; S2; S3; S6].
-- **Not done:** no contract, API, feasibility code, tests or app is on `main`, and the repository contains no physical-make record [S8 audit]. The P0 gate was rated **red** on 28 Oct, with four days left in its proposed window [S8 audit]. Physical work may exist off the repository and would change the fifth item; this draft cannot say `[FOUNDER INPUT NEEDED]`.
-- **Not claimed:** no feasibility accuracy, rejection rate, overlay error, usability result or cost figure exists. The survey figures are directional only, and the worked example in the deck is illustrative [S1 slides 2, 8].
-- **What the next two weeks decide.** If P0 closes (one measured shirt, a reviewed dimensioned cut plan, and a physical trial with deviation recorded), the plan can proceed to a connected alpha. If not, the blueprint's own rule applies: stay in demonstration mode, narrow to the one proven recipe, and re-plan, and this report should say so plainly [S3 §12, §19.1].
-- **Schedule.** The remaining plan compresses build, user sessions and four physical makes into 22 Oct – 7 Jan 2027, which is tight, with Dec as the main evidence window [S3 §12]. The NTU final report is not due until April–May 2027 [S5], so the NTU schedule has slack that the internal competition-oriented schedule does not. `[FOUNDER INPUT NEEDED: confirm which schedule governs, and agree with the supervisor.]`
-- **Method value and risk.** Agent assistance has allowed the repository and documentation to be set up quickly and with enforceable review rules. Speed on documents is not the same as validated engineering: every geometry rule, recipe and claim still needs human review and a physical test before it counts as evidence [S6 `CLAUDE.md`; S3 §8.2].
+- **Done:** scope V0.2, the blueprint, an advisor deck, a small directional survey [S1; S2; S3]. On 1 Nov, 14 PRs merged to `main` with draft work in every area: contract, feasibility engine, constraint suite, API and AI skeletons, infrastructure and CI, mobile intake screens on fixtures, and research and site drafts [S10; S13].
+- **Not done:** the contract is a draft, the recipe is a draft with no named reviewer, no live AI trace exists, there is no installable build, and no physical-make record is in the repository [S10]. As of 1 Nov, L0 rates P0 red, and the proposed window ended on that date [S10; S3 §12]. `[FOUNDER CONFIRM: No physical make has been reported.]` If one exists off the repository, it changes the fifth exit-evidence item and this paragraph.
+- **Not claimed:** no feasibility accuracy, rejection rate on real garments, overlay error, usability result or cost figure exists. The constraint-suite counts on PR #19 are synthetic inputs on an unmerged branch. Survey figures are directional only, and the worked example is illustrative [S1 slides 2, 8; S10].
+- **What decides the next phase.** If P0 closes (one measured shirt, a reviewed dimensioned cut plan, a physical trial with deviation recorded), the plan can proceed to the connected alpha. If not, the blueprint's rule applies: stay in demonstration mode, narrow to the one proven recipe and re-plan, and this report should say so [S3 §12, §19.1].
+- **Schedule.** The internal plan compresses build, user sessions and four physical makes into 22 Oct 2026 – 7 Jan 2027, with P0 already late [S3 §12; S10]. The NTU final report is not due until April 2027 [S5], so the NTU schedule has slack that the internal one lacks. `[FOUNDER INPUT NEEDED: confirm which schedule governs, and agree with the supervisor.]`
+- **Method.** The governance model is written down and partly enforced by hooks, but its first real use was 14 merges in two minutes from one account with no approving review, followed by X2 audits that rated several merged or open PRs Blocked [S10]. That shows the audit step finds problems, and also that it can run after merge. Whether the model works in practice is not yet established. Every geometry rule, recipe and claim still needs human review and a physical test before it counts as evidence [S6 `CLAUDE.md`; S3 §8.2].
 
-`[UPDATE BEFORE SUBMISSION: revise this assessment on 9 Nov 2026 against the real P0 result.]`
+`[UPDATE AS OF the status date: revise this assessment against the real P0 result.]`
 
 ---
 
@@ -298,11 +313,11 @@ This appendix gives the facts needed to complete NTU's GAI declaration form. **T
 | Item | Detail |
 |---|---|
 | Tool | Claude Code (Anthropic) running as software agents inside this repository. The exact model version per task is recorded in the PR or commit trailer `Co-Authored-By` |
-| Used for in the project | Writing code, tests, documentation and drafts under the agent roles in Section 2.4. All work enters `main` only through a PR with human code-owner approval |
-| Used for in this report | Drafting structure and text from the source documents and repository (agent X3, Report Writer). Every factual sentence is tagged to a source in `SOURCES.md` |
-| Human input | The source PDFs (scope, blueprint, advisor deck) were produced by the team. Founders supply the physical and user-research facts marked `[FOUNDER INPUT NEEDED]` and review the draft |
+| Used for in the project | Writing code, tests, documentation and drafts under the agent roles in Section 2.4. Work since branch protection was enabled enters `main` through a PR that a founder merges; as of 1 Nov GitHub requires no approving review [S11; S12] |
+| Used for in this report | Drafting structure and text from the source documents and repository (agent X3, Report Writer). Factual claims are tagged to a source in `SOURCES.md`; judgments in the Conclusion are the drafter's |
+| Human input | `[FOUNDER INPUT NEEDED: who wrote each source PDF (scope, blueprint, advisor deck), and was AI used in writing them?]` Founders also supply the physical and user-research facts marked `[FOUNDER INPUT NEEDED]` and review the draft |
 | Not delegated | Sewing and measuring, participant contact, consent, accounts, credentials, submissions and approvals are human-only [S6 `CLAUDE.md`] |
-| Data given to the tools | Synthetic or consented data only. No secrets, real user photos or body measurements go into the repository, prompts or logs [S6 `CLAUDE.md`, rule 7] |
+| Data given to the tools | Project rule: synthetic or consented data only; no secrets, real user photos or body measurements in the repository, prompts or logs [S6 `CLAUDE.md`, rule 7]. `[FOUNDER CONFIRM this held]` |
 | Verification | Draft to be checked by the claims auditor agent (X2), then reviewed line by line by each student before submission `[FOUNDER INPUT NEEDED: confirm who reviewed and when]` |
 | Limitation | AI-written text can contain errors or unsupported statements. Anything not traceable in `SOURCES.md` should be removed |
 
@@ -318,4 +333,7 @@ This appendix gives the facts needed to complete NTU's GAI declaration form. **T
 8. Other obstacles (Section 2.8).
 9. Confirmation of NTU dates marked "confirm" in Section 1.5.
 10. Which schedule governs (NTU vs internal competition) and academic references.
-11. Final status of wave-1 PRs and the P0 result, to replace the `[UPDATE BEFORE SUBMISSION]` markers on 9 Nov 2026.
+11. Final status of PRs and the P0 result, to replace the `[UPDATE AS OF the status date]` markers.
+12. One shared status/evidence-freeze date for this report and the video script (v0.1 said 9 Nov; the video's shot list says 6 Nov; neither is chosen here).
+13. Why approvals were removed on `main`, when, and how review is now done.
+14. Dr Wesley's role; which phase dates (blueprint or deck) apply to P3 and P4.
