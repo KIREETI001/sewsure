@@ -27,14 +27,42 @@ class Proposal:
 
 
 class Proposer(Protocol):
-    def propose(self, garment: Garment, inspiration: dict[str, Any]) -> list[Proposal]: ...
+    def propose(
+        self,
+        garment: Garment,
+        measurements: dict[str, Any],
+        inspiration: dict[str, Any],
+    ) -> list[Proposal]:
+        """Return up to three (recipe_id, millimetre parameters, title) proposals.
+
+        This is the seam for K3's pipeline: it validates its own output and returns plain
+        proposals. It does not evaluate or store anything; `services.evaluate_and_store` is the
+        only code that runs the engine and persists a verdict, so there is one evaluation path.
+        `measurements` maps dimension name to the stored MeasurementValue dict."""
+        ...
 
 
 class RuleProposer:
-    def propose(self, garment: Garment, inspiration: dict[str, Any]) -> list[Proposal]:
+    def propose(
+        self,
+        garment: Garment,
+        measurements: dict[str, Any],
+        inspiration: dict[str, Any],
+    ) -> list[Proposal]:
         features = inspiration.get("requested_features") or {}
         transformation = features.get("transformation")
         target = features.get("target_finished_length_mm")
+        original = (measurements.get("shoulder_to_hem") or {}).get("value_mm")
+        lengthens_nothing = (
+            transformation == "lengthen"
+            and target is not None
+            and original is not None
+            and target <= original
+        )
+        if lengthens_nothing:
+            # Contradictory: a "lengthen" that is not longer than the garment must never reach
+            # the crop recipe, which would shorten it. It stays an idea.
+            return [Proposal(None, {}, "Idea only: request does not lengthen")]
         if transformation in ("crop", "lengthen") and target is not None:
             verb = "Cropped" if transformation == "crop" else "Lengthened"
             return [
@@ -81,7 +109,10 @@ def run_generate_job(
             garment = services.project_garment(db, project)
             statuses: list[str] = []
             ids: list[str] = []
-            proposals = proposer.propose(garment, job.request.get("inspiration", {}))[:3]
+            mset = services.current_measurements(db, project)
+            proposals = proposer.propose(
+                garment, dict(mset.garment) if mset else {}, job.request.get("inspiration", {})
+            )[:3]
             for rank, proposal in enumerate(proposals, start=1):
                 revision = services.create_design(
                     db,

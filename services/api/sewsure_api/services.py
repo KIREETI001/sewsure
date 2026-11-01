@@ -198,7 +198,8 @@ def put_measurements(
 
     issues: list[dict[str, str]] = []
     missing: list[str] = []
-    for name in engine.required_dimensions("woven_shirt_crop_v1"):
+    needed = (*engine.required_dimensions("woven_shirt_crop_v1"), engine.PLACKET)
+    for name in needed:
         if name not in dims:
             missing.append(name)
             issues.append(
@@ -210,7 +211,7 @@ def put_measurements(
             )
     for name, value in dims.items():
         if value.get("confirmed_at") is None:
-            if name not in missing and name in engine.required_dimensions("woven_shirt_crop_v1"):
+            if name not in missing and name in needed:
                 missing.append(name)
             issues.append(
                 {
@@ -249,6 +250,15 @@ def _panel_widths(garment: Any) -> dict[str, float]:
     return widths
 
 
+def _prohibited(garment: Any) -> dict[str, list[str]]:
+    out: dict[str, list[str]] = {}
+    for panel in garment.panels:
+        slug = engine.PANEL_SLUGS.get(panel.side)
+        if slug and panel.prohibited_regions:
+            out[slug] = [z.name for z in panel.prohibited_regions]
+    return out
+
+
 def evaluate_and_store(
     db: Session,
     *,
@@ -265,7 +275,7 @@ def evaluate_and_store(
     only when the engine says the checks passed."""
     dims = engine.engine_measurements(mset.garment if mset else {})
     garment = engine.build_garment(
-        garment_row.id, garment_row.category, garment_row.fabric_family, dims
+        garment_row.id, garment_row.category, garment_row.fabric_family, dims, ruler_tolerance_mm
     )
     revision_id = new_id("rev")
     known = engine.recipe_known(recipe_id)
@@ -316,6 +326,7 @@ def evaluate_and_store(
             cut_mark_mm=fields.cut_mark_mm,
             params=params,
             panel_widths_mm=_panel_widths(garment),
+            prohibited_regions=_prohibited(garment),
             ruler_tolerance_mm=ruler_tolerance_mm,
             now=now,
         )
@@ -372,10 +383,12 @@ def list_designs(
     db: Session, owner_id: str, project_id: str
 ) -> list[tuple[Design, DesignRevision]]:
     """Up to three designs with their current revision. Zero is a valid answer."""
-    get_project(db, owner_id, project_id)
+    project = get_project(db, owner_id, project_id)
+    if project.latest_job_id is None:
+        return []
     designs = db.scalars(
         select(Design)
-        .where(Design.project_id == project_id)
+        .where(Design.project_id == project_id, Design.job_id == project.latest_job_id)
         .order_by(Design.rank, Design.created_at)
         .limit(3)
     )
@@ -422,12 +435,14 @@ def create_revision(
             DesignRevision.design_id == design_id
         )
     )
-    mset_id = parent.inputs.get("measurements_id")
+    project = db.get(Project, parent.project_id)
+    assert project is not None
+    mset = current_measurements(db, project)  # corrected measurements must take effect
     try:
         new = evaluate_and_store(
             db,
             garment_row=get_garment(db, owner_id, parent.garment_id),
-            mset=db.get(MeasurementSet, mset_id) if mset_id else None,
+            mset=mset,
             design=design,
             recipe_id=parent.recipe_id,
             params=merged,
@@ -489,13 +504,30 @@ def revision_idempotent(
 def get_cut_plan(db: Session, owner_id: str, revision_id: str) -> dict[str, Any]:
     revision = get_revision(db, owner_id, revision_id)
     plan = db.scalar(select(CutPlan).where(CutPlan.revision_id == revision.id))
-    if plan is None:
-        raise ApiProblem(
-            409,
-            "REVISION_NOT_PASSING",
-            "This revision did not pass the implemented checks, so it has no cut plan.",
-        )
-    return plan.document
+    if plan is not None and revision.status == DesignState.PASS_SUPPORTED_CHECKS.value:
+        if is_stale(db, revision):
+            raise ApiProblem(
+                409,
+                "REVISION_STALE",
+                "Measurements changed since this check. Recheck the design before cutting.",
+                recoverable=True,
+            )
+        return plan.document
+    # Only a current PASS_SUPPORTED_CHECKS revision hands out a plan. A SUPERSEDED one is
+    # read-only history (non-negotiable 3), so it gets none.
+    raise ApiProblem(
+        409,
+        "REVISION_NOT_PASSING",
+        "This revision did not pass the implemented checks, or has been replaced; "
+        "it has no cut plan.",
+    )
+
+
+def is_stale(db: Session, revision: DesignRevision) -> bool:
+    """True when the project's measurements were replaced after this revision was checked.
+    Nothing is written: a new engine run on the current values decides the new state."""
+    project = db.get(Project, revision.project_id)
+    return project is not None and project.measurements_id != revision.inputs.get("measurements_id")
 
 
 # ---- jobs -----------------------------------------------------------------------------

@@ -6,7 +6,7 @@ contract fields stored on a revision. The one thing built here is the engine *in
 (see `build_garment`); it has no contract record yet and is listed as an open item in the PR.
 """
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
@@ -34,6 +34,11 @@ PANEL_SLUGS = {
 }
 
 SIDE_SEAM_NOTE = "Side seams are not verified by these checks; measure with a ruler before cutting."
+# Provisional (pending N1/Narthananilaa): the zone from the placket end to the hem must be at
+# least this deep, otherwise the placket value is not usable and the engine is told nothing.
+MIN_ZONE_MM = 50.0
+PLACKET = "placket_end_from_shoulder"
+STALE_CHECK = "Measurements changed since this check; recheck this design before cutting."
 PENDING_RULER_CHECK = (
     "Verify the shoulder-to-hem reference with a ruler on the garment before cutting."
 )
@@ -81,6 +86,7 @@ def build_garment(
     category: str,
     fabric_family: str,
     dims: Mapping[str, Measurement],
+    clearance_mm: float = 0.0,
 ) -> Garment:
     """Engine input: flat panels as rectangles from the user's measurements.
 
@@ -98,8 +104,17 @@ def build_garment(
     h, w = length.value_mm, chest.value_mm
     zones: tuple[Zone, ...] = ()
     placket = dims.get("placket_end_from_shoulder")
-    if placket is not None and 0 < placket.value_mm < h:
-        zones = (Zone("placket_end", "placket_end", _rect(0, placket.value_mm, w / 2, h)),)
+    # Fail closed (X1 findings 2 and 5): an unconfirmed value supplies no zone, and a value
+    # within MIN_ZONE_MM of the hem would make the gate trivially satisfiable or contradict the
+    # garment length, so it is treated as missing too. The zone starts `clearance_mm` above the
+    # placket end so the engine itself enforces the ruler tolerance. Zone semantics are N1's call.
+    if (
+        placket is not None
+        and placket.confirmed_at is not None
+        and 0 < placket.value_mm <= h - MIN_ZONE_MM
+    ):
+        y0 = max(placket.value_mm - clearance_mm, 0.0)
+        zones = (Zone("placket_end", "placket_end", _rect(0, y0, w / 2, h)),)
     panels = (
         FabricPanel(garment_id, Side.BACK, _rect(0, 0, w, h)),
         FabricPanel(garment_id, Side.FRONT_LEFT, _rect(0, 0, w / 2, h), prohibited_regions=zones),
@@ -195,6 +210,12 @@ def superseded_status(checks: Mapping[str, Any], status: str, recipe_id: str | N
     return supersede(result).status.value
 
 
+def user_missing(names: Iterable[str]) -> list[str]:
+    """The engine names the absent zone `prohibited_regions`; the user supplies the placket
+    measurement, which is a contract dimension the app can ask for."""
+    return list(dict.fromkeys(PLACKET if n == "prohibited_regions" else n for n in names))
+
+
 def explanation(status: str, checks: Mapping[str, Any], params: Mapping[str, Any]) -> str:
     """User-facing text written from the stored ConstraintResult. No guarantee language."""
     codes = ", ".join(checks["failure_codes"])
@@ -218,7 +239,7 @@ def explanation(status: str, checks: Mapping[str, Any], params: Mapping[str, Any
                 break
         return f"{text} No cut plan is offered."[:600]
     if status == DesignState.NEEDS_INPUT.value:
-        missing = ", ".join(checks["missing_dimensions"]) or codes
+        missing = ", ".join(user_missing(checks["missing_dimensions"])) or codes
         return (
             f"More input is needed before this can be checked: {missing}. Measure with a tape or "
             "ruler, confirm the value and check again. No cut plan is offered."

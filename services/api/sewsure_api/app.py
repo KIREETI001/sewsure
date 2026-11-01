@@ -76,7 +76,8 @@ def garment_out(g: models.Garment) -> GarmentOut:
     )
 
 
-def revision_out(r: models.DesignRevision) -> RevisionOut:
+def revision_out(r: models.DesignRevision, stale: bool = False) -> RevisionOut:
+    pending = [*r.pending_checks, engine.STALE_CHECK] if stale else r.pending_checks
     return RevisionOut.model_validate(
         {
             "revision_id": r.id,
@@ -95,7 +96,7 @@ def revision_out(r: models.DesignRevision) -> RevisionOut:
             "checks": r.checks,
             "status": r.status,
             "diy_suitability": None,
-            "pending_checks": r.pending_checks,
+            "pending_checks": pending,
             "fit": None,
             "cut_plan_id": r.cut_plan_id,
             "preview": None,
@@ -142,7 +143,10 @@ def job_out(j: models.Job) -> JobOut:
     )
 
 
-def candidate_out(d: models.Design, r: models.DesignRevision) -> DesignCandidate:
+def candidate_out(
+    d: models.Design, r: models.DesignRevision, stale: bool = False
+) -> DesignCandidate:
+    note = f" {engine.STALE_CHECK}" if stale else ""
     return DesignCandidate.model_validate(
         {
             "design_id": d.id,
@@ -154,9 +158,9 @@ def candidate_out(d: models.Design, r: models.DesignRevision) -> DesignCandidate
             "recipe_id": r.recipe_id,
             "parameters": r.parameters,
             "required_panels": r.required_panels,
-            "explanation": engine.explanation(r.status, r.checks, r.parameters),
+            "explanation": (engine.explanation(r.status, r.checks, r.parameters) + note)[:600],
             "failure_codes": r.checks["failure_codes"],
-            "missing_dimensions": r.checks["missing_dimensions"],
+            "missing_dimensions": engine.user_missing(r.checks["missing_dimensions"]),
             "preview": None,
             "provenance": {
                 "source": "live",
@@ -286,7 +290,7 @@ def list_designs(
         {
             "project_id": project_id,
             "job_id": project.latest_job_id,
-            "designs": [candidate_out(d, r) for d, r in pairs],
+            "designs": [candidate_out(d, r, services.is_stale(db, r)) for d, r in pairs],
             "binding_constraint": binding,
         }
     )
@@ -311,14 +315,15 @@ def create_revision(
     )
     if not created:
         response.headers["Idempotent-Replayed"] = "true"
-    return revision_out(revision)
+    return revision_out(revision, services.is_stale(db, revision))
 
 
 @router.get("/revisions/{revision_id}", response_model=RevisionOut)
 def read_revision(
     revision_id: str, user: CurrentUser = Depends(get_current_user), db: Session = Depends(get_db)
 ):
-    return revision_out(services.get_revision(db, user.id, revision_id))
+    revision = services.get_revision(db, user.id, revision_id)
+    return revision_out(revision, services.is_stale(db, revision))
 
 
 @router.get("/revisions/{revision_id}/cut-plan", response_model=CutPlan)

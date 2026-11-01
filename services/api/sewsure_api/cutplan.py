@@ -20,6 +20,7 @@ def build_cut_plan(
     cut_mark_mm: float,
     params: dict[str, Any],
     panel_widths_mm: dict[str, float],
+    prohibited_regions: dict[str, list[str]],
     ruler_tolerance_mm: float,
     now: datetime,
 ) -> dict[str, Any]:
@@ -45,7 +46,7 @@ def build_cut_plan(
                         "label": f"Finished hem {finished:g} mm",
                     },
                 ],
-                "prohibited_regions": [],
+                "prohibited_regions": prohibited_regions.get(slug, []),
             }
         )
     return {
