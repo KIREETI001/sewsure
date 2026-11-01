@@ -66,7 +66,8 @@ def build_cut_plan(
             {
                 "checkpoint_id": "cut_mark_from_shoulder",
                 "instruction": (
-                    f"Measure straight down from the high shoulder point and mark {cut_mark_mm:g} mm. "
+                    f"Measure straight down from the high shoulder point and mark "
+                    f"{cut_mark_mm:g} mm. "
                     "Check it against your shoulder-to-hem measurement before cutting."
                 ),
                 "from_landmark": "high_shoulder_point",

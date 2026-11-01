@@ -56,7 +56,7 @@ pythonVersion = "3.12"
 typeCheckingMode = "standard"
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "ai"]
 
 [tool.ruff.lint.per-file-ignores]
 "migrations/versions/*" = ["E501", "UP", "I"]

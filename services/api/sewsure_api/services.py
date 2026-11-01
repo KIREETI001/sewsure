@@ -183,9 +183,7 @@ def put_measurements(
     problems are the engine's call at evaluation time; only missing and unconfirmed values are
     flagged here."""
     project = get_project(db, owner_id, project_id)
-    dims = {
-        k.value: v.model_dump(mode="json", exclude_none=True) for k, v in body.garment.items()
-    }
+    dims = {k.value: v.model_dump(mode="json") for k, v in body.garment.items()}
     record = MeasurementSet(
         id=new_id("msr"),
         project_id=project.id,
@@ -218,7 +216,7 @@ def put_measurements(
                 {
                     "dimension": name,
                     "code": "UNCONFIRMED_DIMENSION",
-                    "message": f"Measure {name.replace('_', ' ')} with a tape and confirm the value.",
+                    "message": f"Measure {name.replace('_', ' ')} with a tape and confirm it.",
                 }
             )
     return record, issues, missing
@@ -370,7 +368,9 @@ def current_revision(db: Session, design_id: str) -> DesignRevision | None:
     )
 
 
-def list_designs(db: Session, owner_id: str, project_id: str) -> list[tuple[Design, DesignRevision]]:
+def list_designs(
+    db: Session, owner_id: str, project_id: str
+) -> list[tuple[Design, DesignRevision]]:
     """Up to three designs with their current revision. Zero is a valid answer."""
     get_project(db, owner_id, project_id)
     designs = db.scalars(
@@ -398,7 +398,7 @@ def create_revision(
     verdict are untouched; the link to the newer revision is recorded, and the engine's
     `supersede` is asked for the parent's new status (it only applies to a revision that
     passed)."""
-    parent = get_revision(db, owner_id, body.parent_revision_id.root)
+    parent = get_revision(db, owner_id, body.parent_revision_id)
     if parent.design_id != design_id:
         raise NotFound("revision")
     if parent.superseded_by_revision_id is not None:
@@ -468,7 +468,7 @@ def revision_idempotent(
     ruler_tolerance_mm: float,
 ) -> tuple[DesignRevision, bool]:
     # Authorise before touching idempotency state.
-    parent = get_revision(db, owner_id, body.parent_revision_id.root)
+    parent = get_revision(db, owner_id, body.parent_revision_id)
     if parent.design_id != design_id:
         raise NotFound("revision")
 
@@ -563,9 +563,7 @@ def enqueue_generate_idempotent(
         )
 
     def create() -> str:
-        return enqueue_job(
-            db, owner_id, project_id, "generate_designs", request, max_attempts
-        ).id
+        return enqueue_job(db, owner_id, project_id, "generate_designs", request, max_attempts).id
 
     job_id, created = idempotent_create(
         db,

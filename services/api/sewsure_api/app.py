@@ -328,7 +328,12 @@ def read_cut_plan(
     return CutPlan.model_validate(services.get_cut_plan(db, user.id, revision_id))
 
 
-_STATUS_CODES = {401: "UNAUTHENTICATED", 404: "NOT_FOUND", 409: "CONFLICT", 422: "VALIDATION_FAILED"}
+_STATUS_CODES = {
+    401: "UNAUTHENTICATED",
+    404: "NOT_FOUND",
+    409: "CONFLICT",
+    422: "VALIDATION_FAILED",
+}
 
 
 def _http_error(request: Request, exc: StarletteHTTPException) -> JSONResponse:

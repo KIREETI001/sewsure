@@ -33,10 +33,10 @@ PANEL_SLUGS = {
     Side.FRONT_RIGHT: "front_right",
 }
 
-SIDE_SEAM_NOTE = (
-    "Side seams are not verified by these checks; measure with a ruler before cutting."
+SIDE_SEAM_NOTE = "Side seams are not verified by these checks; measure with a ruler before cutting."
+PENDING_RULER_CHECK = (
+    "Verify the shoulder-to-hem reference with a ruler on the garment before cutting."
 )
-PENDING_RULER_CHECK = "Verify the shoulder-to-hem reference with a ruler on the garment before cutting."
 
 
 def recipe_known(recipe_id: str | None) -> bool:
@@ -199,7 +199,10 @@ def explanation(status: str, checks: Mapping[str, Any], params: Mapping[str, Any
     """User-facing text written from the stored ConstraintResult. No guarantee language."""
     codes = ", ".join(checks["failure_codes"])
     if status == DesignState.PASS_SUPPORTED_CHECKS.value:
-        cut = next((r["required_mm"] for r in checks["residuals"] if r["quantity"] == "garment_length"), None)
+        cut = next(
+            (r["required_mm"] for r in checks["residuals"] if r["quantity"] == "garment_length"),
+            None,
+        )
         base = "The implemented checks passed for this design."
         if cut is not None:
             base += f" The cut mark is {cut:g} mm below the shoulder point."
@@ -208,7 +211,10 @@ def explanation(status: str, checks: Mapping[str, Any], params: Mapping[str, Any
         text = f"These checks did not pass: {codes}."
         for r in checks["residuals"]:
             if r["residual_mm"] < 0:
-                text += f" The design needs {r['required_mm']:g} mm but {r['available_mm']:g} mm is available."
+                text += (
+                    f" The design needs {r['required_mm']:g} mm "
+                    f"but {r['available_mm']:g} mm is available."
+                )
                 break
         return f"{text} No cut plan is offered."[:600]
     if status == DesignState.NEEDS_INPUT.value:
