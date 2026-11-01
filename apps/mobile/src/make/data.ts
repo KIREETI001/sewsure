@@ -18,10 +18,8 @@ type Fixture = {
 
 const fixtures = [crop, ideaOnly, needsInput, lengthening] as unknown as Fixture[];
 
-/** Revision opened when a screen is reached without an id (demo mode). */
-export const DEFAULT_REVISION_ID = "rev-crop-a-2";
-
-export async function loadMakeBundle(revisionId: string): Promise<MakeBundle> {
+/** Resolves to null for a revision the source does not know, so screens fail closed. */
+export async function loadMakeBundle(revisionId: string): Promise<MakeBundle | null> {
   for (const f of fixtures) {
     const revision = (f.revisions as DesignRevision[]).find((r) => r.revision_id === revisionId);
     if (!revision) continue;
@@ -41,5 +39,5 @@ export async function loadMakeBundle(revisionId: string): Promise<MakeBundle> {
       photo: owns ? (photos.find((p) => p.photo_id === photoId) ?? null) : null,
     };
   }
-  throw new Error(`unknown revision ${revisionId}`);
+  return null;
 }

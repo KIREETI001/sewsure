@@ -22,6 +22,8 @@ export const makeEn = {
   "make.gate.reason.plan_mismatch":
     "The cut plan does not belong to this version of the design, so it is not shown.",
   "make.gate.reason.no_plan": "There is no cut plan for this design yet.",
+  "make.gate.reason.no_revision": "No design was chosen, so there is no cut guide. Go back and pick a design.",
+  "make.gate.reason.not_found": "We could not find that version of the design, so there is no cut guide.",
   "make.gate.next.ask_tailor": "Next step: ask a tailor, or explore the idea without cutting.",
   "make.gate.next.add_measurements": "Next step: add or correct your measurements.",
   "make.gate.next.choose_supported_change": "Next step: pick a change that the checks support.",
@@ -35,6 +37,8 @@ export const makeEn = {
   "make.cut.approx":
     "Lines are approximate. Always measure on the real garment with a ruler before you cut.",
   "make.cut.fromLandmark": "{cm} cm ({inches} in) below the {landmark}",
+  "make.cut.betweenLandmark": "between {from} cm and {to} cm below the {landmark}, not a level line",
+  "make.cut.lineText": "{kind}: {where}",
   "make.cut.hemAllowance": "Hem allowance: {cm} cm",
   "make.cut.seamAllowance": "Seam allowance: {cm} cm",
   "make.cut.pieceHeading": "{piece}",
@@ -42,9 +46,6 @@ export const makeEn = {
   "make.cut.diagramHeading": "Dimensioned diagram",
   "make.cut.diagramAlt":
     "Diagram of {piece} with its cut, fold and stitch lines. Distances are listed below the diagram.",
-  "make.cut.overlayHeading": "Photo overlay",
-  "make.cut.overlayAlt": "Your garment photo with cut, fold and stitch lines drawn on it.",
-  "make.cut.overlayApprox": "Overlay is approximate, within {tol} cm on your photo. Check with a ruler.",
   "make.cut.kind.cut": "Cut (solid line)",
   "make.cut.kind.fold": "Fold (dashed line)",
   "make.cut.kind.stitch": "Stitch (dotted line)",
@@ -64,7 +65,7 @@ export const makeEn = {
   "make.cp.heading": "Ruler checkpoints",
   "make.cp.intro":
     "Cutting cannot be undone. Tick each checkpoint only after you measured with a ruler. You cannot skip this.",
-  "make.cp.detail": "{cm} cm from the {landmark}, give or take {tol} cm",
+  "make.cp.label": "{instruction} Distance: {cm} cm from the {landmark}, give or take {tol} cm.",
   "make.cp.remaining": "{n} checkpoint(s) left before any cut step",
   "make.cp.done": "All checkpoints ticked. Cut steps are now unlocked.",
   "make.cp.reset": "Checkpoints reset because this design changed. Measure again.",
@@ -75,6 +76,13 @@ export const makeEn = {
   "make.draft.blocked":
     "This recipe has not been reviewed by a sewist, so it cannot be shown as a guide. Use the tailor route instead.",
   "make.draft.badge": "Not yet reviewed",
+  "make.draft.demoBadge": "Demo only: recipe not yet reviewed",
+  "make.draft.step": "Demo only: this recipe is not yet reviewed.",
+  "make.blocked.no_steps": "There are no DIY steps for this design, so there is nothing to follow. Ask a tailor instead.",
+  "make.blocked.version_mismatch":
+    "The cut plan and the DIY steps come from different recipe versions, so neither is shown. Ask a tailor instead.",
+  "make.blocked.not_reviewed":
+    "This recipe has not been reviewed by a sewist, so it cannot be shown as a guide. Use the tailor route instead.",
 
   // DIY
   "make.diy.title": "DIY steps",
@@ -89,7 +97,9 @@ export const makeEn = {
   "make.diy.tick": "I did this step",
   "make.diy.untick": "Undo tick",
   "make.diy.irreversible": "This step cannot be undone.",
-  "make.diy.lockedCheckpoint": "Locked. Tick every ruler checkpoint first.",
+  "make.diy.lockedCheckpoint": "Locked. Tick every ruler checkpoint in step {n} first.",
+  "make.diy.lockedCut": "Locked. Finish the cut step first.",
+  "make.diy.checkpointStep": "This step is ticked for you once every checkpoint below is ticked.",
   "make.diy.selfReported": "Ticks are your own record. They are not checked by anyone.",
   "make.diy.extraRequired":
     "This recipe needs a tool or skill you did not list. A tailor may be a better fit.",

@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { Card, Text, useTheme } from "../../../ui";
-import { lineDepthMm, mmToCmText, mmToInchText, originLandmarkText, planBounds } from "../geometry";
+import { lineDepthMm, lineDepthRangeMm, mmToCmText, mmToInchText, originLandmarkText, planBounds } from "../geometry";
 import { tm } from "../i18n";
 import type { CutLine, CutPlan } from "../types";
 
@@ -37,6 +37,24 @@ function Segment({ x1, y1, x2, y2, kind, color }: { x1: number; y1: number; x2: 
   );
 }
 
+/**
+ * Plain-language distance for one line, built from the line's kind and its millimetre points
+ * (shown in cm), not from the fixture's label text, which can mix units.
+ */
+export function lineText(l: CutLine, plan: CutPlan): string {
+  const landmark = originLandmarkText(plan);
+  const depth = lineDepthMm(l);
+  const where =
+    depth !== null
+      ? tm("make.cut.fromLandmark", { cm: mmToCmText(depth), inches: mmToInchText(depth), landmark })
+      : tm("make.cut.betweenLandmark", {
+          from: mmToCmText(lineDepthRangeMm(l)[0]),
+          to: mmToCmText(lineDepthRangeMm(l)[1]),
+          landmark,
+        });
+  return tm("make.cut.lineText", { kind: tm(KIND_KEY[l.kind]), where });
+}
+
 /** Always-available fallback: schematic plus plain-language distances for every line. */
 export function DimensionedDiagram({ plan }: { plan: CutPlan }) {
   const { colors } = useTheme();
@@ -67,13 +85,7 @@ export function DimensionedDiagram({ plan }: { plan: CutPlan }) {
               )}
             </View>
             {piece.lines.map((l) => (
-              <Text key={l.line_id}>
-                {`${l.label} (${tm(KIND_KEY[l.kind])}): ${tm("make.cut.fromLandmark", {
-                  cm: mmToCmText(lineDepthMm(l)),
-                  inches: mmToInchText(lineDepthMm(l)),
-                  landmark: originLandmarkText(plan),
-                })}`}
-              </Text>
+              <Text key={l.line_id}>{lineText(l, plan)}</Text>
             ))}
             {piece.prohibited_regions?.length ? (
               <Text tone="danger">{tm("make.cut.prohibited", { regions: piece.prohibited_regions.join(", ").replace(/_/g, " ") })}</Text>

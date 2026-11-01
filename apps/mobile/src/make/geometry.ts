@@ -18,10 +18,21 @@ export const mmToInchText = (mm: number): string => {
   return whole === 0 ? frac : `${whole} ${frac}`;
 };
 
-/** Mean y of a line in mm, which for horizontal cut/fold lines is the distance from the origin. */
-export const lineDepthMm = (line: CutLine): number => {
+/**
+ * Distance below the origin landmark for a horizontal line (all y within 0.5 mm), else null.
+ * Curved or vertical lines have no single depth, so callers use `lineDepthRangeMm`.
+ */
+export const lineDepthMm = (line: CutLine): number | null => {
   const ys = line.points_mm.map((p) => p[1]);
-  return ys.reduce((a, b) => a + b, 0) / ys.length;
+  if (ys.length === 0) return null;
+  const lo = Math.min(...ys);
+  const hi = Math.max(...ys);
+  return hi - lo <= 0.5 ? (lo + hi) / 2 : null;
+};
+
+export const lineDepthRangeMm = (line: CutLine): [number, number] => {
+  const ys = line.points_mm.map((p) => p[1]);
+  return [Math.min(...ys), Math.max(...ys)];
 };
 
 export interface Bounds {

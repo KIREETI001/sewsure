@@ -7,10 +7,12 @@ import lengthening from "../../../../packages/contracts/fixtures/lengthening_imp
 import { makeEn } from "../../src/make/i18n";
 import {
   RECIPE_STATUS,
+  blockedReason,
   checkpointsComplete,
   cutGuideAccess,
   guideMode,
   overlayDecision,
+  resolveSteps,
   stepLock,
 } from "../../src/make/gate";
 import type { CutPlan, DesignRevision, DiySteps, PhotoRef } from "../../src/make/types";
@@ -73,11 +75,10 @@ describe("overlay vs diagram", () => {
   } as unknown as CutPlan;
 
   it("falls back for the fixture (uncalibrated)", () => {
-    const d = overlayDecision(plan, photo);
-    expect(d).toMatchObject({ kind: "diagram", reason: "mode_diagram" });
+    expect(overlayDecision(plan, photo)).toMatchObject({ kind: "diagram", reason: "mode_diagram" });
   });
-  it("draws only when calibrated, within tolerance, verified and placed", () => {
-    expect(overlayDecision(good, photo).kind).toBe("overlay");
+  it("never draws from origin + scale: the validated error is for N4's fit, not this projection", () => {
+    expect(overlayDecision(good, photo)).toMatchObject({ kind: "diagram", reason: "missing_projection" });
   });
   it.each([
     ["rejected", { state: "rejected" }, "rejected"],
@@ -85,7 +86,7 @@ describe("overlay vs diagram", () => {
     ["out of tolerance", { max_error_mm: 4 }, "out_of_tolerance"],
     ["no error data", { max_error_mm: null }, "missing_calibration_data"],
     ["no scale", { scale_px_per_mm: null }, "missing_calibration_data"],
-    ["no origin", { origin_px: null }, "missing_projection"],
+    ["zero tolerance", { tolerance_mm: 0, max_error_mm: 0 }, "missing_calibration_data"],
   ])("diagram when %s", (_n, patch, reason) => {
     const p = { ...good, calibration: { ...good.calibration, ...patch } } as unknown as CutPlan;
     expect(overlayDecision(p, photo)).toMatchObject({ kind: "diagram", reason });
@@ -110,16 +111,49 @@ describe("ruler checkpoint cannot be skipped", () => {
   });
 });
 
+describe("resolveSteps", () => {
+  type R = ReturnType<typeof resolveSteps<(typeof diy.steps)[number]>>;
+  const byId = (r: R, id: string) => r.find((x) => x.step.step_id === id)!;
+
+  it("checkpoint step is never done by its own tick", () => {
+    expect(byId(resolveSteps(diy.steps, false, { s4_ruler_checkpoint: true }), "s4_ruler_checkpoint").done).toBe(false);
+    expect(byId(resolveSteps(diy.steps, true, {}), "s4_ruler_checkpoint").done).toBe(true);
+  });
+  it("locks the cut until checkpoints are done, and later steps until the cut is done", () => {
+    let r = resolveSteps(diy.steps, false, {});
+    expect(byId(r, "s5_cut").lock).toBe("checkpoint_required");
+    expect(byId(r, "s6_finish").lock).toBe("cut_required");
+    expect(byId(r, "s7_verify").lock).toBe("cut_required");
+    r = resolveSteps(diy.steps, true, {});
+    expect(byId(r, "s5_cut").lock).toBeNull();
+    expect(byId(r, "s6_finish").lock).toBe("cut_required");
+    r = resolveSteps(diy.steps, true, { s5_cut: true });
+    expect(byId(r, "s6_finish").lock).toBeNull();
+  });
+  it("a cut already recorded (restored from the server) shows done, with the checkpoint step done", () => {
+    const r = resolveSteps(diy.steps, false, { s5_cut: true });
+    expect(byId(r, "s5_cut")).toMatchObject({ done: true, lock: null });
+    expect(byId(r, "s4_ruler_checkpoint").done).toBe(true);
+  });
+});
+
 describe("draft recipe", () => {
   it("registry matches recipe.yaml", () => {
     const yaml = fs.readFileSync(path.join(__dirname, "../../../../content/recipes/woven_shirt_crop_v1/recipe.yaml"), "utf8");
     expect(/^status:\s*(\w+)/m.exec(yaml)?.[1]).toBe(RECIPE_STATUS.woven_shirt_crop_v1);
   });
   it("is demo-only on mock data and blocked on live data", () => {
-    expect(guideMode(diy, plan, "mock")).toBe("demo_preview");
+    expect(guideMode(diy, plan, "mock", true)).toBe("demo_preview");
     expect(guideMode(diy, plan, "live")).toBe("blocked");
-    expect(guideMode(null, plan, "mock")).toBe("blocked");
+    expect(guideMode(null, plan, "mock", true)).toBe("blocked");
+    // Release builds (no __DEV__, no demo flag) never preview a draft, even on fixture data.
+    expect(guideMode(diy, plan, "mock", false)).toBe("blocked");
     expect(guideMode({ ...diy, recipe_id: "unknown_v1" }, { ...plan, recipe_id: "unknown_v1" }, "live")).toBe("blocked");
+  });
+  it("names the real reason a guide is blocked", () => {
+    expect(blockedReason(null, plan)).toBe("no_steps");
+    expect(blockedReason({ ...diy, recipe_version: "9" }, plan)).toBe("version_mismatch");
+    expect(blockedReason(diy, plan)).toBe("not_reviewed");
   });
 });
 

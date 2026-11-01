@@ -88,22 +88,15 @@ export type DiagramReason =
   | "missing_projection"
   | "photo_not_verified";
 
-export interface OverlayProjection {
-  /** Screen-independent pixels in the photo per millimetre of garment. */
-  scalePxPerMm: number;
-  /** Where the cut plan's origin landmark sits in the photo, in photo pixels. */
-  originPx: [number, number];
-}
-
-export type OverlayDecision =
-  | { kind: "overlay"; projection: OverlayProjection }
-  | { kind: "diagram"; reason: DiagramReason; apiReason: string | null };
-
 /**
- * The contract's Calibration has a scale but no photo origin. N4 is expected to add
- * `origin_px`. Until it does, no overlay can be placed, so we read it defensively and fall back.
+ * No overlay is drawn from the app. The contract's Calibration carries a scale but no projection:
+ * N4's fit can include rotation and perspective, per-piece panels sit on different photos, and
+ * `max_error_mm` is measured against that fit. Placing lines as `origin + mm * scale` would draw
+ * something the validated error does not describe. Until the API returns per-photo, per-piece
+ * `points_px`, every plan falls back to the dimensioned diagram. The checks below stay so the
+ * reason shown is the real one.
  */
-type CalibrationWithOrigin = Calibration & { origin_px?: [number, number] | null };
+export type OverlayDecision = { kind: "diagram"; reason: DiagramReason; apiReason: string | null };
 
 const finitePositive = (n: unknown): n is number => typeof n === "number" && Number.isFinite(n) && n > 0;
 
@@ -111,7 +104,7 @@ export function overlayDecision(
   cutPlan: CutPlan,
   photo: PhotoRef | null | undefined,
 ): OverlayDecision {
-  const cal = cutPlan.calibration as CalibrationWithOrigin;
+  const cal: Calibration = cutPlan.calibration;
   const apiReason = cal.rejection_reason ?? null;
   const diagram = (reason: DiagramReason): OverlayDecision => ({ kind: "diagram", reason, apiReason });
 
@@ -119,15 +112,8 @@ export function overlayDecision(
   if (cal.state === "rejected") return diagram("rejected");
   if (cal.state !== "calibrated") return diagram("not_calibrated");
 
-  // The API says "calibrated"; still check its own numbers agree before drawing anything.
   const { max_error_mm: maxError, tolerance_mm: tolerance, scale_px_per_mm: scale } = cal;
-  if (
-    !finitePositive(scale) ||
-    typeof maxError !== "number" ||
-    typeof tolerance !== "number" ||
-    !Number.isFinite(maxError) ||
-    !Number.isFinite(tolerance)
-  ) {
+  if (!finitePositive(scale) || !finitePositive(tolerance) || typeof maxError !== "number" || !Number.isFinite(maxError)) {
     return diagram("missing_calibration_data");
   }
   if (maxError > tolerance) return diagram("out_of_tolerance");
@@ -136,16 +122,9 @@ export function overlayDecision(
   if (!photo || photo.status !== "verified" || photo.photo_id !== cal.reference_photo_id) {
     return diagram("photo_not_verified");
   }
-
-  const origin = cal.origin_px;
-  if (
-    !Array.isArray(origin) ||
-    origin.length !== 2 ||
-    !origin.every((v) => typeof v === "number" && Number.isFinite(v))
-  ) {
-    return diagram("missing_projection");
-  }
-  return { kind: "overlay", projection: { scalePxPerMm: scale, originPx: [origin[0], origin[1]] } };
+  // Photo size and a projection from the API are both needed before lines could be placed. The
+  // contract provides neither yet, so this is always the diagram.
+  return diagram("missing_projection");
 }
 
 // ---- Recipe review status ---------------------------------------------------------------------
@@ -169,10 +148,25 @@ export type GuideMode =
   /** Draft or retired recipe on live data, or recipe and DIY content disagree. */
   | "blocked";
 
+/** Demo previews of draft recipes exist only in development builds or an explicit demo flag. */
+export const isDemoBuild = (): boolean =>
+  (typeof __DEV__ !== "undefined" && __DEV__) || process.env.EXPO_PUBLIC_SEWSURE_DEMO === "1";
+
+export type BlockedReason = "no_steps" | "version_mismatch" | "not_reviewed";
+
+export function blockedReason(diySteps: DiySteps | null, cutPlan: CutPlan | null): BlockedReason {
+  if (!diySteps) return "no_steps";
+  if (cutPlan && (cutPlan.recipe_id !== diySteps.recipe_id || cutPlan.recipe_version !== diySteps.recipe_version)) {
+    return "version_mismatch";
+  }
+  return "not_reviewed";
+}
+
 export function guideMode(
   diySteps: DiySteps | null,
   cutPlan: CutPlan | null,
   provenance: "mock" | "live",
+  demoAllowed: boolean = isDemoBuild(),
 ): GuideMode {
   if (!diySteps) return "blocked";
   if (cutPlan && (cutPlan.recipe_id !== diySteps.recipe_id || cutPlan.recipe_version !== diySteps.recipe_version)) {
@@ -180,7 +174,7 @@ export function guideMode(
   }
   const status = recipeStatusOf(diySteps.recipe_id);
   if (status === "reviewed") return "executable";
-  if (status === "draft" && provenance === "mock") return "demo_preview";
+  if (status === "draft" && provenance === "mock" && demoAllowed) return "demo_preview";
   return "blocked";
 }
 
@@ -206,4 +200,57 @@ export function stepLock(
 ): StepLock {
   const isCut = step.irreversible || step.phase === "cut";
   return isCut && !checkpointsDone ? "checkpoint_required" : null;
+}
+
+// ---- Step order and locks ---------------------------------------------------------------------
+
+export type StepLockReason = "checkpoint_required" | "cut_required";
+
+export interface ResolvedStep<S> {
+  step: S;
+  done: boolean;
+  lock: StepLockReason | null;
+}
+
+interface StepLike {
+  step_id: string;
+  order: number;
+  phase: string;
+  irreversible: boolean;
+}
+
+/**
+ * Resolves done and lock for every step, in order.
+ * - The ruler checkpoint step has no tick of its own: it is done when every checkpoint is ticked
+ *   (or a later cut is already recorded, e.g. restored from the server after a reinstall).
+ * - Cut steps stay locked until the checkpoints are complete.
+ * - Steps after a cut stay locked until that cut is done.
+ * A step already recorded done is shown done, never locked: the lock stops new actions only.
+ */
+export function resolveSteps<S extends StepLike>(
+  steps: readonly S[],
+  checkpointsDone: boolean,
+  ticked: Readonly<Record<string, boolean>>,
+): ResolvedStep<S>[] {
+  const sorted = [...steps].sort((a, b) => a.order - b.order);
+  const cutTicked = (s: S) => (s.irreversible || s.phase === "cut") && ticked[s.step_id] === true;
+  const out: ResolvedStep<S>[] = [];
+  let cutPending = false;
+  for (const step of sorted) {
+    const isCut = step.irreversible || step.phase === "cut";
+    let done: boolean;
+    let lock: StepLockReason | null = null;
+    if (step.phase === "ruler_checkpoint") {
+      done = checkpointsDone || sorted.some((s) => s.order > step.order && cutTicked(s));
+    } else {
+      done = ticked[step.step_id] === true;
+      if (!done) {
+        if (isCut && !checkpointsDone) lock = "checkpoint_required";
+        else if (cutPending) lock = "cut_required";
+      }
+    }
+    out.push({ step, done, lock });
+    if (isCut) cutPending = !done;
+  }
+  return out;
 }

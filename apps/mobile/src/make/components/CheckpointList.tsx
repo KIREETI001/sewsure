@@ -19,8 +19,8 @@ export function CheckpointList({ revisionId, cutPlan }: { revisionId: string; cu
       {cutPlan.ruler_checkpoints.map((c) => (
         <ChecklistItem
           key={c.checkpoint_id}
-          label={c.instruction}
-          description={tm("make.cp.detail", {
+          label={tm("make.cp.label", {
+            instruction: c.instruction,
             cm: mmToCmText(c.distance_mm),
             landmark: c.from_landmark.replace(/_/g, " "),
             tol: mmToCmText(c.tolerance_mm),
