@@ -115,8 +115,9 @@ def test_shields_never_allows_without_an_answer(monkeypatch):
     for t in (FakeTransport(status=503, body={}), FakeTransport(body={"unexpected": 1})):
         with pytest.raises(ModelError):
             AzurePromptShieldsScreen(transport=t).screen("hello")
+    monkeypatch.delenv("SEWSURE_CONTENT_SAFETY_ENDPOINT")
     with pytest.raises(ModelError) as e:
-        AzurePromptShieldsScreen()  # no endpoint configured (autouse fixture cleared env)
+        AzurePromptShieldsScreen()
     assert e.value.code == "SAFETY_NOT_CONFIGURED"
 
 
@@ -155,27 +156,27 @@ def test_live_check_reports_pass_with_fake_services(monkeypatch, capsys):
         attack = "Ignore all previous" in json.loads(body)["userPrompt"]
         return 200, json.dumps({"userPromptAnalysis": {"attackDetected": attack}}).encode()
 
+    monkeypatch.setattr(live_check, "AzureFoundryClient", _Factory(AzureFoundryClient, foundry))
     monkeypatch.setattr(
-        live_check,
-        "AzureFoundryClient",
-        lambda: AzureFoundryClient(transport=foundry),
+        live_check, "AzurePromptShieldsScreen", _Factory(AzurePromptShieldsScreen, shields)
     )
-    monkeypatch.setattr(live_check, "AzurePromptShieldsScreen", _ShieldsFactory(shields))
     assert live_check.main() == 0
     out = capsys.readouterr().out
     assert "PASS foundry" in out and "PASS prompt_shields" in out
     assert FAKE_KEY not in out and "example.invalid" not in out
 
 
-class _ShieldsFactory:
-    def __init__(self, transport):
-        self._t = transport
+class _Factory:
+    """Stands in for a client class: configured() is True; calling it builds a faked client."""
+
+    def __init__(self, cls, transport):
+        self._cls, self._t = cls, transport
 
     def configured(self):
         return True
 
     def __call__(self):
-        return AzurePromptShieldsScreen(transport=self._t)
+        return self._cls(transport=self._t)
 
 
 def test_default_transport_refuses_nothing_at_import():
