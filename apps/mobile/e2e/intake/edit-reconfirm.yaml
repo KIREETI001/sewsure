@@ -1,0 +1,15 @@
+# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
+# §9.1 row 4: edit/reconfirm. Editing a confirmed value clears the confirmation until the user leaves the field again.
+# Leaving a field is done by tapping the next field (hideKeyboard may not blur a React Native TextInput on Android: unverified).
+appId: com.sewsure.mobile
+---
+- runFlow:
+    file: ../seed/apply.yaml
+    env:
+      SEED: measurements-confirmed
+- assertVisible: "✓ Confirmed: 52 cm"
+- tapOn: "Chest, flat across (cm)"
+- inputText: "1"
+- assertNotVisible: "✓ Confirmed: 52 cm"
+- tapOn: "Length, shoulder to hem (cm)"
+- assertVisible: "✓ Confirmed: 521 cm|.*looks large.*|.*outside any sensible range.*"

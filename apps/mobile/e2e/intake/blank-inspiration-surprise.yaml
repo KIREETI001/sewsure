@@ -1,0 +1,15 @@
+# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
+# §9.1 row 3: blank inspiration offers Surprise Me; the idea shows a Mock marker.
+appId: com.sewsure.mobile
+---
+- runFlow:
+    file: ../seed/apply.yaml
+    env:
+      SEED: capture-ready
+- tapOn: "Continue"
+- assertVisible: "Nothing entered yet.*"
+- tapOn:
+    text: "Surprise Me"
+    index: 1
+- assertVisible: "Idea: .*"
+- assertVisible: "Mock"

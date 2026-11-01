@@ -1,0 +1,12 @@
+# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
+# §9.1 row 1: guest/demo decision. Start stays disabled until a path is chosen; demo mode keeps data on device.
+appId: com.sewsure.mobile
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Remake a garment you already own"
+- tapOn: "Maker or owner"
+- tapOn: "Try demo mode"
+- assertVisible: "Demo mode uses sample data.*"
+- tapOn: "Start"
+- assertVisible: "For a usable photo"

@@ -1,16 +1,17 @@
-# Offline upload: the draft survives, the status says not uploaded, and retry works online.
-# NOTE: the fixture client never fails, so this flow only becomes meaningful once the live API client replaces it.
-# Precondition: all garment measurements confirmed (demo seed build), signed in (not demo mode).
+# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
+# §18.2 #2: upload over a weak network -> draft kept, status says so, retry works. Also asserts no silent loss.
+# BLOCKED: the fixture client never fails, so airplane mode changes nothing today. Becomes meaningful when the live API client replaces mockApi.
+# Precondition: signed in with the live client (not demo mode), all garment values confirmed.
 appId: com.sewsure.mobile
 ---
-- launchApp
+- runFlow:
+    file: ../seed/apply.yaml
+    env:
+      SEED: measurements-confirmed
 - setAirplaneMode: enabled
 - tapOn: "Upload"
 - assertVisible: "Upload failed.*"
-- stopApp
-- launchApp
-- assertVisible: "Not uploaded.*|Upload failed.*"
-- assertVisible: "52"
+- assertVisible: "✓ Confirmed: 52 cm"
 - setAirplaneMode: disabled
 - tapOn: "Try upload again"
-- assertVisible: ".*Uploaded"
+- assertVisible: "✓ Uploaded.*"
