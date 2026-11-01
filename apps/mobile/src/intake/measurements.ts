@@ -49,12 +49,21 @@ const GARMENT_SPECS: Record<GarmentCategory, MeasurementSpec[]> = {
   dress: [chestFlat, waistFlat, hipFlat, spec("dress_length", "garment", [700, 1500], [300, 1800])],
 };
 
-/** Optional, reusable body profile. Never required to continue. */
+/** Optional, reusable body profile. Never required to continue. Ranges are proposed, not
+ * sourced: they only prompt a double-check and never block a body value. */
 export const BODY_SPECS: MeasurementSpec[] = [
   spec("height", "body", [1400, 2000], [800, 2300]),
   spec("bust", "body", [700, 1300], [400, 1800]),
   spec("waist", "body", [550, 1200], [350, 1700]),
   spec("hip", "body", [750, 1400], [450, 1800]),
+];
+
+/** Level 3 garments: inspiration only, no cutting map, so no garment measurements are asked. */
+export const INSPIRATION_ONLY: readonly GarmentCategory[] = [
+  "jacket",
+  "trousers",
+  "skirt",
+  "dress",
 ];
 
 export const garmentSpecsFor = (category: GarmentCategory): MeasurementSpec[] =>
