@@ -1,0 +1,28 @@
+# DRAFT micro-lesson. Not reviewed by a sewist.
+lesson_id: lesson_straight_stitch_scrap
+version: "1.0"
+status: draft
+title: Straight stitch practice on scrap
+summary: Learn to sew a straight line on a machine before you use it on your shirt.
+skippable: true
+suggested_for_beginners: true
+used_by_recipes: [woven_shirt_crop_v1]
+tools: [sewing_machine, pins]
+steps:
+  - id: s1
+    text: Thread the machine as its manual says. Choose the straight stitch.
+  - id: s2
+    text: Put two layers of spare fabric under the foot. Lower the foot.
+  - id: s3
+    text: Sew a few backstitches, then stitch forward at a slow, steady speed. Guide the fabric lightly. Do not pull it.
+  - id: s4
+    text: Keep the edge of the fabric lined up with a guide on the machine plate so your line stays straight.
+  - id: s5
+    text: Finish with a few backstitches, lift the foot and cut the threads.
+practice:
+  task: Sew five straight lines, each 30 cm long, on a folded piece of spare fabric. Then sew along a folded edge, about 2 mm from the edge.
+  materials: Spare woven fabric folded in two, matching thread, sewing machine
+  done_when: Your lines are straight and the stitches look even on both sides.
+progress_note: Ticking this off is your own record. It is not a certificate.
+reviewed_by: null
+reviewed_on: null

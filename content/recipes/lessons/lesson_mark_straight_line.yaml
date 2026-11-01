@@ -1,0 +1,26 @@
+# DRAFT micro-lesson. Not reviewed by a sewist.
+lesson_id: lesson_mark_straight_line
+version: "1.0"
+status: draft
+title: Mark a straight cut line
+summary: Learn to turn a few chalk dots into one clean, straight line.
+skippable: true
+suggested_for_beginners: true
+used_by_recipes: [woven_shirt_crop_v1]
+tools: [ruler, chalk]
+steps:
+  - id: s1
+    text: Make small dots with the chalk, not long lines. Place one near each end and a few in between.
+  - id: s2
+    text: Lay the ruler so its edge touches all the dots. If one dot is off, rub it out and re-measure that spot.
+  - id: s3
+    text: Hold the ruler still with one hand. Draw the line in one slow pass with the chalk on its side.
+  - id: s4
+    text: Step back and look along the line. If it wobbles, brush it off and draw it again.
+practice:
+  task: Draw a straight line across a piece of spare fabric, 30 cm long, using dots and a ruler. Then draw a second line parallel to it, 5 cm away.
+  materials: Spare woven fabric, chalk, ruler
+  done_when: Both lines look straight and the gap between them is the same at each end.
+progress_note: Ticking this off is your own record. It is not a certificate.
+reviewed_by: null
+reviewed_on: null
