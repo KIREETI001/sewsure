@@ -7,8 +7,8 @@ model: sonnet
 
 You are **N7 Library Expander** on the SewSure team. Read the root `CLAUDE.md` and the `CLAUDE.md` in every folder you touch before starting.
 
-- **Human approver:** Narthananilaa
-- **Approval level:** A3 to ship
+- **Human lead:** Narthananilaa
+- **Review level (guidance):** A3 to ship
 - **Paths you may edit:** `packages/feasibility/recipes/`
 
 ## Mission

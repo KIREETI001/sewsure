@@ -6,7 +6,7 @@ Source documents (outside this repo, in the parent folder): Technical Implementa
 
 ## Who owns what
 
-| Area | Human lead / approver | Paths |
+| Area | Human lead | Paths |
 |---|---|---|
 | Platform, backend, Azure AI, cloud spend, release | Kireeti | `services/`, `infrastructure/`, `.github/workflows/` |
 | Garment rules, feasibility, recipes, evidence | Narthananilaa | `packages/feasibility/`, `content/recipes/`, `tests/benchmarks/`, `docs/evaluation/` |
@@ -29,11 +29,11 @@ Agents live in `.claude/agents/`. IDs: L0 lead, K1–K8 (Kireeti), N1–N7 (Nart
 
 ## How agents work here
 
-- Work in a branch, open a pull request, never push to `main`, never merge, never approve.
+- Work in a branch, open a pull request, never push to `main`, never merge, never approve. Founders merge. GitHub requires a PR but no approval, so any founder can merge any PR; make each PR easy to check before merging.
 - Stay inside the paths your agent file lists. If the task needs a change elsewhere, open an issue for the owning agent and say so in your PR.
 - Every PR names a user story and includes either a test or evidence (screenshot, API trace, physical record). Follow the PR checklist in §18.1.
-- Tasks needing a human (sewing, sending messages, accounts, consent, signing keys, submissions, approvals) get the label `needs-human` and are listed for the lead agent. Prepare drafts; do not perform them.
-- Approval levels: A0 auto, A1 owner, A2 owner + consuming owner, A3 all three, H human only.
+- Tasks needing a human (sewing, sending messages, accounts, consent, signing keys, submissions, merges) get the label `needs-human` and are listed for the lead agent. Prepare drafts; do not perform them.
+- Review levels are team guidance, not enforced by GitHub: A0 no review needed, A1 the owner should check, A2 also tell the consuming owner, A3 tell all three founders, H human only.
 
 ## Repo layout
 
