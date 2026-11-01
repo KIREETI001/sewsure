@@ -1,0 +1,261 @@
+{
+  "mock": true,
+  "scenario": "idea_only",
+  "description": "Knit tee to boned corset top: no reviewed recipe exists, so the design is IDEA_ONLY with no recipe, geometry or cut plan, and the tailor brief is labelled inspiration_only.",
+  "project": {
+    "project_id": "prj-idea",
+    "owner_id": "usr-demo-01",
+    "garment_id": "gar-idea",
+    "title": null,
+    "measurements_id": "msr-idea",
+    "latest_job_id": "job-idea",
+    "created_at": "2026-10-28T09:00:00Z",
+    "updated_at": "2026-10-28T09:01:30Z"
+  },
+  "garment": {
+    "garment_id": "gar-idea",
+    "project_id": "prj-idea",
+    "owner_id": "usr-demo-01",
+    "category": "jersey_tee",
+    "fabric_family": "knit",
+    "attribute_origin": "ai_suggested_user_confirmed",
+    "attributes_confirmed_at": "2026-10-28T09:00:00Z",
+    "visible_features": [
+      "crew_neck",
+      "short_sleeves"
+    ],
+    "condition_notes": null,
+    "photos": [
+      {
+        "photo_id": "pho-idea-front",
+        "garment_id": "gar-idea",
+        "view": "front",
+        "storage_ref": "mock/garments/gar-idea/front.jpg",
+        "content_type": "image/jpeg",
+        "byte_size": 1843200,
+        "width_px": 3024,
+        "height_px": 4032,
+        "status": "verified",
+        "has_calibration_marker": true,
+        "image_use_consent": "app_only",
+        "created_at": "2026-10-28T09:00:00Z"
+      },
+      {
+        "photo_id": "pho-idea-back",
+        "garment_id": "gar-idea",
+        "view": "back",
+        "storage_ref": "mock/garments/gar-idea/back.jpg",
+        "content_type": "image/jpeg",
+        "byte_size": 1843200,
+        "width_px": 3024,
+        "height_px": 4032,
+        "status": "verified",
+        "has_calibration_marker": true,
+        "image_use_consent": "app_only",
+        "created_at": "2026-10-28T09:00:00Z"
+      }
+    ],
+    "created_at": "2026-10-28T09:00:00Z",
+    "updated_at": "2026-10-28T09:00:00Z"
+  },
+  "measurements": {
+    "measurements": {
+      "measurements_id": "msr-idea",
+      "project_id": "prj-idea",
+      "units": "mm",
+      "garment": {
+        "shoulder_to_hem": {
+          "value_mm": 700,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
+        },
+        "chest_flat_width": {
+          "value_mm": 520,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
+        }
+      },
+      "body": null,
+      "updated_at": "2026-10-28T09:00:00Z"
+    },
+    "issues": [],
+    "missing_dimensions": []
+  },
+  "inspiration": {
+    "inspiration_id": "ins-idea",
+    "project_id": "prj-idea",
+    "text": "Turn this into a corset top with boning.",
+    "photo_ids": [],
+    "requested_features": {
+      "transformation": "other",
+      "waist_shaping": true
+    },
+    "surprise_me": false,
+    "skill_level": "beginner",
+    "tools": [
+      "ruler",
+      "chalk",
+      "fabric_scissors",
+      "hand_needle",
+      "iron"
+    ],
+    "supplies": [],
+    "recogniser_notes": null,
+    "created_at": "2026-10-28T09:00:00Z"
+  },
+  "job": {
+    "job_id": "job-idea",
+    "kind": "generate_designs",
+    "project_id": "prj-idea",
+    "state": "complete",
+    "stage": null,
+    "result": {
+      "outcome": "unsupported",
+      "design_ids": [
+        "des-idea-a"
+      ]
+    },
+    "error": null,
+    "created_at": "2026-10-28T09:00:00Z",
+    "updated_at": "2026-10-28T09:01:30Z"
+  },
+  "designs": {
+    "project_id": "prj-idea",
+    "job_id": "job-idea",
+    "designs": [
+      {
+        "design_id": "des-idea-a",
+        "project_id": "prj-idea",
+        "rank": 1,
+        "title": "Corset-style top (idea)",
+        "current_revision_id": "rev-idea-a-1",
+        "status": "IDEA_ONLY",
+        "recipe_id": null,
+        "parameters": {},
+        "required_panels": [],
+        "explanation": "A boned corset top from a jersey tee is outside our reviewed recipes. You can keep it as an idea or ask a tailor; we cannot give a cut plan.",
+        "failure_codes": [
+          "UNSUPPORTED_RECIPE"
+        ],
+        "missing_dimensions": [],
+        "preview": {
+          "preview_id": "prv-idea-a-1",
+          "approximate": true,
+          "kind": "concept_image",
+          "photo_id": null
+        },
+        "provenance": {
+          "source": "mock",
+          "schema_version": "1.0",
+          "engine_version": "0.1.0",
+          "model_id": null,
+          "prompt_version": null
+        },
+        "created_at": "2026-10-28T09:01:30Z"
+      }
+    ],
+    "binding_constraint": null
+  },
+  "revisions": [
+    {
+      "revision_id": "rev-idea-a-1",
+      "design_id": "des-idea-a",
+      "project_id": "prj-idea",
+      "garment_id": "gar-idea",
+      "parent_revision_id": null,
+      "revision_number": 1,
+      "inputs_hash": "86bbe215d44bb0d34d8843898c0fdca37daf871b2072529fe437e0d77eaae461",
+      "inputs": {
+        "measurements_id": "msr-idea",
+        "garment_category": "jersey_tee",
+        "fabric_family": "knit",
+        "inspiration_id": "ins-idea",
+        "calibration_id": null
+      },
+      "recipe_id": null,
+      "recipe_version": null,
+      "parameters": {},
+      "units": "mm",
+      "geometry_mm": {},
+      "checks": {
+        "hard_pass": false,
+        "failure_codes": [
+          "UNSUPPORTED_RECIPE"
+        ],
+        "residuals": [],
+        "missing_dimensions": [],
+        "uncertainty_flags": [],
+        "checks": [
+          {
+            "check_id": "supported_recipe",
+            "result": "fail",
+            "failure_code": "UNSUPPORTED_RECIPE",
+            "detail": null
+          }
+        ],
+        "alternatives": [],
+        "engine_version": "0.1.0",
+        "checked_at": "2026-10-28T09:01:30Z"
+      },
+      "status": "IDEA_ONLY",
+      "diy_suitability": "TAILOR_RECOMMENDED",
+      "pending_checks": [],
+      "fit": null,
+      "cut_plan_id": null,
+      "preview": {
+        "preview_id": "prv-idea-a-1",
+        "approximate": true,
+        "kind": "concept_image",
+        "photo_id": null
+      },
+      "superseded_by_revision_id": null,
+      "provenance": {
+        "source": "mock",
+        "schema_version": "1.0",
+        "engine_version": "0.1.0",
+        "model_id": null,
+        "prompt_version": null
+      },
+      "created_at": "2026-10-28T09:01:30Z"
+    }
+  ],
+  "cut_plan": null,
+  "diy_steps": null,
+  "maker_request": {
+    "request_id": "req-idea-a-1",
+    "user_id": "usr-demo-01",
+    "tailor_id": "usr-tailor-01",
+    "revision_id": "rev-idea-a-1",
+    "brief": {
+      "verification_label": "inspiration_only",
+      "design_status": "IDEA_ONLY",
+      "garment_category": "jersey_tee",
+      "modification_request": "Turn this tee into a fitted corset-style top. Inspiration only; nothing has been checked.",
+      "shared_photo_ids": [
+        "pho-idea-front"
+      ],
+      "shared_measurements": {},
+      "unresolved_checks": [
+        "No reviewed recipe; construction and fit are unchecked."
+      ],
+      "consent": {
+        "consent_version": "2026-10-draft",
+        "shared_fields": [
+          "garment_category",
+          "photos.front"
+        ],
+        "consented_at": "2026-10-28T09:05:00Z"
+      }
+    },
+    "status": "DRAFT",
+    "price_estimate": null,
+    "created_at": "2026-10-28T09:05:00Z",
+    "updated_at": "2026-10-28T09:05:00Z"
+  },
+  "quotes": [],
+  "evidence": []
+}
