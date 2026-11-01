@@ -18,7 +18,7 @@ No guarantee language. No market size claim (none sourced).
 |---|---|---|---|---|
 | **Microsoft cloud and AI implementation** | A model on Azure (Foundry / Azure OpenAI proposed) proposes a design from an allow-list of recipes under a JSON schema; the feasibility engine validates; the trace shows what the model did and what the engine decided. Honest account of what each Microsoft service does. | Verified live Azure access; a real structured response and trace; cost per checked design; the second service, if the rules require two, justified by real need (Blueprint 11.3: do not add Speech just to inflate a count). | planned. Azure choices provisional. Live access not yet evidenced. | C-07, C-21, C-26, C-34 |
 | **Inclusive design** | Beginners with no sewing experience and low confidence are the target user; ruler checkpoints and practice steps before irreversible cuts; clear failure messages; accessible UI (labels, contrast, no colour-only status). | Accessibility checks (screen-reader labels, contrast), usability sessions including beginners, with denominators. Survey: 24/25 no or beginner sewing experience (directional). | planned. Survey only. No accessibility test yet. | C-01, C-29 |
-| **Viability** | Honest path: freemium is a hypothesis; tailor handoff is secondary; no payments in MVP; cost per design under a budget cap; named limits (one garment family verified). | Cost per successful checked design; tailor willingness evidence; any willingness-to-pay evidence (none exists: the Scope says the survey does not show it). | planned. Business model is a hypothesis. | C-24, C-26, C-30 |
+| **Viability** | Honest path: freemium is a hypothesis; tailor handoff is secondary; no payments in MVP; cost per design under a budget cap; named limits (one garment family planned; verified only after P0 passes). | Cost per successful checked design; tailor willingness evidence; any willingness-to-pay evidence (none exists: the Scope says the survey does not show it). | planned. Business model is a hypothesis. | C-24, C-26, C-30 |
 | **Founder-led validation** | Planned: the founders measure a real shirt, mark and cut it, sew it and compare predicted with measured mm; run sessions with beginners; and ask a tailor to quote from a SewSure brief. Each is a result only after it happens. | Physical make record; session notes (de-identified); tailor quote on a real brief with consent. | needs data. Survey n = 25 exists; nothing else yet. | C-15, C-19, C-31 |
 
 Rule for every scoring claim in the final deck: a number appears only if it is in the claims register as **evidenced** with a source and denominator.
@@ -34,7 +34,7 @@ Rule for every scoring claim in the final deck: a number appears only if it is i
 | 5 Stage moment 2: honest rejection | ~15% | The impossible peplum and why. | Narthananilaa |
 | 6 Stage moment 3: tailor quote | ~15% | A tailor quotes from a SewSure brief. | Delfine + Kireeti |
 | 7 How it is built | ~10% | Azure and architecture, trace, cost. | Kireeti |
-| 8 Limits and what is next | ~10% | One garment family verified; failures we have; plan. | all |
+| 8 Limits and what is next | ~10% | One garment family planned (verified only after P0 passes); failures we have; plan. | all |
 
 ## Stage moments (the three we plan to build the pitch around)
 

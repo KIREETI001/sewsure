@@ -2,7 +2,7 @@
 
 Status: all shots are **PLANNED**. Nothing has been filmed or recorded. Owner column names the founder who captures it; the agent only prepares this list.
 
-Schedule: **not agreed.** Three dates conflict and D8 has not chosen between them: L0 human-tasks H-10(a) has script approval by Tue 3 Nov and filming 4 to 7 Nov; X3's report (#8) updates on 9 Nov; D8's earlier draft proposed a 6 Nov freeze. Founders and X3 must set one evidence-freeze date for the video and report (see needs-human).
+Schedule: **not agreed.** Three dates conflict and D8 has not chosen between them: L0 human-tasks H-10(a) has script approval by Tue 3 Nov and filming 4 to 7 Nov; X3's report (#8) has no date set after its v0.2; D8's earlier draft proposed a 6 Nov freeze. Founders and X3 must set one evidence-freeze date for the video and report (see needs-human).
 
 ## A. Real-world footage (needs a human with a camera)
 
@@ -37,8 +37,8 @@ Schedule: **not agreed.** Three dates conflict and D8 has not chosen between the
 |---|---|---|---|---|
 | M1 | Entry and garment capture screens | Merged D2 code, `apps/mobile/app/(intake)/` (#14), sample data | PROTOTYPE, SAMPLE DATA | planned (record on the day) |
 | M2 | Inspiration and measurements screens | Merged D2 code (#14), sample data | PROTOTYPE, SAMPLE DATA | planned (record on the day) |
-| M3 | Result card with status badge, fewer than three options | D3 design | MOCK-UP | planned, do not use until designed |
-| M4 | Cut guide with ruler checkpoint (fallback diagram) | D4 design | MOCK-UP | planned, do not use until designed |
+| M3 | Result card with status badge, fewer than three options | D3 design | MOCK-UP | only if the PR is merged on recording day (open: #24, #25); otherwise label `OPEN PR, NOT MERGED, UNREVIEWED` |
+| M4 | Cut guide with ruler checkpoint (fallback diagram) | D4 design | MOCK-UP | only if the PR is merged on recording day (open: #24, #25); otherwise label `OPEN PR, NOT MERGED, UNREVIEWED` |
 | M5 | (Only if an installable build exists) screen recording on a real Android device | D6 | label by what is real: "prototype build" only if connected to the real engine, else MOCK-UP | planned, conditional |
 
 ## E. Graphics (can be produced without filming)
