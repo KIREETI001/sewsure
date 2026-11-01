@@ -4,7 +4,7 @@ Draft for [FOUNDER_NAME] to edit. Tailors are contacted for two things: a short 
 
 ## Visit script (in person, a short first visit of about 10 minutes)
 
-Until the research consent form is approved (open item H-05 in `docs/research/`), this visit is informal: count the visit and the questions answered, and write down nothing that identifies a person or shop. Do not record quotes.
+**Do not use this script until H-05 (supervisor ethics and consent review, open item in `docs/research/`) is closed.** Step 0 below is the consent step for that point.
 
 Before you go:
 - Introduce yourself and say you are a student. Bring a business card only if the founder has one, with the founder's own name.
@@ -24,7 +24,7 @@ At the shop:
 9. Thank them. Do not leave any contact form for customers.
 
 After the visit:
-- Log a row in the tracker with code `T`, the visit date, and the number of questions answered. Do not write down what they said or who said it until the consent form is approved.
+- Once H-05 is closed, log a row in the tracker with code `T` and the visit date. Write notes only as the approved consent wording allows.
 
 ## Message to a shop or independent tailor (email, call or DM)
 
@@ -34,7 +34,7 @@ Hello [SHOP_NAME],
 
 I'm [FOUNDER_NAME], a final-year student at NTU. My team is researching how tailors and alteration shops handle redesign requests, which are bigger changes than a normal alteration.
 
-We're building a tool called SewSure. It is in development and not available to the public. Before we build anything else, we'd like to learn from people who do this work every day.
+We're building a tool called SewSure. It is in development and not available to the public. While we build it, we'd like to learn from people who do this work every day.
 
 Would you be willing to talk for a short first chat of about 10 minutes, in person or by phone, at a time that suits you? I'd like to ask how you quote, what you need from a customer, and what would make a request brief clear to you. I'm not selling anything, and I won't add you to any list.
 

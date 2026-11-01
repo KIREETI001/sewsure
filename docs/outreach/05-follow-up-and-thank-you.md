@@ -2,6 +2,10 @@
 
 Drafts for [FOUNDER_NAME] to edit and send from their own account. Send at most one follow-up if there is no reply. Do not follow up after someone has said no.
 
+Nothing here goes out until H-05 is closed (see `README.md`). Use the specific thank-you versions, which quote a topic or point, only after H-05 is closed. Until then, send this general version:
+
+> Thank you for your time today. Nothing you said commits you to anything, and you can say no to any further contact.
+
 ## Follow-up (one reminder, 5 to 7 days after the first message)
 
 Hi [NAME_OR_HANDLE], I wanted to follow up on my earlier message about a short chat on how people decide to alter clothes. No problem if the timing isn't right. Just reply "no" and I won't contact you again.
@@ -20,7 +24,7 @@ Notes: send the waitlist link only if the person asked to hear more, and only af
 
 ## Thank-you after a tailor visit or call
 
-Hello [SHOP_NAME], thank you for talking with me. Your point about [SPECIFIC_POINT] will shape how we think about the brief. We're still in development and nothing is booked. If you're open to it, I may write again when we have something to test. You can say no at any time.
+Hello [SHOP_NAME], thank you for talking with me. Your point about [SPECIFIC_POINT] is helpful to hear. We're still in development and nothing is booked. If you're open to it, I may write again when we have something to test. You can say no at any time.
 
 Thank you,
 [FOUNDER_NAME]

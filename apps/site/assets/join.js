@@ -3,7 +3,7 @@
 // When a backend is connected (needs-human: see apps/site/README.md), replace the
 // message branch below with a request to the API. Never send to a public sheet.
 (function () {
-  var MESSAGE = "Sign-ups open soon. Nothing you typed has been sent or saved.";
+  var MESSAGE = "Sign-ups are not open yet. Nothing you typed has been sent or saved.";
 
   var forms = document.querySelectorAll("form[data-form]");
 
