@@ -1,5 +1,6 @@
 """Domain operations. Every lookup is scoped to the owner; a miss and a wrong-user hit are
-indistinguishable (NotFound)."""
+indistinguishable (NotFound). Design state is copied from the feasibility engine, never set here.
+"""
 
 import hashlib
 import json
@@ -7,23 +8,34 @@ import re
 from collections.abc import Callable
 from typing import Any, cast
 
+from sewsure_contracts.design_revision_schema import RevisionCreate
+from sewsure_contracts.measurements_schema import MeasurementsInput
+from sewsure_contracts.project_schema import ProjectCreate
+from sewsure_feasibility import DesignState
+from shapely.geometry import Polygon
 from sqlalchemy import CursorResult, func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from sewsure_api import feasibility as engine
+from sewsure_api.cutplan import build_cut_plan
 from sewsure_api.db import utcnow
-from sewsure_api.errors import Conflict, NotFound, Unprocessable
-from sewsure_api.feasibility import ConstraintResult, FeasibilityChecker, checks_json
+from sewsure_api.errors import ApiProblem, Conflict, NotFound, Unprocessable
 from sewsure_api.models import (
+    JOB_COMPLETE,
+    JOB_FAILED,
+    JOB_QUEUED,
+    JOB_RUNNING,
+    CutPlan,
+    Design,
     DesignRevision,
-    DesignState,
+    Garment,
     IdempotencyRecord,
     Job,
-    JobStatus,
+    MeasurementSet,
     Project,
     new_id,
 )
-from sewsure_api.schemas import DesignCreate, ProjectCreate, RevisionCreate
 
 # ---- idempotency ----------------------------------------------------------------------
 
@@ -54,7 +66,10 @@ def idempotent_create(
 
     def replay(record: IdempotencyRecord) -> tuple[str, bool]:
         if record.request_hash != request_hash:
-            raise Conflict("Idempotency-Key was already used with a different request")
+            raise Conflict(
+                "Idempotency-Key was already used with a different request",
+                "IDEMPOTENCY_KEY_REUSED",
+            )
         return record.resource_id, False
 
     existing = lookup()
@@ -65,6 +80,7 @@ def idempotent_create(
             resource_id = create()
             db.add(
                 IdempotencyRecord(
+                    id=new_id("idem"),
                     owner_id=owner_id,
                     scope=scope,
                     key=key,
@@ -73,15 +89,14 @@ def idempotent_create(
                 )
             )
     except IntegrityError:
-        # A concurrent request with the same key won the race.
-        raced = lookup()
+        raced = lookup()  # a concurrent request with the same key won the race
         if raced is None:
             raise
         return replay(raced)
     return resource_id, True
 
 
-# ---- projects -------------------------------------------------------------------------
+# ---- projects, garments, measurements -------------------------------------------------
 
 
 def get_project(db: Session, owner_id: str, project_id: str) -> Project:
@@ -93,23 +108,126 @@ def get_project(db: Session, owner_id: str, project_id: str) -> Project:
     return project
 
 
+def get_garment(db: Session, owner_id: str, garment_id: str) -> Garment:
+    garment = db.scalar(
+        select(Garment).where(Garment.id == garment_id, Garment.owner_id == owner_id)
+    )
+    if garment is None:
+        raise NotFound("garment")
+    return garment
+
+
+def project_garment(db: Session, project: Project) -> Garment:
+    return get_garment(db, project.owner_id, project.garment_id)
+
+
 def create_project_idempotent(
     db: Session, owner_id: str, key: str, body: ProjectCreate
 ) -> tuple[Project, bool]:
     def create() -> str:
-        project = Project(owner_id=owner_id, name=body.name, intention=body.intention)
-        project.id = new_id()
-        db.add(project)
-        return project.id
+        now = utcnow()
+        project_id, garment_id = new_id("prj"), new_id("gar")
+        given = body.garment
+        category = given.category.value if given and given.category else "unknown"
+        fabric = given.fabric_family.value if given and given.fabric_family else "unknown"
+        has_attrs = category != "unknown" or fabric != "unknown"
+        db.add(
+            Project(
+                id=project_id,
+                owner_id=owner_id,
+                garment_id=garment_id,
+                title=body.title,
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        db.flush()
+        db.add(
+            Garment(
+                id=garment_id,
+                project_id=project_id,
+                owner_id=owner_id,
+                category=category,
+                fabric_family=fabric,
+                attribute_origin="user_entered",
+                attributes_confirmed_at=now if has_attrs else None,
+                visible_features=[],
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        return project_id
 
     project_id, created = idempotent_create(
-        db, owner_id, "POST /v1/projects", key, hash_body(body.model_dump()), create
+        db,
+        owner_id,
+        "POST /v1/projects",
+        key,
+        hash_body(body.model_dump(mode="json")),
+        create,
     )
     db.flush()
     return get_project(db, owner_id, project_id), created
 
 
-# ---- revisions ------------------------------------------------------------------------
+def current_measurements(db: Session, project: Project) -> MeasurementSet | None:
+    if project.measurements_id is None:
+        return None
+    return db.get(MeasurementSet, project.measurements_id)
+
+
+def put_measurements(
+    db: Session, owner_id: str, project_id: str, body: MeasurementsInput
+) -> tuple[MeasurementSet, list[dict[str, str]], list[str]]:
+    """Store a new measurements record and report what blocks a check. Plausibility and unit
+    problems are the engine's call at evaluation time; only missing and unconfirmed values are
+    flagged here."""
+    project = get_project(db, owner_id, project_id)
+    dims = {
+        k.value: v.model_dump(mode="json", exclude_none=True) for k, v in body.garment.items()
+    }
+    record = MeasurementSet(
+        id=new_id("msr"),
+        project_id=project.id,
+        owner_id=owner_id,
+        garment=dims,
+        body=body.body.model_dump(mode="json") if body.body else None,
+        updated_at=utcnow(),
+    )
+    db.add(record)
+    project.measurements_id = record.id
+    db.flush()
+
+    issues: list[dict[str, str]] = []
+    missing: list[str] = []
+    for name in engine.required_dimensions("woven_shirt_crop_v1"):
+        if name not in dims:
+            missing.append(name)
+            issues.append(
+                {
+                    "dimension": name,
+                    "code": "MISSING_DIMENSION",
+                    "message": f"Measure {name.replace('_', ' ')} with a tape and enter it.",
+                }
+            )
+    for name, value in dims.items():
+        if value.get("confirmed_at") is None:
+            if name not in missing and name in engine.required_dimensions("woven_shirt_crop_v1"):
+                missing.append(name)
+            issues.append(
+                {
+                    "dimension": name,
+                    "code": "UNCONFIRMED_DIMENSION",
+                    "message": f"Measure {name.replace('_', ' ')} with a tape and confirm the value.",
+                }
+            )
+    return record, issues, missing
+
+
+# ---- designs and revisions ------------------------------------------------------------
+
+NO_RECIPE = "no_reviewed_recipe_v0"  # sentinel sent to the engine for an idea with no recipe
+_PROVENANCE = {"source": "live", "schema_version": "1.0"}
 
 
 def get_revision(db: Session, owner_id: str, revision_id: str) -> DesignRevision:
@@ -123,146 +241,275 @@ def get_revision(db: Session, owner_id: str, revision_id: str) -> DesignRevision
     return revision
 
 
-def list_designs(db: Session, owner_id: str, project_id: str) -> list[DesignRevision]:
-    """Current (latest) revision of each design. Zero is a valid answer; callers must not
-    assume any particular count."""
-    get_project(db, owner_id, project_id)
-    latest = (
-        select(DesignRevision.design_id, func.max(DesignRevision.revision_number).label("n"))
-        .where(DesignRevision.project_id == project_id)
-        .group_by(DesignRevision.design_id)
-        .subquery()
+def _panel_widths(garment: Any) -> dict[str, float]:
+    widths: dict[str, float] = {}
+    for panel in garment.panels:
+        slug = engine.PANEL_SLUGS.get(panel.side)
+        if slug:
+            minx, _, maxx, _ = Polygon(panel.polygon_mm).bounds
+            widths[slug] = maxx - minx
+    return widths
+
+
+def evaluate_and_store(
+    db: Session,
+    *,
+    garment_row: Garment,
+    mset: MeasurementSet | None,
+    design: Design,
+    recipe_id: str | None,
+    params: dict[str, Any],
+    revision_number: int,
+    parent: DesignRevision | None,
+    ruler_tolerance_mm: float,
+) -> DesignRevision:
+    """Run the engine, copy its verdict onto a new immutable revision, and store a cut plan
+    only when the engine says the checks passed."""
+    dims = engine.engine_measurements(mset.garment if mset else {})
+    garment = engine.build_garment(
+        garment_row.id, garment_row.category, garment_row.fabric_family, dims
     )
-    rows = db.scalars(
-        select(DesignRevision)
-        .join(
-            latest,
-            (DesignRevision.design_id == latest.c.design_id)
-            & (DesignRevision.revision_number == latest.c.n),
+    revision_id = new_id("rev")
+    known = engine.recipe_known(recipe_id)
+    result = engine.run_engine(
+        garment, dims, recipe_id if known and recipe_id else NO_RECIPE, params, revision_id
+    )
+    fields = engine.revision_fields(result, params, dims)
+    now = utcnow()
+    revision = DesignRevision(
+        id=revision_id,
+        design_id=design.id,
+        project_id=design.project_id,
+        garment_id=garment_row.id,
+        parent_revision_id=parent.id if parent else None,
+        revision_number=revision_number,
+        inputs_hash=fields.inputs_hash,
+        inputs={
+            "measurements_id": mset.id if mset else None,
+            "garment_category": garment_row.category,
+            "fabric_family": garment_row.fabric_family,
+            "inspiration_id": None,
+            "calibration_id": None,
+        },
+        recipe_id=recipe_id if known else None,
+        recipe_version=fields.recipe_version if known else None,
+        parameters=params if known else {},
+        geometry_mm=fields.geometry_mm,
+        checks=fields.checks,
+        status=fields.status,
+        required_panels=engine.required_panels(garment) if known else [],
+        pending_checks=fields.pending_checks,
+        engine_version=fields.engine_version,
+        created_at=now,
+    )
+    db.add(revision)
+    db.flush()
+    if (
+        result.status is DesignState.PASS_SUPPORTED_CHECKS
+        and fields.cut_mark_mm is not None
+        and recipe_id
+        and fields.recipe_version
+    ):
+        plan = build_cut_plan(
+            revision_id=revision.id,
+            recipe_id=recipe_id,
+            recipe_version=fields.recipe_version,
+            engine_version=fields.engine_version,
+            cut_mark_mm=fields.cut_mark_mm,
+            params=params,
+            panel_widths_mm=_panel_widths(garment),
+            ruler_tolerance_mm=ruler_tolerance_mm,
+            now=now,
         )
-        .order_by(DesignRevision.created_at, DesignRevision.id)
-    )
-    return list(rows)
-
-
-def _check_params(checker: FeasibilityChecker, recipe_id: str, parameters: dict[str, Any]) -> None:
-    """Rule 4: only a reviewed recipe and its allow-listed parameter keys are accepted."""
-    allowed = checker.allowed_parameter_keys(recipe_id)
-    if allowed is None:
-        raise Unprocessable(f"recipe {recipe_id!r} is not a reviewed recipe")
-    unknown = sorted(set(parameters) - allowed)
-    if unknown:
-        raise Unprocessable(f"parameters not allowed for {recipe_id}: {', '.join(unknown)}")
-
-
-def _revision_from(result: ConstraintResult, **fields: Any) -> DesignRevision:
-    # Only values the engine returned are stored; the API derives nothing. Garment and
-    # measurement snapshots are passed once those routes exist (empty until then).
-    return DesignRevision(
-        inputs_hash=result.input_fingerprint,
-        geometry_mm={} if result.cut_mark_mm is None else {"cut_mark_mm": result.cut_mark_mm},
-        checks=checks_json(result),
-        engine_version=result.engine_version,
-        recipe_version=result.recipe_version,
-        status=result.status.value,
-        **fields,
-    )
+        db.add(CutPlan(id=plan["cut_plan_id"], revision_id=revision.id, document=plan))
+        db.flush()
+        revision.cut_plan_id = plan["cut_plan_id"]
+    return revision
 
 
 def create_design(
     db: Session,
-    checker: FeasibilityChecker,
-    owner_id: str,
-    project_id: str,
-    body: DesignCreate,
+    *,
+    project: Project,
+    job_id: str | None,
+    rank: int,
+    title: str,
+    recipe_id: str | None,
+    params: dict[str, Any],
+    ruler_tolerance_mm: float,
 ) -> DesignRevision:
-    project = get_project(db, owner_id, project_id)
-    _check_params(checker, body.recipe_id, body.parameters)
-    revision_id = new_id()
-    result = checker.evaluate({}, {}, body.recipe_id, body.parameters, revision_ref=revision_id)
-    revision = _revision_from(
-        result,
-        id=revision_id,
+    design = Design(
+        id=new_id("des"),
         project_id=project.id,
-        design_id=new_id(),
-        revision_number=1,
-        recipe_id=body.recipe_id,
-        parameters=body.parameters,
+        owner_id=project.owner_id,
+        job_id=job_id,
+        rank=rank,
+        title=title[:80],
     )
-    db.add(revision)
+    db.add(design)
     db.flush()
-    return revision
+    return evaluate_and_store(
+        db,
+        garment_row=project_garment(db, project),
+        mset=current_measurements(db, project),
+        design=design,
+        recipe_id=recipe_id,
+        params=params,
+        revision_number=1,
+        parent=None,
+        ruler_tolerance_mm=ruler_tolerance_mm,
+    )
 
 
-def edit_revision(
+def current_revision(db: Session, design_id: str) -> DesignRevision | None:
+    return db.scalar(
+        select(DesignRevision)
+        .where(DesignRevision.design_id == design_id)
+        .order_by(DesignRevision.revision_number.desc())
+        .limit(1)
+    )
+
+
+def list_designs(db: Session, owner_id: str, project_id: str) -> list[tuple[Design, DesignRevision]]:
+    """Up to three designs with their current revision. Zero is a valid answer."""
+    get_project(db, owner_id, project_id)
+    designs = db.scalars(
+        select(Design)
+        .where(Design.project_id == project_id)
+        .order_by(Design.rank, Design.created_at)
+        .limit(3)
+    )
+    out: list[tuple[Design, DesignRevision]] = []
+    for design in designs:
+        revision = current_revision(db, design.id)
+        if revision is not None:
+            out.append((design, revision))
+    return out
+
+
+def create_revision(
     db: Session,
-    checker: FeasibilityChecker,
     owner_id: str,
     design_id: str,
     body: RevisionCreate,
+    ruler_tolerance_mm: float,
 ) -> DesignRevision:
-    """An edit never changes the parent's content or verdict. It inserts a new revision, links
-    the parent to it via `superseded_by_revision_id`, and asks the engine (`supersede`) for the
-    parent's new status, which applies only to a revision that had passed: a FAILED_CHECKS,
-    NEEDS_INPUT or IDEA_ONLY parent keeps its own status and `checks`."""
-    parent = get_revision(db, owner_id, body.parent_revision_id)
+    """Edit = new immutable revision from `parent_revision_id`. The parent's content and
+    verdict are untouched; the link to the newer revision is recorded, and the engine's
+    `supersede` is asked for the parent's new status (it only applies to a revision that
+    passed)."""
+    parent = get_revision(db, owner_id, body.parent_revision_id.root)
     if parent.design_id != design_id:
         raise NotFound("revision")
     if parent.superseded_by_revision_id is not None:
-        raise Conflict("parent revision is not the current revision of this design")
+        raise Conflict(
+            "parent revision is not the current revision of this design", recoverable=True
+        )
+    if parent.recipe_id is None:
+        raise Unprocessable("this design has no reviewed recipe to customise")
+    allowed = engine.allowed_parameter_keys(parent.recipe_id)
+    changes = body.parameters.model_dump(mode="json", exclude_none=True)
+    if allowed is None or set(changes) - allowed:
+        names = ", ".join(sorted(set(changes) - (allowed or set())))
+        raise Unprocessable(f"parameters not allowed for {parent.recipe_id}: {names}")
+    merged = {**parent.parameters, **changes}
 
-    merged = {**parent.parameters, **body.parameters}
-    _check_params(checker, parent.recipe_id, merged)
-    new_revision_id = new_id()
-    result = checker.evaluate({}, {}, parent.recipe_id, merged, revision_ref=new_revision_id)
+    design = db.get(Design, design_id)
+    if design is None:
+        raise NotFound("design")
     latest = db.scalar(
         select(func.max(DesignRevision.revision_number)).where(
-            DesignRevision.design_id == parent.design_id
+            DesignRevision.design_id == design_id
         )
     )
-    new = _revision_from(
-        result,
-        id=new_revision_id,
-        project_id=parent.project_id,
-        design_id=parent.design_id,
-        revision_number=(latest or 0) + 1,
-        parent_revision_id=parent.id,
-        recipe_id=parent.recipe_id,
-        parameters=merged,
-    )
-
-    # Compare-and-set on the parent so two concurrent edits cannot both succeed.
-    # The new row goes in first because the link is a plain column, not an enforced FK.
+    mset_id = parent.inputs.get("measurements_id")
     try:
-        with db.begin_nested():
-            db.add(new)
-            db.flush()
-            claimed = db.execute(
-                update(DesignRevision)
-                .where(
-                    DesignRevision.id == parent.id,
-                    DesignRevision.superseded_by_revision_id.is_(None),
-                )
-                .values(superseded_by_revision_id=new.id)
-            )
-            if cast(CursorResult[Any], claimed).rowcount != 1:
-                raise Conflict("parent revision is not the current revision of this design")
-    except IntegrityError:
-        raise Conflict("design was edited concurrently; reload and retry") from None
+        new = evaluate_and_store(
+            db,
+            garment_row=get_garment(db, owner_id, parent.garment_id),
+            mset=db.get(MeasurementSet, mset_id) if mset_id else None,
+            design=design,
+            recipe_id=parent.recipe_id,
+            params=merged,
+            revision_number=(latest or 0) + 1,
+            parent=parent,
+            ruler_tolerance_mm=ruler_tolerance_mm,
+        )
+    except IntegrityError:  # another edit took this revision number first
+        raise Conflict(
+            "design was edited concurrently; reload and retry", recoverable=True
+        ) from None
+
+    # Compare-and-set so two concurrent edits of one parent cannot both succeed.
+    claimed = db.execute(
+        update(DesignRevision)
+        .where(
+            DesignRevision.id == parent.id,
+            DesignRevision.superseded_by_revision_id.is_(None),
+        )
+        .values(superseded_by_revision_id=new.id)
+    )
+    if cast(CursorResult[Any], claimed).rowcount != 1:
+        raise Conflict(
+            "parent revision is not the current revision of this design", recoverable=True
+        )
     db.refresh(parent)
     if parent.status == DesignState.PASS_SUPPORTED_CHECKS.value:
-        parent.status = checker.supersede_status(DesignState.PASS_SUPPORTED_CHECKS).value
+        parent.status = engine.superseded_status(parent.checks, parent.status, parent.recipe_id)
     return new
+
+
+def revision_idempotent(
+    db: Session,
+    owner_id: str,
+    design_id: str,
+    key: str,
+    body: RevisionCreate,
+    ruler_tolerance_mm: float,
+) -> tuple[DesignRevision, bool]:
+    # Authorise before touching idempotency state.
+    parent = get_revision(db, owner_id, body.parent_revision_id.root)
+    if parent.design_id != design_id:
+        raise NotFound("revision")
+
+    def create() -> str:
+        return create_revision(db, owner_id, design_id, body, ruler_tolerance_mm).id
+
+    revision_id, created = idempotent_create(
+        db,
+        owner_id,
+        f"POST /v1/designs/{design_id}/revisions",
+        key,
+        hash_body(body.model_dump(mode="json")),
+        create,
+    )
+    return get_revision(db, owner_id, revision_id), created
+
+
+def get_cut_plan(db: Session, owner_id: str, revision_id: str) -> dict[str, Any]:
+    revision = get_revision(db, owner_id, revision_id)
+    plan = db.scalar(select(CutPlan).where(CutPlan.revision_id == revision.id))
+    if plan is None:
+        raise ApiProblem(
+            409,
+            "REVISION_NOT_PASSING",
+            "This revision did not pass the implemented checks, so it has no cut plan.",
+        )
+    return plan.document
 
 
 # ---- jobs -----------------------------------------------------------------------------
 
-_TRANSITIONS: dict[JobStatus, set[JobStatus]] = {
-    JobStatus.QUEUED: {JobStatus.RUNNING},
-    JobStatus.RUNNING: {JobStatus.COMPLETE, JobStatus.FAILED},
-    JobStatus.FAILED: {JobStatus.QUEUED},  # retry, only when recoverable
-    JobStatus.COMPLETE: set(),
+_TRANSITIONS: dict[str, set[str]] = {
+    JOB_QUEUED: {JOB_RUNNING},
+    JOB_RUNNING: {JOB_COMPLETE, JOB_FAILED},
+    JOB_FAILED: {JOB_QUEUED},  # retry, only when recoverable
+    JOB_COMPLETE: set(),
 }
+
+JOB_OUTCOMES = frozenset(
+    {"designs", "needs_input", "no_feasible_design", "unsupported", "blocked", "needs_confirmation"}
+)
 
 
 class InvalidTransition(Exception):
@@ -277,16 +524,29 @@ def get_job(db: Session, owner_id: str, job_id: str) -> Job:
 
 
 def enqueue_job(
-    db: Session, owner_id: str, project_id: str, kind: str, max_attempts: int = 3
+    db: Session,
+    owner_id: str,
+    project_id: str,
+    kind: str,
+    request: dict[str, Any] | None = None,
+    max_attempts: int = 3,
 ) -> Job:
     project = get_project(db, owner_id, project_id)
-    job = Job(project_id=project.id, owner_id=owner_id, kind=kind, max_attempts=max_attempts)
+    job = Job(
+        id=new_id("job"),
+        project_id=project.id,
+        owner_id=owner_id,
+        kind=kind,
+        request=request or {},
+        max_attempts=max_attempts,
+    )
     db.add(job)
     db.flush()
+    project.latest_job_id = job.id
     return job
 
 
-def enqueue_job_idempotent(
+def enqueue_generate_idempotent(
     db: Session,
     owner_id: str,
     project_id: str,
@@ -294,36 +554,42 @@ def enqueue_job_idempotent(
     request: dict[str, Any],
     max_attempts: int,
 ) -> tuple[Job, bool]:
-    kind = "generate_designs"
-    get_project(db, owner_id, project_id)  # authorise before touching idempotency state
+    project = get_project(db, owner_id, project_id)  # authorise first
+    if current_measurements(db, project) is None:
+        raise Conflict(
+            "The project has no measurements yet; add measurements before generating.",
+            "MEASUREMENTS_REQUIRED",
+            recoverable=True,
+        )
 
     def create() -> str:
-        return enqueue_job(db, owner_id, project_id, kind, max_attempts).id
+        return enqueue_job(
+            db, owner_id, project_id, "generate_designs", request, max_attempts
+        ).id
 
     job_id, created = idempotent_create(
-        db, owner_id, f"POST /v1/projects/{project_id}/generate", key, hash_body(request), create
+        db,
+        owner_id,
+        f"POST /v1/projects/{project_id}/generate",
+        key,
+        hash_body(request),
+        create,
     )
     return get_job(db, owner_id, job_id), created
 
 
-def _move(job: Job, target: JobStatus) -> None:
-    current = JobStatus(job.status)
-    if target not in _TRANSITIONS[current]:
-        raise InvalidTransition(f"{current.value} -> {target.value}")
-    job.status = target.value
+def _move(job: Job, target: str) -> None:
+    if target not in _TRANSITIONS[job.status]:
+        raise InvalidTransition(f"{job.status} -> {target}")
+    job.status = target
     job.updated_at = utcnow()
 
 
 def start_job(job: Job) -> None:
-    _move(job, JobStatus.RUNNING)
+    _move(job, JOB_RUNNING)
     job.attempts += 1
     job.error_code = job.error_message = None
     job.recoverable = None
-
-
-JOB_OUTCOMES = frozenset(
-    {"designs", "needs_input", "no_feasible_design", "unsupported", "blocked", "needs_confirmation"}
-)
 
 
 def complete_job(job: Job, outcome: str, design_ids: list[str] | None = None) -> None:
@@ -337,7 +603,7 @@ def complete_job(job: Job, outcome: str, design_ids: list[str] | None = None) ->
         raise ValueError(f"outcome {outcome!r} carries no designs")
     if len(ids) > 3:
         raise ValueError("a job reports at most three designs")
-    _move(job, JobStatus.COMPLETE)
+    _move(job, JOB_COMPLETE)
     job.result_outcome = outcome
     job.result_design_ids = ids
 
@@ -345,7 +611,7 @@ def complete_job(job: Job, outcome: str, design_ids: list[str] | None = None) ->
 def fail_job(job: Job, code: str, message: str, recoverable: bool) -> None:
     if not re.fullmatch(r"[A-Z][A-Z0-9_]*", code):
         raise ValueError("error code must be UPPER_SNAKE (contract ApiError)")
-    _move(job, JobStatus.FAILED)
+    _move(job, JOB_FAILED)
     job.error_code = code
     job.error_message = message
     job.recoverable = recoverable
@@ -357,4 +623,4 @@ def requeue_job(job: Job) -> None:
         raise InvalidTransition("failure is not recoverable")
     if job.attempts >= job.max_attempts:
         raise InvalidTransition("attempts exhausted")
-    _move(job, JobStatus.QUEUED)
+    _move(job, JOB_QUEUED)

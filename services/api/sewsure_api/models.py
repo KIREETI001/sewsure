@@ -1,7 +1,9 @@
-"""Persistence models. Lengths are never stored here; geometry lives in packages/feasibility."""
+"""Persistence models. Shapes follow packages/contracts; lengths are millimetres.
 
-import enum
-import uuid
+Design state (`DesignRevision.status`) is only ever copied from the feasibility engine's result.
+"""
+
+import secrets
 from datetime import datetime
 from typing import Any
 
@@ -10,77 +12,118 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from sewsure_api.db import Base, UTCDateTime, utcnow
 
-
-def new_id() -> str:
-    return str(uuid.uuid4())
-
-
-class DesignState(enum.StrEnum):
-    """Names per contract v1. Values come from packages/feasibility only; the API stores them.
-    SUPERSEDED is applied through the engine's supersede rule, and only to a revision that
-    had passed."""
-
-    IDEA_ONLY = "IDEA_ONLY"
-    NEEDS_INPUT = "NEEDS_INPUT"
-    FAILED_CHECKS = "FAILED_CHECKS"
-    PASS_SUPPORTED_CHECKS = "PASS_SUPPORTED_CHECKS"
-    SUPERSEDED = "SUPERSEDED"
+# Contract Id pattern: ^[a-z][a-z0-9]*-[A-Za-z0-9_-]{1,64}$ ("prj-...", "rev-...").
+JOB_QUEUED, JOB_RUNNING, JOB_COMPLETE, JOB_FAILED = "queued", "running", "complete", "failed"
 
 
-class JobStatus(enum.StrEnum):
-    QUEUED = "queued"
-    RUNNING = "running"
-    COMPLETE = "complete"
-    FAILED = "failed"
+def new_id(prefix: str) -> str:
+    return f"{prefix}-{secrets.token_urlsafe(12)}"
 
 
 class Project(Base):
     __tablename__ = "projects"
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
-    owner_id: Mapped[str] = mapped_column(String(64), index=True)
-    name: Mapped[str] = mapped_column(String(200))
-    intention: Mapped[str | None] = mapped_column(Text, default=None)
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    owner_id: Mapped[str] = mapped_column(String(80), index=True)
+    garment_id: Mapped[str] = mapped_column(String(80))
+    title: Mapped[str | None] = mapped_column(String(120), default=None)
+    measurements_id: Mapped[str | None] = mapped_column(String(80), default=None)
+    latest_job_id: Mapped[str | None] = mapped_column(String(80), default=None)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow, onupdate=utcnow)
+
+
+class Garment(Base):
+    __tablename__ = "garments"
+
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), index=True)
+    owner_id: Mapped[str] = mapped_column(String(80), index=True)
+    category: Mapped[str] = mapped_column(String(32))
+    fabric_family: Mapped[str] = mapped_column(String(32))
+    attribute_origin: Mapped[str] = mapped_column(String(32))
+    attributes_confirmed_at: Mapped[datetime | None] = mapped_column(UTCDateTime, default=None)
+    visible_features: Mapped[list[str]] = mapped_column(JSON, default=list)
+    condition_notes: Mapped[str | None] = mapped_column(String(500), default=None)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow, onupdate=utcnow)
+
+
+class MeasurementSet(Base):
+    """One immutable measurements record. A new PUT inserts a new row and repoints the project."""
+
+    __tablename__ = "measurement_sets"
+
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), index=True)
+    owner_id: Mapped[str] = mapped_column(String(80), index=True)
+    garment: Mapped[dict[str, Any]] = mapped_column(JSON)  # dimension -> MeasurementValue
+    body: Mapped[dict[str, Any] | None] = mapped_column(JSON, default=None)
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
+
+
+class Design(Base):
+    """A design lineage: its revisions share `design_id`. Display fields only; the engine's
+    verdict lives on the revision."""
+
+    __tablename__ = "designs"
+
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), index=True)
+    owner_id: Mapped[str] = mapped_column(String(80), index=True)
+    job_id: Mapped[str | None] = mapped_column(String(80), default=None)
+    rank: Mapped[int] = mapped_column(Integer)
+    title: Mapped[str] = mapped_column(String(80))
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
 
 
 class DesignRevision(Base):
-    """Immutable once written, except for the supersession link (and the engine's own
-    SUPERSEDED transition for a revision that had passed). An edit inserts a new row.
-
-    `status` and `checks` are the engine's verdict and are never overwritten by an edit;
-    `superseded_by_revision_id` records that a newer revision exists, for any status."""
+    """Immutable once written, except for `superseded_by_revision_id` and the engine's own
+    SUPERSEDED transition for a revision that had passed. An edit inserts a new row."""
 
     __tablename__ = "design_revisions"
     __table_args__ = (UniqueConstraint("design_id", "revision_number"),)
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    design_id: Mapped[str] = mapped_column(ForeignKey("designs.id"), index=True)
     project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), index=True)
-    design_id: Mapped[str] = mapped_column(String(36), index=True)
+    garment_id: Mapped[str] = mapped_column(String(80))
+    parent_revision_id: Mapped[str | None] = mapped_column(String(80), default=None)
+    superseded_by_revision_id: Mapped[str | None] = mapped_column(String(80), default=None)
     revision_number: Mapped[int] = mapped_column(Integer)
-    parent_revision_id: Mapped[str | None] = mapped_column(
-        ForeignKey("design_revisions.id"), default=None
-    )
-    superseded_by_revision_id: Mapped[str | None] = mapped_column(String(36), default=None)
-    recipe_id: Mapped[str] = mapped_column(String(100))
+    inputs_hash: Mapped[str] = mapped_column(String(64))
+    inputs: Mapped[dict[str, Any]] = mapped_column(JSON)  # InputsSnapshot
+    recipe_id: Mapped[str | None] = mapped_column(String(100), default=None)
     recipe_version: Mapped[str | None] = mapped_column(String(32), default=None)
     parameters: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
-    inputs_hash: Mapped[str] = mapped_column(String(64))
     geometry_mm: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
-    checks: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    checks: Mapped[dict[str, Any]] = mapped_column(JSON)  # contract ConstraintResult, whole
+    status: Mapped[str] = mapped_column(String(32))  # copied from the engine result
+    required_panels: Mapped[list[str]] = mapped_column(JSON, default=list)
+    pending_checks: Mapped[list[str]] = mapped_column(JSON, default=list)
+    cut_plan_id: Mapped[str | None] = mapped_column(String(80), default=None)
     engine_version: Mapped[str] = mapped_column(String(32))
-    status: Mapped[str] = mapped_column(String(32))
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
+
+
+class CutPlan(Base):
+    __tablename__ = "cut_plans"
+
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    revision_id: Mapped[str] = mapped_column(ForeignKey("design_revisions.id"), unique=True)
+    document: Mapped[dict[str, Any]] = mapped_column(JSON)  # contract CutPlan
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
 
 
 class Job(Base):
     __tablename__ = "jobs"
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
     project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), index=True)
-    owner_id: Mapped[str] = mapped_column(String(64), index=True)
+    owner_id: Mapped[str] = mapped_column(String(80), index=True)
     kind: Mapped[str] = mapped_column(String(64))
-    status: Mapped[str] = mapped_column(String(16), default=JobStatus.QUEUED.value)
+    request: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)  # GenerateRequest
+    status: Mapped[str] = mapped_column(String(16), default=JOB_QUEUED)
     attempts: Mapped[int] = mapped_column(Integer, default=0)
     max_attempts: Mapped[int] = mapped_column(Integer, default=3)
     error_code: Mapped[str | None] = mapped_column(String(64), default=None)
@@ -100,10 +143,10 @@ class IdempotencyRecord(Base):
         Index("ix_idempotency_owner_scope", "owner_id", "scope"),
     )
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
-    owner_id: Mapped[str] = mapped_column(String(64))
-    scope: Mapped[str] = mapped_column(String(64))
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    owner_id: Mapped[str] = mapped_column(String(80))
+    scope: Mapped[str] = mapped_column(String(160))
     key: Mapped[str] = mapped_column(String(255))
     request_hash: Mapped[str] = mapped_column(String(64))
-    resource_id: Mapped[str] = mapped_column(String(36))
+    resource_id: Mapped[str] = mapped_column(String(80))
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
