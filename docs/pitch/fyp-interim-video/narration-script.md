@@ -34,7 +34,7 @@ Format follows the NTU suggested interim report: 1 Introduction, 2 Work done so 
 
 ### S1a Problem and evidence (0:25 to 1:10) | Delfine
 
-> "We ran a small exploratory survey of 25 people. It is a small, non-representative sample, so we treat it as a direction, not a result. Twenty-four of the 25 had no sewing experience or were beginners [C-01]. Seventeen had rejected second-hand clothing because of fit [C-02]. Twenty-one rated our proposed tool four or five for usefulness [C-03], and that was a description of a tool, not a working product. Twelve would consider finding a tailor through the app [C-04].
+> "We ran a small exploratory survey of 25 people. It is a small, non-representative sample, so we treat it as a direction, not a result. Twenty-four of the 25 had no sewing experience or were beginners [C-01]. Seventeen had rejected second-hand clothing because of fit [C-02]. Twenty-one rated our proposed tool four or five for usefulness [C-03], and that was a description of a tool, not a working product. Twelve would consider finding a tailor through the app, in the scenario we described [C-04].
 > The concerns people raised included sewing time, missing equipment, inaccurate AI patterns and fear of damaging a garment [C-35]. Our own reading is that an image alone does not show whether a design can be cut from the fabric you have."
 
 (~115 words)
@@ -42,14 +42,14 @@ Format follows the NTU suggested interim report: 1 Introduction, 2 Work done so 
 ### S1b What SewSure is and the objectives (1:10 to 2:10) | Kireeti
 
 > "SewSure is a mobile app we are designing. The user photographs a garment they own, says what they want, and confirms measurements. The app then aims to offer up to three redesigns that pass the feasibility checks the engine is designed to apply, and then a cut guide with DIY steps, or a brief a tailor can quote from [C-05].
-> The key idea is a split of roles. A generative model may propose a design from an approved list of recipes. It never invents pattern geometry. A deterministic feasibility engine checks the numbers, in millimetres, and only that engine can set a design's status [C-07].
-> Our four objectives match the interim report. One: one real, user-measured woven shirt yields a reviewed, dimensioned cut plan that we physically trial. Two: a connected mobile prototype carries a photo through to checked options and a DIY sequence. Three: design states are set only by the engine, revisions are immutable, and an unverified image never reaches a safe-to-cut screen. Four: we evaluate with evidence that keeps failures, using proposed targets for tests, makes and participants [C-06]."
+> The key idea is a split of roles, and it is a design rule we are still building into the code. A generative model may propose a design from an approved list of recipes, but must not invent pattern geometry. A deterministic feasibility engine checks the numbers, in millimetres, and is meant to be the only thing that can set a design's status [C-07].
+> Our four objectives match the interim report. One: one real, user-measured woven shirt yields a reviewed, dimensioned cut plan that we physically trial. Two: a connected mobile prototype carries a photo through to checked options and a DIY sequence. Three: design states are set only by the engine, revisions are immutable, and an unverified image never reaches a safe-to-cut screen. These are targets, not yet shown to hold in the code. Four: we evaluate with evidence that keeps failures, using proposed targets for tests, makes and participants [C-06]."
 
 (~140 words)
 
 ### S1c Scope, plan and purpose of this video (2:10 to 2:40) | Kireeti
 
-> "Scope is deliberately narrow. Level one is oversized woven button-up shirts. Jersey tees are limited and conditional. Everything else is inspiration only, with no cut plan [C-12]. There are no payments in the first version.
+> "Scope is deliberately narrow. The planned flagship is oversized woven button-up shirts. Jersey tees are limited and conditional. Everything else is inspiration only, with no cut plan [C-12]. There are no payments in the first version.
 > Our plan runs in phases, from proving one transformation, to a connected alpha, to integration, testing, and submission preparation. The dates are internal and provisional [C-23]. This video reports honestly where we are against that plan."
 
 (~85 words)
@@ -61,34 +61,34 @@ Format follows the NTU suggested interim report: 1 Introduction, 2 Work done so 
 ### S2a Repository, agent workflow, contract first (2:40 to 3:50) | Kireeti
 
 > "What exists today in our repository is a monorepo with a defined structure: mobile app, API service, a standalone feasibility package, a shared contracts package, recipes, and benchmarks [C-09].
-> We also use AI coding agents, supervised by us. There are 29 agent definitions, each limited to the folders it may edit, and project hooks that block edits to secrets and production infrastructure [C-09]. Agents work in branches and open pull requests. They cannot merge. Since branch protection was enabled, a human code owner approves every change to main [C-10]. We will declare this assistance on the NTU generative AI form [C-28].
-> Our rules are written down: lengths in millimetres, design status set only by the feasibility engine, revisions never edited in place, and no guarantee language anywhere [C-11].
-> [SLOT-1] Default: 'The shared API contract and the first service code are in progress and are not yet merged.' Replace only if the contract PR is merged by recording day, naming it."
+> We also use AI coding agents, supervised by us. There are 29 agent definitions, each with a written list of the folders it may edit. A hook blocks agents from the merge and approve commands, and from editing secrets and production infrastructure [C-09]. Agents work in branches and open pull requests. `main` only accepts pull requests; GitHub currently requires no approval, and a founder merges them [C-10]. We will declare this assistance on the NTU generative AI form [C-38].
+> Our rules are written down: lengths in millimetres, design status set by the feasibility engine, revisions never edited in place, and no guarantee language anywhere [C-11].
+> [SLOT-1] As of [AS-OF DATE: set at recording; draft facts checked 1 Nov 2026], fourteen pull requests were merged on 1 November, including a first feasibility engine for one shirt crop recipe, a constraint test suite, a draft API contract, an API scaffold, an AI pipeline skeleton and the first intake screens [C-39]. Default for what is not merged: 'Connecting the API and the AI pipeline to the engine is in open pull requests and is not merged.' Re-check the merged and open lists on the day you record."
 
-(~150 words)
+(~165 words)
 
 ### S2b Feasibility engine and the honest rejection (3:50 to 5:20) | Narthananilaa
 
 > "My part is the rules: what can physically be cut from a shirt, and when the answer is no.
-> The design, from our blueprint, is that for a shirt crop the engine takes the original length, the finished length wanted, and a hem allowance, and works out where to mark the cut. The numbers on screen are the illustrative ones from our advisor deck, not measurements: an original length of 76 centimetres, a target of 52, and a 2 centimetre hem [C-13].
+> The design, from our blueprint, is that for a shirt crop the engine takes the original length, the finished length wanted, and a hem allowance, and works out where to mark the cut. The numbers on screen are the illustrative ones from our advisor deck, not measurements: an original length of 76 centimetres, a finished length of 52, a 2 centimetre hem, and a cut mark at 54 [C-13].
 > Next is the part we care about most. When a request is impossible, the engine must say so and say why. In our plan's example, a peplum needs a strip about 140 centimetres by 18, but the leftover fabric yields about 112, so it is rejected and a shorter, less full option is suggested [C-14]. That is an illustrative example. A peplum is a later transformation that still needs proof.
-> [SLOT-2] Default: 'The engine and its first tests are being written now. We do not yet have a passing test suite to show.' Evidenced version, only if the N1 and N2 PRs are merged: show the real test run, name the number of cases and the number passing out of the total [C-17]."
+> [SLOT-2] Default: 'A first engine for one shirt crop recipe and a constraint test suite are merged. They run on synthetic cases, not on a measured shirt.' Evidenced version: run the suite on recording day and read out the real passed and total counts [C-08, C-17]."
 
-(~165 words)
+(~170 words)
 
 ### S2c App screens and research (5:20 to 6:20) | Delfine
 
-> "On the app side, we have started with the design system and the first intake screens. [SLOT-6] Default: 'Two screens, garment capture and the measurement guide, are drafted. The result card and the cut guide are still to be designed. Anything you see of them is a sketch of our plan, labelled mock-up, and it is not connected to the engine.' Evidenced version: add a screen only when its PR is merged or its design is signed off.
+> "On the app side, four intake screens are merged: entry, garment capture, inspiration and measurements. They run only on sample data and are not connected to the engine [C-20]. The result card and the cut guide are in open pull requests and have not been merged. [SLOT-6] Show a screen only if its pull request is merged on recording day; otherwise show a card saying 'in an open pull request'.
 > One rule shapes the design: an unverified design must never reach a 'safe to cut' screen. Previews will be labelled approximate [C-25], and the result list will not assume there are three options.
 > For research, we have the survey I described. [SLOT-3] Default: 'Interviews and usability sessions with real users and tailors are planned, with consent forms, and have not started.'"
 
-(~110 words)
+(~125 words)
 
 ### S2d Problems encountered (6:20 to 6:40) | Narthananilaa
 
-> "Our honest problem: our first phase, proving one measured transformation, is rated red. [SLOT-4] Default: 'We have not yet completed the physical trial of a measured shirt, so we have no predicted-versus-measured numbers to show.' We also still need to confirm which competition rules apply [C-16, C-22]."
+> "Our first phase, proving one measured transformation, was rated red at our last audit on [AS-OF DATE]. None of its five evidence items was fully met, and no physical make was recorded in the repository. Its planned window ended on 1 November [C-16]. [SLOT-4] Founders only: if a physical make has happened off the repository, say so here with its date and what was measured, and give the record to X2 first. Default: 'No physical make is recorded in our repository.' We also still need to confirm which competition rules apply [C-22]."
 
-(~60 words)
+(~85 words)
 
 ---
 
@@ -96,19 +96,19 @@ Format follows the NTU suggested interim report: 1 Introduction, 2 Work done so 
 
 ### S3a Platform and AI | Kireeti (6:40 to 7:10)
 
-> "Next for me: the API and the structured model pipeline, with the model constrained to approved recipe parameters. Live access to the cloud AI service is still to be verified, and so is cost per design [C-21, C-26]. All of this is planned."
+> "Next for me: connecting the API and the structured model pipeline to the engine, which is in open pull requests, with the model constrained to approved recipe parameters. Live access to the cloud AI service is still to be verified, and cost per design is still to be measured [C-21, C-37]. All of this is planned."
 
 (~45 words)
 
 ### S3b Feasibility and evidence | Narthananilaa (7:10 to 7:40)
 
-> "Next for me: the constraint test suite, proposed at 24 cases, and four planned physical makes where we compare predicted and ruler-measured dimensions [C-17, C-18]. We will report false approvals and failures, not hide them."
+> "Next for me: extending the constraint test suite, then four planned physical makes where we compare predicted and ruler-measured dimensions [C-17, C-18]. We will report false approvals and failures, not hide them."
 
 (~40 words)
 
 ### S3c App, users and tailors | Delfine (7:40 to 8:00)
 
-> "Next for me: connecting the screens to real results, usability sessions with eight to twelve participants as a proposed target, and a small test with two or three tailors reading a brief and quoting [C-18, C-19]. These are targets, not results."
+> "Next for me: connecting the screens to real results, usability sessions with eight to twelve participants as a proposed target, and a small test with two or three tailors or makers reading a brief and quoting [C-18, C-36]. These are targets, not results."
 
 (~45 words)
 
@@ -116,7 +116,7 @@ Format follows the NTU suggested interim report: 1 Introduction, 2 Work done so 
 
 ## S4 Honest conclusion (8:00 to 9:00) | all three, one line each, then Kireeti closes
 
-> **[N]** "Progress so far is mostly foundations: scope, plan, rules and repository structure. [SLOT-5] Default: 'We do not yet have a measured, physically tested result.'"
+> **[N]** "Progress so far is mostly foundations: scope, plan, rules, a first engine and first screens, all on sample data. [SLOT-5] Default: 'No measured, physically tested result is recorded in our repository.'"
 > **[D]** "That means every claim about accuracy, and about whether people can follow our steps, is still untested."
 > **[K]** "Our first priority is to pass the first phase gate: one real shirt, a measured cut plan, and an honest comparison with what we sewed. If it fails, we stop widening scope, and we say so in the report.
 > We hope to take SewSure to the Imagine Cup 2027, if we are eligible and the rules allow it. We have not confirmed that yet [C-22]. Thank you."
