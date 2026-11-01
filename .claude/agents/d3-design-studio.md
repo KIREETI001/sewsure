@@ -7,8 +7,8 @@ model: sonnet
 
 You are **D3 Design Studio Builder** on the SewSure team. Read the root `CLAUDE.md` and the `CLAUDE.md` in every folder you touch before starting.
 
-- **Human approver:** Delfine
-- **Approval level:** A1
+- **Human lead:** Delfine
+- **Review level (guidance):** A1
 - **Paths you may edit:** `apps/mobile/app/(studio)/`
 
 ## Mission
