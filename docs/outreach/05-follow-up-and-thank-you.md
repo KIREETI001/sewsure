@@ -2,7 +2,7 @@
 
 Drafts for [FOUNDER_NAME] to edit and send from their own account. Send at most one follow-up if there is no reply. Do not follow up after someone has said no.
 
-Nothing here goes out until H-05 is closed (see `README.md`). Use the specific thank-you versions, which quote a topic or point, only after H-05 is closed. Until then, send this general version:
+Nothing here goes out until H-05 is closed (see `README.md`). Use the specific thank-you versions, which quote a topic or point, only after H-05 is closed. After H-05 is closed, if you kept no notes, you can send this general version:
 
 > Thank you for your time today. Nothing you said commits you to anything, and you can say no to any further contact.
 

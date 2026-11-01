@@ -4,7 +4,7 @@ Draft for [FOUNDER_NAME] to edit. Tailors are contacted for two things: a short 
 
 ## Visit script (in person, a short first visit of about 10 minutes)
 
-**Do not use this script until H-05 (supervisor ethics and consent review, open item in `docs/research/`) is closed.** Step 0 below is the consent step for that point.
+**Do not use this script until H-05 (supervisor ethics and consent review, open item in `docs/research/`) is closed.** Once it is closed, Step 0 uses the approved consent wording from `docs/research/`, not the informal line below.
 
 Before you go:
 - Introduce yourself and say you are a student. Bring a business card only if the founder has one, with the founder's own name.
@@ -12,7 +12,7 @@ Before you go:
 
 At the shop:
 
-0. Consent first: "Are you happy for me to ask you a few questions? I won't write down your name, and you can stop at any time." If they say no, thank them and leave.
+0. Consent first: read or give the approved consent wording, and record the answer in the tracker. If they say no, thank them and leave.
 1. "Hi, I'm [FOUNDER_NAME], a student at NTU. Do you have a few minutes? I'm researching how alteration work is requested and quoted. I'm not selling anything."
 2. Ask: "What alterations come in most often?"
 3. Ask: "When a customer wants a bigger change than a normal alteration, what happens?"
