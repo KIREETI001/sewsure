@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sewsure.invalid/schemas/rights.schema.json",
+  "title": "SewSure recipe rights.yaml",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["recipe_id", "recipe_version", "text_origin", "media", "third_party_media_used"],
+  "properties": {
+    "recipe_id": {"type": "string"},
+    "recipe_version": {"type": "string"},
+    "text_origin": {"type": "string", "minLength": 1},
+    "third_party_media_used": {"type": "boolean"},
+    "media": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["file", "owner", "licence", "permission_evidence"],
+        "properties": {
+          "file": {"type": "string"}, "owner": {"type": "string"},
+          "licence": {"type": "string"}, "permission_evidence": {"type": "string"},
+          "source_url": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "notes": {"type": "string"}
+  }
+}

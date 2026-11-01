@@ -2,42 +2,50 @@
 #   @KIREETI001  -> Kireeti        (platform, backend, AI, cloud, release)
 #   @vanilaa23   -> Narthananilaa  (rules, feasibility, recipes, evidence)
 #   @delfinee    -> Delfine        (mobile, UX, research, pitch)
+#
+# How this file works here:
+# - GitHub asks the listed people to review, but no approval is required. Any
+#   founder can merge any PR into main.
+# - Each area lists its lead first. They are the person to ask about that area.
+# - Agents open PRs but never merge them.
+# - A2 and A3 below are team habits: tell the people named before you merge.
 
-# Fallback: anything not listed below needs one of the three founders.
+# Fallback: anything not listed below goes to all three founders.
 *                                   @KIREETI001 @vanilaa23 @delfinee
 
-# Kireeti: platform, backend, AI, infrastructure, CI
-/services/                          @KIREETI001
-/infrastructure/                    @KIREETI001
-/.github/                           @KIREETI001
-/tests/smoke/                       @KIREETI001
-/docs/security/                     @KIREETI001
-/docs/cost/                         @KIREETI001
+# Kireeti: platform, backend, AI, infrastructure, CI (backups: Narthananilaa, Delfine)
+/services/                          @KIREETI001 @vanilaa23 @delfinee
+/infrastructure/                    @KIREETI001 @vanilaa23 @delfinee
+/azure.yaml                         @KIREETI001 @vanilaa23 @delfinee
+/.github/                           @KIREETI001 @vanilaa23 @delfinee
+/tests/smoke/                       @KIREETI001 @vanilaa23 @delfinee
+/docs/security/                     @KIREETI001 @vanilaa23 @delfinee
+/docs/cost/                         @KIREETI001 @vanilaa23 @delfinee
 
-# Narthananilaa: feasibility, recipes, benchmarks, evaluation
-/packages/feasibility/              @vanilaa23
-/content/                           @vanilaa23
-/tests/benchmarks/                  @vanilaa23
-/docs/evaluation/                   @vanilaa23
+# Narthananilaa: feasibility, recipes, benchmarks, evaluation (backup: Delfine)
+/packages/feasibility/              @vanilaa23 @delfinee
+/content/                           @vanilaa23 @delfinee
+/tests/benchmarks/                  @vanilaa23 @delfinee
+/docs/evaluation/                   @vanilaa23 @delfinee
 
-# Delfine: mobile, website, research, pitch, outreach, QA
-/apps/                              @delfinee
-/docs/research/                     @delfinee
-/docs/pitch/                        @delfinee
-/docs/outreach/                     @delfinee
-/docs/qa/                           @delfinee
+# Delfine: mobile, website, research, pitch, outreach, QA (backups: Kireeti, Narthananilaa)
+/apps/                              @delfinee @KIREETI001 @vanilaa23
+/docs/research/                     @delfinee @KIREETI001 @vanilaa23
+/docs/pitch/                        @delfinee @KIREETI001 @vanilaa23
+/docs/outreach/                     @delfinee @KIREETI001 @vanilaa23
+/docs/qa/                           @delfinee @KIREETI001 @vanilaa23
 
 # AI eval cases are consumed by Kireeti's pipeline and Narthananilaa's gates
-/tests/benchmarks/ai/               @KIREETI001 @vanilaa23
+/tests/benchmarks/ai/               @KIREETI001 @vanilaa23 @delfinee
 
-# Shared contract (A2): changes need review from every consumer
+# Shared contract (A2): tell every consumer before merging
 /packages/contracts/                @KIREETI001 @vanilaa23 @delfinee
 
-# Agent rules, hooks and project instructions: all three (A3)
+# Agent rules, hooks and project instructions (A3): tell all three
 /.claude/                           @KIREETI001 @vanilaa23 @delfinee
 /CLAUDE.md                          @KIREETI001 @vanilaa23 @delfinee
 /.github/CODEOWNERS                 @KIREETI001 @vanilaa23 @delfinee
 
-# Production infrastructure and outward-facing documents: all three (A3)
+# Production infrastructure and outward-facing documents (A3): tell all three
 /infrastructure/prod/               @KIREETI001 @vanilaa23 @delfinee
 /docs/reports/                      @KIREETI001 @vanilaa23 @delfinee

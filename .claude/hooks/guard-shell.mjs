@@ -8,7 +8,7 @@ if (!cmd) process.exit(0);
 const RULES = [
   [/\bgit\s+push\b[^\n;|&]*\b(main|master)\b/, "pushing to main. Push your own branch and open a PR."],
   [/\bgit\s+push\b[^\n;|&]*(\s--force\b|\s-f\b|--force-with-lease)/, "force push. Ask a founder."],
-  [/\bgh\s+pr\s+merge\b/, "merging a PR. Founders merge after approval."],
+  [/\bgh\s+pr\s+merge\b/, "merging a PR. Founders merge."],
   [/\bgh\s+pr\s+review\b[^\n;|&]*--approve/, "approving a PR. Agents cannot approve."],
   [/\bazd\s+(up|down|provision|deploy)\b/, "changing real Azure resources. Write Bicep and a runbook; a founder runs azd."],
   [/\baz\s+[\w-]+(\s+[\w-]+)*\s+(create|delete|purge)\b/, "creating or deleting Azure resources. A founder runs this."],

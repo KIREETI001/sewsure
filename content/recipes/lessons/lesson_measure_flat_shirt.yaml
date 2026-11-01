@@ -1,0 +1,28 @@
+# DRAFT micro-lesson. Not reviewed by a sewist.
+lesson_id: lesson_measure_flat_shirt
+version: "1.0"
+status: draft
+title: Measure a flat shirt from a landmark
+summary: Learn to take the same measurement the same way every time, starting from a fixed point on the shirt.
+skippable: true
+suggested_for_beginners: true
+used_by_recipes: [woven_shirt_crop_v1]
+tools: [ruler]
+steps:
+  - id: s1
+    text: Lay the shirt flat on a table and smooth it with your hands. Button it up.
+  - id: s2
+    text: Find the landmark, the top of the shoulder where it meets the collar. Always start from here.
+  - id: s3
+    text: Hold the zero end of the ruler exactly on the landmark. Keep the ruler straight down the front.
+  - id: s4
+    text: Look straight down at the ruler so the number you read is not tilted. Write the number down with its unit.
+  - id: s5
+    text: Measure a second time. If the two numbers differ, measure a third time and work out why.
+practice:
+  task: Measure the same shirt, or any shirt, from the shoulder landmark to the bottom edge three times, taking the ruler away between each try.
+  materials: Any spare shirt, a ruler, paper and pencil
+  done_when: Your three numbers are close together and you know which part of the ruler you read from.
+progress_note: Ticking this off is your own record. It is not a certificate.
+reviewed_by: null
+reviewed_on: null

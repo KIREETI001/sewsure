@@ -1,0 +1,28 @@
+# DRAFT micro-lesson. Not reviewed by a sewist.
+lesson_id: lesson_press_double_fold_hem
+version: "1.0"
+status: draft
+title: Press a double-fold hem
+summary: Learn to fold a raw edge twice so it is hidden, and press the folds sharp before sewing.
+skippable: true
+suggested_for_beginners: true
+used_by_recipes: [woven_shirt_crop_v1]
+tools: [iron, ruler, pins]
+steps:
+  - id: s1
+    text: Work on the wrong (inside) side of the fabric. Set the iron to a heat the fabric can take, as its care label says.
+  - id: s2
+    text: Fold the raw edge up by the first fold amount. Press along the fold, a short section at a time.
+  - id: s3
+    text: Fold up again by the second fold amount, so the raw edge is hidden inside. Press again.
+  - id: s4
+    text: Check the depth with your ruler in several places as you go. Mind your fingers near the iron.
+  - id: s5
+    text: Pin or clip the hem in place before you sew.
+practice:
+  task: On spare fabric, press a double-fold hem along a 30 cm edge using the fold amounts from the recipe.
+  materials: Spare woven fabric, iron, ruler, pins
+  done_when: Both folds look even and no raw edge shows.
+progress_note: Ticking this off is your own record. It is not a certificate.
+reviewed_by: null
+reviewed_on: null

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FixtureScenario",
+  "description": "Shape of fixtures/*.json: one end-to-end mock scenario using the same records the API returns. Fixture values are synthetic and illustrative, not measured evidence.",
+  "type": "object",
+  "required": ["mock", "scenario", "description", "project", "garment", "measurements", "job", "designs", "revisions"],
+  "properties": {
+    "mock": { "const": true },
+    "scenario": { "$ref": "common.schema.json#/$defs/Slug" },
+    "description": { "type": "string", "maxLength": 500 },
+    "user": { "$ref": "user.schema.json" },
+    "project": { "$ref": "project.schema.json" },
+    "garment": { "$ref": "garment.schema.json" },
+    "measurements": { "$ref": "measurements.schema.json#/$defs/MeasurementsResult" },
+    "inspiration": { "$ref": "inspiration.schema.json" },
+    "job": { "$ref": "job.schema.json" },
+    "designs": { "$ref": "design-candidate.schema.json#/$defs/DesignList" },
+    "revisions": { "type": "array", "items": { "$ref": "design-revision.schema.json" } },
+    "cut_plan": { "oneOf": [{ "$ref": "cut-plan.schema.json" }, { "type": "null" }] },
+    "diy_steps": { "oneOf": [{ "$ref": "diy-steps.schema.json" }, { "type": "null" }] },
+    "diy_progress": { "oneOf": [{ "$ref": "diy-progress.schema.json" }, { "type": "null" }] },
+    "maker_request": { "oneOf": [{ "$ref": "maker-request.schema.json" }, { "type": "null" }] },
+    "quotes": { "type": "array", "items": { "$ref": "quote.schema.json" } },
+    "evidence": { "type": "array", "items": { "$ref": "evidence-log.schema.json" } }
+  },
+  "additionalProperties": false
+}

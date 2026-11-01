@@ -1,0 +1,46 @@
+{
+  "id": "UG-04",
+  "class": "unsupported_garment_or_material",
+  "synthetic": true,
+  "description": "Jersey tee (knit) offered the shirt crop recipe",
+  "reason": "A tee is outside the woven-shirt scope; IDEA_ONLY, no cut plan. Engine reports the first failing gate (category).",
+  "destructive_cut": true,
+  "inputs": {
+    "garment": {
+      "category": "jersey_tee",
+      "fabric_family": "knit",
+      "closure": "button_placket",
+      "prohibited_regions": [
+        {
+          "name": "armhole",
+          "from_shoulder_mm": 0,
+          "to_shoulder_mm": 150
+        }
+      ],
+      "seam_margin_mm": 0
+    },
+    "measurements": {
+      "shoulder_to_hem": {
+        "value_mm": 780,
+        "origin": "user_tape_measured",
+        "confirmed_at": "2026-01-01T00:00:00Z"
+      },
+      "chest_flat_width": {
+        "value_mm": 520,
+        "origin": "user_tape_measured",
+        "confirmed_at": "2026-01-01T00:00:00Z"
+      }
+    },
+    "recipe_id": "woven_shirt_crop_v1",
+    "params": {
+      "finished_length_mm": 500,
+      "hem_allowance_mm": 30
+    }
+  },
+  "expected": {
+    "status": "IDEA_ONLY",
+    "failure_codes": [
+      "UNSUPPORTED_GARMENT_CATEGORY"
+    ]
+  }
+}

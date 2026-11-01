@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PhotoRef",
+  "description": "Reference to a garment or inspiration photo in private object storage. Never a public permanent URL; downloads use short-lived scoped links issued by the API.",
+  "type": "object",
+  "required": ["photo_id", "garment_id", "view", "storage_ref", "content_type", "status", "created_at"],
+  "properties": {
+    "photo_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "garment_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "view": { "type": "string", "enum": ["front", "back", "detail", "inspiration"] },
+    "storage_ref": {
+      "type": "string",
+      "description": "Opaque private blob key. Not a URL and not fetchable by the client.",
+      "maxLength": 256
+    },
+    "content_type": { "type": "string", "enum": ["image/jpeg", "image/png", "image/heic", "image/webp"] },
+    "byte_size": { "type": ["integer", "null"], "minimum": 1, "maximum": 15728640 },
+    "width_px": { "type": ["integer", "null"], "minimum": 1 },
+    "height_px": { "type": ["integer", "null"], "minimum": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["pending_upload", "uploaded", "verified", "rejected"],
+      "description": "verified = server checked MIME/content and content safety. Only verified photos may feed generation or overlays."
+    },
+    "has_calibration_marker": {
+      "type": "boolean",
+      "default": false,
+      "description": "User says a ruler or printed marker lies on the same plane as the garment (§6.1)."
+    },
+    "image_use_consent": {
+      "type": "string",
+      "enum": ["app_only", "research", "research_and_demo"],
+      "default": "app_only"
+    },
+    "created_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "PhotoUploadRequest": {
+      "type": "object",
+      "required": ["view", "content_type", "byte_size"],
+      "properties": {
+        "view": { "type": "string", "enum": ["front", "back", "detail", "inspiration"] },
+        "content_type": { "type": "string", "enum": ["image/jpeg", "image/png", "image/heic", "image/webp"] },
+        "byte_size": { "type": "integer", "minimum": 1, "maximum": 15728640 },
+        "sha256": { "$ref": "common.schema.json#/$defs/Sha256" },
+        "has_calibration_marker": { "type": "boolean", "default": false },
+        "image_use_consent": { "type": "string", "enum": ["app_only", "research", "research_and_demo"], "default": "app_only" }
+      },
+      "additionalProperties": false
+    },
+    "PhotoUploadTicket": {
+      "type": "object",
+      "description": "A scoped, time-limited upload target. The photo stays pending_upload until the API verifies it.",
+      "required": ["photo", "upload"],
+      "properties": {
+        "photo": { "$ref": "#" },
+        "upload": {
+          "type": "object",
+          "required": ["method", "url", "expires_at"],
+          "properties": {
+            "method": { "type": "string", "const": "PUT" },
+            "url": { "type": "string", "format": "uri", "description": "Short-lived, single-object upload URL." },
+            "headers": { "type": "object", "additionalProperties": { "type": "string" } },
+            "expires_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

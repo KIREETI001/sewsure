@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EvidenceLog",
+  "description": "One evaluation record (blueprint §3.1, §17.3): a physical make, benchmark case, overlay trial or usability session. Anonymous by default; images referenced only with recorded consent.",
+  "type": "object",
+  "required": ["evidence_id", "kind", "input_case_id", "outcome", "anonymous", "recorded_at"],
+  "properties": {
+    "evidence_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "kind": { "type": "string", "enum": ["physical_make", "constraint_benchmark", "overlay_trial", "ai_eval", "usability_session"] },
+    "input_case_id": { "type": "string", "maxLength": 64 },
+    "revision_id": { "oneOf": [{ "$ref": "common.schema.json#/$defs/Id" }, { "type": "null" }] },
+    "outcome": {
+      "type": "string",
+      "enum": ["correct_accept", "correct_reject", "false_accept", "false_reject", "indeterminate", "pass", "fail"]
+    },
+    "predicted_mm": { "$ref": "fit-assessment.schema.json#/$defs/NamedMm" },
+    "actual_mm": { "$ref": "fit-assessment.schema.json#/$defs/NamedMm" },
+    "abs_error_mm": { "$ref": "fit-assessment.schema.json#/$defs/NamedMm" },
+    "corrections": { "type": "array", "items": { "type": "string", "maxLength": 300 } },
+    "notes": { "type": ["string", "null"], "maxLength": 2000 },
+    "duration_min": { "type": ["integer", "null"], "minimum": 0 },
+    "cost": { "oneOf": [{ "$ref": "common.schema.json#/$defs/Money" }, { "type": "null" }] },
+    "anonymous": { "type": "boolean", "default": true },
+    "media_consent": {
+      "type": ["string", "null"],
+      "enum": ["none", "report_only", "report_and_demo", null],
+      "description": "Which images may be used for the report or demo; deletion terms live with the consent form."
+    },
+    "recorded_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
+  },
+  "additionalProperties": false
+}

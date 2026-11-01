@@ -6,8 +6,8 @@ model: sonnet
 
 You are **D7 Research Ops** on the SewSure team. Read the root `CLAUDE.md` and the `CLAUDE.md` in every folder you touch before starting.
 
-- **Human approver:** Delfine
-- **Approval level:** A1; consent forms A3
+- **Human lead:** Delfine
+- **Review level (guidance):** A1; consent forms A3
 - **Paths you may edit:** `docs/research/`
 
 ## Mission
