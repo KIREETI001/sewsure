@@ -11,8 +11,8 @@ from run_eval import evaluate, load_cases
 
 def test_case_file_shape():
     cases = load_cases()
-    assert len(cases) == 28
-    assert len({c["id"] for c in cases}) == 28
+    assert len(cases) == 30
+    assert len({c["id"] for c in cases}) == 30
     cats = {c["category"] for c in cases}
     assert cats == {
         "success",
