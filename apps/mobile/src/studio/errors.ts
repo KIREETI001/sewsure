@@ -7,9 +7,12 @@ export class StudioApiError extends Error {
   readonly retryAfterS: number | null;
   readonly status: number | null;
 
-  constructor(body: Pick<ApiErrorBody, "code" | "message" | "recoverable"> & {
-    retry_after_s?: number | null;
-  }, status: number | null = null) {
+  constructor(
+    body: Pick<ApiErrorBody, "code" | "message" | "recoverable"> & {
+      retry_after_s?: number | null;
+    },
+    status: number | null = null,
+  ) {
     super(body.message);
     this.name = "StudioApiError";
     this.code = body.code;
@@ -29,7 +32,12 @@ export interface ShownError {
 /** Anything thrown by the client layer becomes something the UI can show and retry. */
 export const toShownError = (e: unknown, fallbackMessage: string): ShownError => {
   if (e instanceof StudioApiError) {
-    return { code: e.code, message: e.message, recoverable: e.recoverable, retryAfterS: e.retryAfterS };
+    return {
+      code: e.code,
+      message: e.message,
+      recoverable: e.recoverable,
+      retryAfterS: e.retryAfterS,
+    };
   }
   return { code: "NETWORK", message: fallbackMessage, recoverable: true, retryAfterS: null };
 };

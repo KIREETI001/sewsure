@@ -24,8 +24,9 @@ export const failureText = (code: string): string =>
 export const flagText = (code: string): string =>
   tOr(`studio.flag.${code}`, t("studio.flag.unknown", { code: humanise(code) }));
 
-export const dimensionText = (key: string): string =>
-  tOr(`studio.dimension.${key}`, humanise(key));
+export const dimensionText = (key: string): string => tOr(`studio.dimension.${key}`, humanise(key));
 
-export const geometryLabel = (key: string): string =>
-  tOr(`studio.geo.${key}`, humanise(key.replace(/_mm$/, "")));
+export const geometryLabel = (key: string): string => {
+  const base = key.replace(/_mm$/, "");
+  return tOr(`studio.geo.${base}`, humanise(base));
+};

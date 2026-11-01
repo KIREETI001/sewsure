@@ -108,8 +108,7 @@ export const studioEn = {
     "Approximate outline only. Not a cutting guide and not to scale for your body.",
   "studio.silhouette.a11y":
     "Approximate outline. Finished length {finished} on a garment {original} long.",
-  "studio.silhouette.none":
-    "No outline yet. It appears once the checks have enough information.",
+  "studio.silhouette.none": "No outline yet. It appears once the checks have enough information.",
   "studio.silhouette.concept": "Concept only. We cannot draw an outline for this idea.",
   "studio.silhouette.finished": "Finished {length}",
   "studio.silhouette.removed": "Removed",

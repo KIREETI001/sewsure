@@ -20,10 +20,7 @@
     "fabric_family": "knit",
     "attribute_origin": "ai_suggested_user_confirmed",
     "attributes_confirmed_at": "2026-10-28T09:00:00Z",
-    "visible_features": [
-      "crew_neck",
-      "short_sleeves"
-    ],
+    "visible_features": ["crew_neck", "short_sleeves"],
     "condition_notes": null,
     "photos": [
       {
@@ -96,13 +93,7 @@
     },
     "surprise_me": false,
     "skill_level": "beginner",
-    "tools": [
-      "ruler",
-      "chalk",
-      "fabric_scissors",
-      "hand_needle",
-      "iron"
-    ],
+    "tools": ["ruler", "chalk", "fabric_scissors", "hand_needle", "iron"],
     "supplies": [],
     "recogniser_notes": null,
     "created_at": "2026-10-28T09:00:00Z"
@@ -115,9 +106,7 @@
     "stage": null,
     "result": {
       "outcome": "unsupported",
-      "design_ids": [
-        "des-idea-a"
-      ]
+      "design_ids": ["des-idea-a"]
     },
     "error": null,
     "created_at": "2026-10-28T09:00:00Z",
@@ -138,9 +127,7 @@
         "parameters": {},
         "required_panels": [],
         "explanation": "A boned corset top from a jersey tee is outside our reviewed recipes. You can keep it as an idea or ask a tailor; we cannot give a cut plan.",
-        "failure_codes": [
-          "UNSUPPORTED_RECIPE"
-        ],
+        "failure_codes": ["UNSUPPORTED_RECIPE"],
         "missing_dimensions": [],
         "preview": {
           "preview_id": "prv-idea-a-1",
@@ -183,9 +170,7 @@
       "geometry_mm": {},
       "checks": {
         "hard_pass": false,
-        "failure_codes": [
-          "UNSUPPORTED_RECIPE"
-        ],
+        "failure_codes": ["UNSUPPORTED_RECIPE"],
         "residuals": [],
         "missing_dimensions": [],
         "uncertainty_flags": [],
@@ -235,19 +220,12 @@
       "design_status": "IDEA_ONLY",
       "garment_category": "jersey_tee",
       "modification_request": "Turn this tee into a fitted corset-style top. Inspiration only; nothing has been checked.",
-      "shared_photo_ids": [
-        "pho-idea-front"
-      ],
+      "shared_photo_ids": ["pho-idea-front"],
       "shared_measurements": {},
-      "unresolved_checks": [
-        "No reviewed recipe; construction and fit are unchecked."
-      ],
+      "unresolved_checks": ["No reviewed recipe; construction and fit are unchecked."],
       "consent": {
         "consent_version": "2026-10-draft",
-        "shared_fields": [
-          "garment_category",
-          "photos.front"
-        ],
+        "shared_fields": ["garment_category", "photos.front"],
         "consented_at": "2026-10-28T09:05:00Z"
       }
     },

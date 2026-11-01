@@ -100,7 +100,10 @@ const RECOVERS_TO: Partial<Record<ScenarioName, ScenarioName>> = {
 };
 
 const notFound = (what: string): StudioApiError =>
-  new StudioApiError({ code: "NOT_FOUND", message: `${what} was not found.`, recoverable: false }, 404);
+  new StudioApiError(
+    { code: "NOT_FOUND", message: `${what} was not found.`, recoverable: false },
+    404,
+  );
 
 const MM_KEY = /_mm$/;
 
