@@ -3,16 +3,14 @@
 #   @vanilaa23   -> Narthananilaa  (rules, feasibility, recipes, evidence)
 #   @delfinee    -> Delfine        (mobile, UX, research, pitch)
 #
-# How approval works here:
-# - Each area lists its lead first. Any one listed owner can approve.
-# - Agents open every PR from the KIREETI001 account, and GitHub never counts an
-#   author's own approval. Every area therefore lists at least two owners other
-#   than KIREETI001's account, so an agent PR always has two possible approvers.
-# - GitHub enforces one approval per PR. The "all three" (A3) and "every
-#   consumer" (A2) rules below are team process: the reviewing founder checks
-#   that the other required founders have approved before merging.
+# How this file works here:
+# - GitHub asks the listed people to review, but no approval is required. Any
+#   founder can merge any PR into main.
+# - Each area lists its lead first. They are the person to ask about that area.
+# - Agents open PRs but never merge them.
+# - A2 and A3 below are team habits: tell the people named before you merge.
 
-# Fallback: anything not listed below needs one of the three founders.
+# Fallback: anything not listed below goes to all three founders.
 *                                   @KIREETI001 @vanilaa23 @delfinee
 
 # Kireeti: platform, backend, AI, infrastructure, CI (backups: Narthananilaa, Delfine)
@@ -40,14 +38,14 @@
 # AI eval cases are consumed by Kireeti's pipeline and Narthananilaa's gates
 /tests/benchmarks/ai/               @KIREETI001 @vanilaa23 @delfinee
 
-# Shared contract (A2, by process): every consumer reviews before merge
+# Shared contract (A2): tell every consumer before merging
 /packages/contracts/                @KIREETI001 @vanilaa23 @delfinee
 
-# Agent rules, hooks and project instructions (A3, by process): all three
+# Agent rules, hooks and project instructions (A3): tell all three
 /.claude/                           @KIREETI001 @vanilaa23 @delfinee
 /CLAUDE.md                          @KIREETI001 @vanilaa23 @delfinee
 /.github/CODEOWNERS                 @KIREETI001 @vanilaa23 @delfinee
 
-# Production infrastructure and outward-facing documents (A3, by process): all three
+# Production infrastructure and outward-facing documents (A3): tell all three
 /infrastructure/prod/               @KIREETI001 @vanilaa23 @delfinee
 /docs/reports/                      @KIREETI001 @vanilaa23 @delfinee
