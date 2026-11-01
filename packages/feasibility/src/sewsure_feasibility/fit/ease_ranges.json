@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "status": "provisional",
+  "approved_by": null,
+  "approved_at": null,
+  "note": "PROVISIONAL engineering placeholders written by agent N3. Not approved by Narthananilaa (H-owner for garment rules). Each value's source names the general convention it is taken from; none has been checked against a specific page or table yet, so source_checked is false everywhere. Replace the values, set source_checked to true and fill approved_by/approved_at before any label is shown without the provisional warning.",
+  "measurement": "chest",
+  "profiles": {
+    "woven": {
+      "garment_types": ["woven_shirt"],
+      "uncertainty_mm": {
+        "value": 20,
+        "source": "N3 placeholder: tape-measure repeatability of a flat width read twice (2 x 2 x ~5 mm) rounded up. No study cited.",
+        "source_checked": false
+      },
+      "bands": {
+        "insufficient_below_mm": {
+          "value": 80,
+          "source": "General pattern-drafting convention: shirts need roughly 8-10 cm of chest ease to allow movement (menswear drafting texts, e.g. Aldrich, Metric Pattern Cutting for Menswear). Exact page not verified.",
+          "source_checked": false
+        },
+        "close_below_mm": {
+          "value": 120,
+          "source": "N3 placeholder: close/slim shirt upper bound, ~12 cm chest ease. Drafting-convention range, not verified.",
+          "source_checked": false
+        },
+        "regular_below_mm": {
+          "value": 180,
+          "source": "N3 placeholder: regular shirt upper bound, ~18 cm chest ease. Drafting-convention range, not verified.",
+          "source_checked": false
+        },
+        "relaxed_below_mm": {
+          "value": 250,
+          "source": "N3 placeholder: relaxed shirt upper bound, ~25 cm chest ease. Not verified.",
+          "source_checked": false
+        }
+      }
+    },
+    "knit": {
+      "garment_types": ["jersey_tee"],
+      "uncertainty_mm": {
+        "value": 60,
+        "source": "N3 placeholder: three times the woven value because jersey stretch recovery and the tension the flat width was measured under are not controlled (blueprint section 7: wider uncertainty for jersey). No study cited.",
+        "source_checked": false
+      },
+      "bands": {
+        "insufficient_below_mm": {
+          "value": 40,
+          "source": "N3 placeholder: stretch fabric tolerates less ease than woven; lower bound set so only relaxed transformations are labelled (blueprint section 5.3). Not verified.",
+          "source_checked": false
+        },
+        "close_below_mm": {
+          "value": 100,
+          "source": "N3 placeholder. Not verified.",
+          "source_checked": false
+        },
+        "regular_below_mm": {
+          "value": 160,
+          "source": "N3 placeholder. Not verified.",
+          "source_checked": false
+        },
+        "relaxed_below_mm": {
+          "value": 240,
+          "source": "N3 placeholder. Not verified.",
+          "source_checked": false
+        }
+      }
+    }
+  }
+}
