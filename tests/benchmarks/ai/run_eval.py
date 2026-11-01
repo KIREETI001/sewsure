@@ -1,12 +1,12 @@
 # ruff: noqa: E402  (sys.path set before imports)
 """AI eval harness: runs cases.jsonl through the pipeline and reports counts.
 
-Every metric is numerator/denominator. The default run uses MockModelClient,
-a rule-based RuleFeasibilityChecker (verdicts written in each case) and
-MockSafetyScreen, so it measures validation and plumbing, NOT real model
-quality, real engine correctness or Prompt Shields detection. Re-run the same
-cases against Azure AI Foundry, the real engine and Prompt Shields once they
-exist.
+Every metric is numerator/denominator. The run uses the REAL feasibility engine
+(`sewsure_feasibility.evaluate`, synthetic garments from each case) but a MOCK
+model (MockModelClient) and a MOCK safety screen (keyword rules). The numbers
+therefore show how the pipeline validates and routes model output and relays the
+engine's verdicts. They say nothing about real model quality or Prompt Shields
+detection rates; re-run the same cases against Azure once it exists.
 
     python tests/benchmarks/ai/run_eval.py [--out result.json]
 
@@ -23,11 +23,13 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[2] / "services" / "api"))
 
+from ai.engine_adapter import EvaluateChecker
 from ai.model_client import MockModelClient
 from ai.pipeline import DesignRequest, run_pipeline
 from ai.safety import AllowAllScreen, MockSafetyScreen
 from ai.schemas import RECIPE_ALLOW_LIST
-from ai.testing import RuleFeasibilityChecker
+from ai.synthetic import SyntheticContextProvider
+from sewsure_feasibility import DesignState
 
 CASES_PATH = HERE / "cases.jsonl"
 
@@ -51,7 +53,7 @@ def _run(case: dict, screen):
     return run_pipeline(
         req,
         client=MockModelClient(scripted=case["mock_model_output"]),
-        checker=RuleFeasibilityChecker(case["oracle_rules"]),
+        checker=EvaluateChecker(SyntheticContextProvider(case["garment"])),
         screen=screen,
     )
 
@@ -59,16 +61,15 @@ def _run(case: dict, screen):
 def _violations(case: dict, outcome) -> list[str]:
     """Things a returned design must never contain."""
     bad = []
-    forbidden = {tuple(x) for x in case["expected"]["forbidden_param_values"]}
-    oracle = RuleFeasibilityChecker(case["oracle_rules"])
+    forbidden = set(case["expected"]["forbidden_levels"])
     for d in outcome.designs:
         cand = d.candidate
         if cand.recipe_id not in RECIPE_ALLOW_LIST:
             bad.append("recipe_not_allow_listed")
-        if any((k, v) in forbidden for k, v in cand.parameters.items()):
-            bad.append("forbidden_param_value")
-        if oracle.verdict(cand.recipe_id, cand.parameters).status != "PASS_SUPPORTED_CHECKS":
-            bad.append("candidate_not_passed_by_oracle")
+        if cand.parameters.get("crop_level") in forbidden:
+            bad.append("forbidden_level")
+        if d.engine_status is not DesignState.PASS_SUPPORTED_CHECKS:
+            bad.append("design_without_engine_pass")
     return bad
 
 
@@ -138,10 +139,10 @@ def evaluate(cases: list[dict]) -> dict:
         },
     }
     return {
-        "mode": "mock_model+rule_checker+mock_screen",
+        "mode": "real_engine+mock_model+mock_screen",
         "caveat": (
-            "Measures validation and plumbing only. "
-            "Not model quality, engine correctness or Prompt Shields rates."
+            "Real feasibility engine, MOCK model and MOCK screen. Says nothing about real "
+            "model quality or Prompt Shields detection."
         ),
         "metrics": metrics,
         "cases": rows,

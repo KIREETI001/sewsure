@@ -1,46 +1,38 @@
-"""Model output schemas and the recipe allow-list.
+"""Allow-list, stage B attributes and the check on model proposals.
 
-Aligned to contract 1.0.0-draft.2 (PR #15, commit 2cfd24e): `AI_CANDIDATES_SCHEMA`
-is a copy of `packages/contracts/schemas/ai-candidate-proposal.schema.json` with
-`common#/$defs/RecipeId` and `AiParameters` inlined. REPLACE WITH THE GENERATED
-packages/contracts MODEL once it is merged; nothing else in this package defines
-what the model may return.
+Stage D output is validated with the contract model
+`sewsure_contracts.ai_candidate_proposal_schema.AiCandidateProposal` (packages/contracts,
+1.0.0-draft.2). That model checks shape; `validate_proposals` adds what the contract
+leaves to the server: the numeric-key rule, then the recipe allow-list and levels.
+Everything fails closed.
 
-The contract schema checks shape only ("the server checks recipe_id against the
-allow-list and each level against the recipe"). `validate_candidates` does that
-second step and fails closed.
-
-Parameters are named levels, never numbers: the model must not invent numeric
-pattern geometry. The recipe (N5/N1) maps a level to millimetres before the
-feasibility engine runs; that mapping is not implemented here.
+Parameters are named levels, never numbers. `level_map.py` turns a level into
+millimetres for the feasibility engine.
 """
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from jsonschema import Draft202012Validator
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, ValidationError
+from sewsure_contracts.ai_candidate_proposal_schema import AiCandidateProposal
 
-CONTRACT_VERSION = "1.0.0-draft.2"
-MAX_PROPOSALS_FROM_MODEL = 6  # contract maxItems
 MAX_DESIGNS_RETURNED = 3
 
-# Contract vocabulary: garment category and fabric family (draft.2 "kept stable").
+# Contract vocabulary (draft.2): garment category and fabric family.
 SUPPORTED_GARMENTS = frozenset({"woven_shirt"})
-SUPPORTED_MATERIALS = frozenset({"woven"})  # fabric_family
-
-# Contract GarmentDimension names, used to say what is still needed.
+SUPPORTED_MATERIALS = frozenset({"woven"})
 REQUIRED_DIMENSIONS = frozenset({"shoulder_to_hem", "chest_flat_width"})
 
-# recipe_id -> {param: levels ordered least -> most demanding}. Only recipes in
-# packages/feasibility ALLOWED_RECIPE_IDS belong here.
+# recipe_id -> {param: levels ordered least -> most demanding}. Keep in step with
+# sewsure_feasibility.ALLOWED_RECIPE_IDS (checked by a test).
 RECIPE_ALLOW_LIST: dict[str, dict[str, tuple[str, ...]]] = {
     "woven_shirt_crop_v1": {"crop_level": ("slightly_shorter", "cropped", "very_cropped")},
 }
 
-# Stage B attribute vocabulary (blueprint 4.2 stage B). Only crop_length maps to a
-# reviewed recipe today; the others are parsed so the app can say they are unsupported.
+# Stage B attribute vocabulary. Pipeline-local: only crop_length maps to a reviewed recipe.
 CROP_LENGTHS = ("none", "slightly_shorter", "cropped", "very_cropped")
 WAIST_SHAPINGS = ("none", "light", "moderate")
 SLEEVE_STYLES = ("unchanged", "short", "cap")
@@ -57,55 +49,25 @@ INSPIRATION_SCHEMA: dict[str, Any] = {
         "closure_preservation": {"type": "boolean"},
     },
 }
-
-_LEVEL = {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64}
-
-AI_CANDIDATES_SCHEMA: dict[str, Any] = {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "AiCandidateProposal",
-    "type": "object",
-    "required": ["proposals"],
-    "additionalProperties": False,
-    "properties": {
-        "proposals": {
-            "type": "array",
-            "minItems": 0,
-            "maxItems": MAX_PROPOSALS_FROM_MODEL,
-            "items": {
-                "type": "object",
-                "required": ["recipe_id", "parameters"],
-                "additionalProperties": False,
-                "properties": {
-                    "recipe_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*_v[0-9]+$"},
-                    "parameters": {  # AiParameters
-                        "type": "object",
-                        "propertyNames": {
-                            "pattern": "^[a-z][a-z0-9_]*$",
-                            "maxLength": 64,
-                            "not": {"pattern": "_(mm|cm|in|count)$"},
-                        },
-                        "additionalProperties": {"anyOf": [_LEVEL, {"type": "boolean"}]},
-                    },
-                },
-            },
-        }
-    },
-}
-
 INSPIRATION_VALIDATOR = Draft202012Validator(INSPIRATION_SCHEMA)
-CANDIDATES_VALIDATOR = Draft202012Validator(AI_CANDIDATES_SCHEMA)
+
+_NUMERIC_KEY = re.compile(r"_(mm|cm|in|count)$")
 
 
-def validate_candidates(payload: Any) -> bool:
-    """Contract shape plus allow-list: unknown recipe IDs, parameter names or
-    levels fail closed."""
-    if not CANDIDATES_VALIDATOR.is_valid(payload):
+def validate_proposals(payload: Any) -> bool:
+    """Contract shape, no numeric keys, recipe IDs and levels on the allow-list."""
+    try:
+        parsed = AiCandidateProposal.model_validate(payload)
+    except ValidationError:
         return False
-    for prop in payload["proposals"]:
-        allowed = RECIPE_ALLOW_LIST.get(prop["recipe_id"])
-        if allowed is None or set(prop["parameters"]) != set(allowed):
+    for prop in parsed.proposals:
+        if any(_NUMERIC_KEY.search(k) for k in prop.parameters):
             return False
-        if any(prop["parameters"][name] not in levels for name, levels in allowed.items()):
+        allowed = RECIPE_ALLOW_LIST.get(prop.recipe_id)
+        if allowed is None or set(prop.parameters) != set(allowed):
+            return False
+        values = {k: getattr(v, "root", v) for k, v in prop.parameters.items()}
+        if any(values[name] not in levels for name, levels in allowed.items()):
             return False
     return True
 

@@ -16,14 +16,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from .feasibility_port import (
-    FAILED,
-    PASS,
-    FeasibilityChecker,
-    FeasibilityRequest,
-    FeasibilityResult,
-    normalise,
-)
+from sewsure_feasibility import ConstraintResult, DesignState
+
+from .feasibility_port import FeasibilityChecker, FeasibilityRequest
 from .model_client import ModelClient, ModelError, ModelRequest, ModelResponse
 from .schemas import (
     INSPIRATION_VALIDATOR,
@@ -34,7 +29,7 @@ from .schemas import (
     SUPPORTED_MATERIALS,
     Candidate,
     InspirationAttributes,
-    validate_candidates,
+    validate_proposals,
 )
 
 log = logging.getLogger("sewsure.ai")
@@ -224,7 +219,7 @@ def stage_d_propose_candidates(
         schema_name="ai_candidate_proposal",
         prompt_version=PROMPT_VERSION,
     )
-    payload = _call_model(client, request, validate_candidates, telemetry)
+    payload = _call_model(client, request, validate_proposals, telemetry)
     seen: set[tuple] = set()
     out: list[Candidate] = []
     for raw in payload["proposals"]:
@@ -241,33 +236,27 @@ def stage_d_propose_candidates(
 @dataclass(frozen=True)
 class CheckedCandidate:
     candidate: Candidate
-    result: FeasibilityResult
+    result: ConstraintResult
     relaxed_from: Candidate | None = None
 
 
 def stage_e_check(
-    checker: FeasibilityChecker,
-    candidates: list[Candidate],
-    garment_category: str,
-    fabric_family: str,
-    context_id: str,
+    checker: FeasibilityChecker, candidates: list[Candidate], context_id: str
 ) -> list[CheckedCandidate]:
+    """Ask the engine about each candidate. Its ConstraintResult is kept as returned.
+    An engine exception fails the job (recoverable); it is never read as a pass or a fail."""
     out = []
     for cand in candidates:
         try:
-            result = normalise(
-                checker.check(
-                    FeasibilityRequest(
-                        recipe_id=cand.recipe_id,
-                        parameters=cand.parameters,
-                        garment_category=garment_category,
-                        fabric_family=fabric_family,
-                        revision_context_id=context_id,
-                    )
+            result = checker.check(
+                FeasibilityRequest(
+                    recipe_id=cand.recipe_id,
+                    parameters=cand.parameters,
+                    revision_context_id=context_id,
                 )
             )
-        except Exception:  # engine error must never read as a pass
-            result = FeasibilityResult(status=FAILED, failure_codes=("ENGINE_ERROR",))
+        except Exception as exc:
+            raise StageError("ENGINE_ERROR") from exc
         out.append(CheckedCandidate(cand, result))
     return out
 
@@ -292,8 +281,6 @@ def stage_f_relax_and_rank(
     checked: list[CheckedCandidate],
     attributes: InspirationAttributes,
     checker: FeasibilityChecker,
-    garment_category: str,
-    fabric_family: str,
     context_id: str,
 ) -> list[CheckedCandidate]:
     """Retry FAILED_CHECKS candidates one notch easier (once), then rank survivors, max three.
@@ -303,24 +290,25 @@ def stage_f_relax_and_rank(
     score is an initial, untuned preference ordering, not a probability of success.
     """
     pool = list(checked)
-    if sum(c.result.status == PASS for c in pool) < MAX_DESIGNS_RETURNED:
+    if (
+        sum(c.result.status is DesignState.PASS_SUPPORTED_CHECKS for c in pool)
+        < MAX_DESIGNS_RETURNED
+    ):
         known = {c.candidate.key() for c in pool}
         eased: list[tuple[Candidate, Candidate]] = []
         for c in pool:
-            if c.result.status == FAILED:
+            if c.result.status is DesignState.FAILED_CHECKS:
                 easier = _ease(c.candidate)
                 if easier is not None and easier.key() not in known:
                     known.add(easier.key())
                     eased.append((c.candidate, easier))
-        rechecked = stage_e_check(
-            checker, [e for _, e in eased], garment_category, fabric_family, context_id
-        )
+        rechecked = stage_e_check(checker, [e for _, e in eased], context_id)
         pool += [
             CheckedCandidate(r.candidate, r.result, relaxed_from=orig)
             for (orig, _), r in zip(eased, rechecked, strict=True)
         ]
 
-    survivors = [c for c in pool if c.result.status == PASS]
+    survivors = [c for c in pool if c.result.status is DesignState.PASS_SUPPORTED_CHECKS]
     wanted = attributes.requested_crop()
 
     def score(c: CheckedCandidate) -> float:
@@ -352,8 +340,12 @@ def stage_g_visual_concept(checked: CheckedCandidate) -> VisualConcept:
 class SavedRevision:
     revision_id: str
     candidate: Candidate
-    engine_status: str  # copied from the engine, never set here
+    engine_result: ConstraintResult  # the engine's result, unchanged
     concept: VisualConcept
+
+    @property
+    def engine_status(self) -> DesignState:
+        return self.engine_result.status
 
 
 class RevisionStore:
@@ -364,7 +356,7 @@ class RevisionStore:
         self._items: dict[str, SavedRevision] = {}
 
     def save(self, checked: CheckedCandidate, concept: VisualConcept) -> SavedRevision:
-        rev = SavedRevision(uuid.uuid4().hex, checked.candidate, checked.result.status, concept)
+        rev = SavedRevision(uuid.uuid4().hex, checked.candidate, checked.result, concept)
         self._items[rev.revision_id] = rev
         return rev
 
