@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AiCandidateProposal",
+  "description": "Structured output of AI Stage D (§4.2). The model may only pick recipe IDs and named parameter levels (AiParameters, no numbers). The server checks recipe_id against the allow-list and each level against the recipe; the recipe maps levels to mm before the feasibility engine runs. The model never supplies geometry, lengths, coordinates, a design state or free text. An empty proposals list sends the request down the IDEA_ONLY path.",
+  "type": "object",
+  "required": ["proposals"],
+  "properties": {
+    "proposals": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "required": ["recipe_id", "parameters"],
+        "properties": {
+          "recipe_id": { "$ref": "common.schema.json#/$defs/RecipeId" },
+          "parameters": { "$ref": "common.schema.json#/$defs/AiParameters" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -4,14 +4,19 @@ Owner: all three (A2 for every change). Primary agent: K1 Contract Architect.
 
 The single source of truth for API routes (§3.4) and records (§3.1): User, Garment, Measurements, Inspiration, DesignCandidate, DesignRevision, CutPlan, DIYProgress, MakerRequest, Quote, EvidenceLog.
 
-## Layout (planned)
+## Layout
 
 ```
 openapi/sewsure.v1.yaml    OpenAPI 3.1
-schemas/*.schema.json      JSON Schema per record and per AI structured output
+schemas/*.schema.json      JSON Schema per record and per AI structured output (source of truth)
 fixtures/*.json            mock payloads used by mobile and tests; each has "mock": true
+generated/                 Pydantic models and TypeScript types (regenerated, never hand-edited)
+scripts/                   validate.py, build_fixtures.py, codegen.py
+tests/                     contract tests
 CHANGELOG.md               one entry per change: what, why, consumers affected
 ```
+
+Fixtures are built by `scripts/build_fixtures.py`; edit the script, not the JSON. See README.md for the check commands.
 
 ## Rules
 

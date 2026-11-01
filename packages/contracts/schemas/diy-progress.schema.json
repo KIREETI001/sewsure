@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DIYProgress",
+  "description": "The user's self-reported progress through a revision's DIY steps. Checkboxes record self-reported completion, not expert certification.",
+  "type": "object",
+  "required": ["progress_id", "revision_id", "user_id", "steps", "updated_at"],
+  "properties": {
+    "progress_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "revision_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "user_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step_id", "self_verification", "checked_at"],
+        "properties": {
+          "step_id": { "$ref": "common.schema.json#/$defs/Slug" },
+          "self_verification": { "type": "string", "enum": ["not_started", "self_reported_done", "skipped", "needs_help"] },
+          "checked_at": { "oneOf": [{ "$ref": "common.schema.json#/$defs/Timestamp" }, { "type": "null" }] },
+          "measured_mm": {
+            "oneOf": [{ "$ref": "common.schema.json#/$defs/LengthMm" }, { "type": "null" }],
+            "description": "Value the user read off the ruler at a checkpoint step, if any."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "updated_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
+  },
+  "additionalProperties": false
+}

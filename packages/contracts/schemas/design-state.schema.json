@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DesignState",
+  "description": "Design state (blueprint §3.3). Set only by the feasibility engine (packages/feasibility). The AI model, the API and the app never set or upgrade it.\n- IDEA_ONLY: outside verified recipes or missing essential inputs. Explore or ask a tailor; no cut plan.\n- NEEDS_INPUT: missing or contradictory dimensions, or an unclear source panel. Ask for measurements or corrections.\n- FAILED_CHECKS: one or more hard constraints failed. Explain the failure and offer supported changes.\n- PASS_SUPPORTED_CHECKS: the implemented measurement, material and rule gates passed. Preview, reviewed DIY plan or tailor brief after the final ruler checkpoint.\n- SUPERSEDED: the revision was changed after passing checks. Read-only; the new revision must pass on its own.",
+  "type": "string",
+  "enum": ["IDEA_ONLY", "NEEDS_INPUT", "FAILED_CHECKS", "PASS_SUPPORTED_CHECKS", "SUPERSEDED"]
+}

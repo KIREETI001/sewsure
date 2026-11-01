@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "User",
+  "description": "An authenticated account. Role decides which routes it may call (tailor-only quote submission). No card or payment data.",
+  "type": "object",
+  "required": ["user_id", "role", "consent", "created_at"],
+  "properties": {
+    "user_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "role": { "type": "string", "enum": ["user", "tailor"] },
+    "display_name": { "type": ["string", "null"], "maxLength": 80 },
+    "profile_ref": {
+      "oneOf": [{ "$ref": "common.schema.json#/$defs/Id" }, { "type": "null" }],
+      "description": "Body profile (user) or tailor profile (tailor)."
+    },
+    "consent": { "$ref": "#/$defs/Consent" },
+    "created_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Consent": {
+      "type": "object",
+      "required": ["consent_version", "accepted_at", "body_measurements", "image_use"],
+      "properties": {
+        "consent_version": { "type": "string", "maxLength": 32, "description": "Version of the consent text accepted." },
+        "accepted_at": { "$ref": "common.schema.json#/$defs/Timestamp" },
+        "body_measurements": { "type": "boolean", "description": "May save a body measurement profile." },
+        "image_use": { "type": "string", "enum": ["app_only", "research", "research_and_demo"] },
+        "withdrawn_at": { "oneOf": [{ "$ref": "common.schema.json#/$defs/Timestamp" }, { "type": "null" }] }
+      },
+      "additionalProperties": false
+    }
+  }
+}

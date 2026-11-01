@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FitAssessment",
+  "description": "Fit output (blueprint §7.1). Ease = finished garment circumference - body circumference. A label is an estimate, never a guarantee of comfort or fit.",
+  "type": "object",
+  "required": ["body_profile_id", "revision_id", "measurements_mm", "estimated_finished_mm", "ease_mm", "fit_label", "warnings"],
+  "properties": {
+    "body_profile_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "revision_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "measurements_mm": { "$ref": "#/$defs/NamedMm", "description": "Body dimensions used." },
+    "estimated_finished_mm": { "$ref": "#/$defs/NamedMm", "description": "Finished garment circumferences, not the original flat width." },
+    "ease_mm": { "$ref": "#/$defs/NamedMm" },
+    "fit_label": {
+      "type": "string",
+      "enum": ["close_estimate", "regular_estimate", "relaxed_estimate", "oversized_estimate", "insufficient_ease", "unknown"]
+    },
+    "warnings": { "type": "array", "items": { "type": "string", "maxLength": 200 } }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "NamedMm": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64 },
+      "additionalProperties": { "$ref": "common.schema.json#/$defs/SignedLengthMm" }
+    }
+  }
+}

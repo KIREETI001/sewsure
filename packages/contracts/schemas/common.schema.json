@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Common",
+  "description": "Shared building blocks for SewSure contract v1 (DRAFT). Lengths are millimetres; the UI converts to cm.",
+  "$defs": {
+    "Id": {
+      "type": "string",
+      "description": "Opaque server-issued identifier. Clients must not parse it.",
+      "pattern": "^[a-z][a-z0-9]*-[A-Za-z0-9_-]{1,64}$",
+      "examples": ["rev-002", "g-014"]
+    },
+    "Timestamp": { "type": "string", "format": "date-time", "description": "RFC 3339 timestamp in UTC." },
+    "LengthMm": { "type": "number", "minimum": 0, "maximum": 5000, "description": "A non-negative length in millimetres." },
+    "SignedLengthMm": {
+      "type": "number",
+      "minimum": -5000,
+      "maximum": 5000,
+      "description": "A signed length in millimetres (for residuals and coordinates)."
+    },
+    "PositiveLengthMm": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 5000,
+      "description": "A strictly positive length in millimetres (measured values; 0 mm is never a real measurement)."
+    },
+    "Units": { "type": "string", "const": "mm", "description": "Every stored and computed length is millimetres." },
+    "Sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "Slug": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64 },
+    "RecipeId": {
+      "type": "string",
+      "description": "Reviewed recipe identifier from content/recipes. The server checks it against the allow-list.",
+      "pattern": "^[a-z][a-z0-9_]*_v[0-9]+$",
+      "examples": ["woven_shirt_crop_v1"]
+    },
+    "Version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$", "examples": ["1.0", "0.1.0"] },
+    "Parameters": {
+      "type": "object",
+      "description": "Recipe parameters picked from the recipe's allow-list. Lengths must use a key ending in _mm and are non-negative; counts end in _count; everything else is a string or boolean option. Unitless, centimetre and negative lengths are rejected. Used for user edits and engine output; AI output uses AiParameters instead.",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64 },
+      "additionalProperties": { "type": ["number", "string", "boolean"] },
+      "allOf": [
+        {
+          "patternProperties": {
+            "_mm$": { "$ref": "#/$defs/LengthMm" },
+            "_count$": { "type": "integer", "minimum": 0, "maximum": 100 }
+          },
+          "additionalProperties": { "type": ["string", "boolean"] }
+        }
+      ]
+    },
+    "Provenance": {
+      "type": "object",
+      "description": "Where a record came from, so a screenshot can be traced to one revision and a mock is never shown as a verified run.",
+      "required": ["source", "schema_version"],
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": ["live", "mock"],
+          "description": "mock = fixture or stub data; live = produced by the deployed API and feasibility engine."
+        },
+        "schema_version": { "$ref": "#/$defs/Version" },
+        "engine_version": {
+          "description": "packages/feasibility version that produced any state or check.",
+          "oneOf": [{ "$ref": "#/$defs/Version" }, { "type": "null" }]
+        },
+        "model_id": {
+          "description": "AI model deployment that proposed recipe IDs or text, if any. Never a source of geometry.",
+          "type": ["string", "null"],
+          "maxLength": 128
+        },
+        "prompt_version": { "type": ["string", "null"], "maxLength": 64 }
+      },
+      "additionalProperties": false
+    },
+    "Money": {
+      "type": "object",
+      "description": "An amount in minor units (e.g. cents) with an ISO 4217 currency. SewSure does not transfer funds.",
+      "required": ["amount_minor", "currency"],
+      "properties": {
+        "amount_minor": { "type": "integer", "minimum": 0 },
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
+      },
+      "additionalProperties": false
+    },
+    "AiParameters": {
+      "type": "object",
+      "description": "Parameters an AI model may propose: named levels and switches from the recipe's allow-list only. No numbers at all, so the model can never supply a length (non-negotiable 4). The recipe maps each level to millimetres before the feasibility engine runs.",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64, "not": { "pattern": "_(mm|cm|in|count)$" } },
+      "additionalProperties": {
+        "anyOf": [{ "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64 }, { "type": "boolean" }]
+      },
+      "examples": [{ "crop_level": "cropped", "hem_finish": "double_fold" }]
+    }
+  }
+}
