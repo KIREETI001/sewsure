@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+name: sewsure
+metadata:
+  template: sewsure@0.1.0
+
+# Staging only. A human provisions it (see infrastructure/RUNBOOK.md).
+# Production lives in infrastructure/prod/ and needs all three founders (A3).
+infra:
+  provider: bicep
+  path: infrastructure/staging
+  module: main
+
+services:
+  # Resolved by tag azd-service-name=api on the Container App.
+  # Needs services/api/Dockerfile (K2) before the api service can build.
+  api:
+    project: ./services/api
+    language: python
+    host: containerapp
+    docker:
+      path: ./Dockerfile
+      remoteBuild: true
+
+  # Resolved by tag azd-service-name=site on the Static Web App.
+  # apps/site is plain static HTML (D9), so it is published as-is from its folder.
+  site:
+    project: ./apps/site
+    host: staticwebapp
+    dist: .

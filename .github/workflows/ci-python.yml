@@ -1,0 +1,143 @@
+name: CI Python
+
+# Lint, type-check and test the Python packages. A package that has no
+# pyproject.toml yet is skipped, so this stays green on a near-empty main.
+
+on:
+  pull_request:
+    paths:
+      - "services/api/**"
+      - "packages/feasibility/**"
+      - "packages/contracts/**"
+      - ".github/workflows/ci-python.yml"
+  push:
+    branches: [main]
+    paths:
+      - "services/api/**"
+      - "packages/feasibility/**"
+      - "packages/contracts/**"
+      - ".github/workflows/ci-python.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-python-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [services/api, packages/feasibility, packages/contracts]
+    defaults:
+      run:
+        working-directory: ${{ matrix.package }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect package
+        id: detect
+        run: |
+          if [ -f pyproject.toml ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::${{ matrix.package }} has no pyproject.toml yet; skipping."
+          fi
+
+      - name: Install uv
+        if: steps.detect.outputs.exists == 'true'
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: ${{ matrix.package }}/uv.lock
+
+      - name: Set up Python
+        if: steps.detect.outputs.exists == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        if: steps.detect.outputs.exists == 'true'
+        run: |
+          if [ -f uv.lock ]; then uv sync --frozen --all-extras; else uv sync --all-extras; fi
+
+      - name: Detect ruff
+        id: ruff
+        if: steps.detect.outputs.exists == 'true'
+        run: |
+          if uv run ruff --version >/dev/null 2>&1; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::ruff is not a dependency of ${{ matrix.package }}; lint skipped."
+          fi
+
+      - name: Ruff lint
+        if: steps.ruff.outputs.present == 'true'
+        run: uv run ruff check .
+
+      - name: Ruff format check
+        if: steps.ruff.outputs.present == 'true'
+        run: uv run ruff format --check .
+
+      - name: Pyright
+        if: steps.detect.outputs.exists == 'true'
+        run: uv run pyright
+
+      - name: Pytest
+        if: steps.detect.outputs.exists == 'true'
+        run: uv run pytest -ra --junitxml=pytest-report.xml
+
+      - name: Upload test report
+        if: always() && steps.detect.outputs.exists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-${{ strategy.job-index }}
+          path: ${{ matrix.package }}/pytest-report.xml
+          if-no-files-found: ignore
+
+  contracts-ts:
+    name: packages/contracts (TypeScript)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: packages/contracts
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect package
+        id: detect
+        run: |
+          if [ -f package.json ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::packages/contracts has no package.json yet; skipping."
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.detect.outputs.exists == 'true'
+        with:
+          node-version: lts/*
+
+      - name: Install
+        if: steps.detect.outputs.exists == 'true'
+        run: if [ -f package-lock.json ]; then npm ci; else npm install --no-audit --no-fund; fi
+
+      - name: Regenerate types and check they are committed
+        if: steps.detect.outputs.exists == 'true'
+        run: |
+          npm run --if-present gen:ts
+          git diff --exit-code -- generated/ts
+
+      - name: Type-check
+        if: steps.detect.outputs.exists == 'true'
+        run: npm run --if-present check:ts
