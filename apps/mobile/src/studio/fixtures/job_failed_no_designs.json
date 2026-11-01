@@ -1,0 +1,121 @@
+{
+  "mock": true,
+  "scenario": "job_failed_no_designs",
+  "description": "Generation job failed with a recoverable error and the design list is empty. Covers the zero-candidate and failed-job edge states.",
+  "project": {
+    "project_id": "prj-timeout",
+    "owner_id": "usr-demo-01",
+    "garment_id": "gar-timeout",
+    "title": null,
+    "measurements_id": "msr-timeout",
+    "latest_job_id": "job-timeout",
+    "created_at": "2026-10-28T09:00:00Z",
+    "updated_at": "2026-10-28T09:01:30Z"
+  },
+  "garment": {
+    "garment_id": "gar-timeout",
+    "project_id": "prj-timeout",
+    "owner_id": "usr-demo-01",
+    "category": "woven_shirt",
+    "fabric_family": "woven",
+    "attribute_origin": "ai_suggested_user_confirmed",
+    "attributes_confirmed_at": "2026-10-28T09:00:00Z",
+    "visible_features": ["button_placket"],
+    "condition_notes": null,
+    "photos": [
+      {
+        "photo_id": "pho-timeout-front",
+        "garment_id": "gar-timeout",
+        "view": "front",
+        "storage_ref": "mock/garments/gar-timeout/front.jpg",
+        "content_type": "image/jpeg",
+        "byte_size": 1843200,
+        "width_px": 3024,
+        "height_px": 4032,
+        "status": "verified",
+        "has_calibration_marker": true,
+        "image_use_consent": "app_only",
+        "created_at": "2026-10-28T09:00:00Z"
+      },
+      {
+        "photo_id": "pho-timeout-back",
+        "garment_id": "gar-timeout",
+        "view": "back",
+        "storage_ref": "mock/garments/gar-timeout/back.jpg",
+        "content_type": "image/jpeg",
+        "byte_size": 1843200,
+        "width_px": 3024,
+        "height_px": 4032,
+        "status": "verified",
+        "has_calibration_marker": true,
+        "image_use_consent": "app_only",
+        "created_at": "2026-10-28T09:00:00Z"
+      }
+    ],
+    "created_at": "2026-10-28T09:00:00Z",
+    "updated_at": "2026-10-28T09:00:00Z"
+  },
+  "measurements": {
+    "measurements": {
+      "measurements_id": "msr-timeout",
+      "project_id": "prj-timeout",
+      "units": "mm",
+      "garment": {
+        "shoulder_to_hem": {
+          "value_mm": 780,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
+        },
+        "chest_flat_width": {
+          "value_mm": 560,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
+        },
+        "hem_width": {
+          "value_mm": 540,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
+        }
+      },
+      "body": null,
+      "updated_at": "2026-10-28T09:00:00Z"
+    },
+    "issues": [],
+    "missing_dimensions": []
+  },
+  "job": {
+    "job_id": "job-timeout",
+    "kind": "generate_designs",
+    "project_id": "prj-timeout",
+    "state": "failed",
+    "stage": null,
+    "result": null,
+    "error": {
+      "code": "MODEL_TIMEOUT",
+      "message": "Design generation took too long. Your inputs are saved; try again.",
+      "recoverable": true,
+      "retry_after_s": 30,
+      "field_errors": [],
+      "request_id": "mock-req-0001"
+    },
+    "created_at": "2026-10-28T09:00:00Z",
+    "updated_at": "2026-10-28T09:01:30Z"
+  },
+  "designs": {
+    "project_id": "prj-timeout",
+    "job_id": "job-timeout",
+    "designs": [],
+    "binding_constraint": null
+  },
+  "revisions": [],
+  "cut_plan": null,
+  "diy_steps": null,
+  "quotes": [],
+  "evidence": []
+}
