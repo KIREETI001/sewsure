@@ -1,0 +1,44 @@
+{
+  "id": "SS-04",
+  "class": "supported_success",
+  "synthetic": true,
+  "description": "Long shirt: 820 mm to 550 mm, 40 mm hem",
+  "reason": "Cut mark 590 mm is inside 820 mm; 230 mm remainder.",
+  "destructive_cut": true,
+  "inputs": {
+    "garment": {
+      "category": "woven_shirt",
+      "fabric_family": "woven",
+      "closure": "button_placket",
+      "prohibited_regions": [
+        {
+          "name": "armhole",
+          "from_shoulder_mm": 0,
+          "to_shoulder_mm": 150
+        }
+      ],
+      "seam_margin_mm": 0
+    },
+    "measurements": {
+      "shoulder_to_hem": {
+        "value_mm": 820,
+        "origin": "user_tape_measured",
+        "confirmed_at": "2026-01-01T00:00:00Z"
+      },
+      "chest_flat_width": {
+        "value_mm": 560,
+        "origin": "user_tape_measured",
+        "confirmed_at": "2026-01-01T00:00:00Z"
+      }
+    },
+    "recipe_id": "woven_shirt_crop_v1",
+    "params": {
+      "finished_length_mm": 550,
+      "hem_allowance_mm": 40
+    }
+  },
+  "expected": {
+    "status": "PASS_SUPPORTED_CHECKS",
+    "failure_codes": []
+  }
+}
