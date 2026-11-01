@@ -11,7 +11,7 @@ Maps each factual claim in `interim-report.md` to its source. Revised 1 Nov 2026
 | S3 | SewSure Technical Implementation Blueprint & Three-Person Delivery Plan V0.1, 22 Oct 2026 | `SewSure_Technical_Implementation_and_3_Person_Plan_V0.1 (1).pdf` |
 | S4 | NTU EEE, Suggested Format of FYP Interim Report | `SuggestedFormatInterimReport.pdf` |
 | S5 | NTU EEE Final Year Project page, deadlines table (printed 22 Oct 2026) | `fyp deadlines.pdf` |
-| S6 | This repo on `main@84efce5` (root `CLAUDE.md`, `.claude/agents/`, `.claude/hooks/`, `.github/CODEOWNERS`) | git |
+| S6 | This repo on `main@c46c5d8` as of 2 Nov 2026 (scaffold commit `84efce5`; root `CLAUDE.md`, `.claude/agents/`, `.claude/hooks/`, `.github/CODEOWNERS`) | git |
 | S7 | GitHub PR #1, "Add backup code owners for each area" (merged 1 Nov 2026, `bd4e24c`) | `gh pr view 1` |
 | S8 | L0 baseline audit of 28 Oct 2026: `docs/digests/2026-10-28-baseline-audit.md`, `2026-10-28.md`, `docs/risk-register.md`, `docs/decisions.md` (PR #2, merged 1 Nov 2026, `c46c5d8`) | `main` |
 | S9 | `docs/CLAUDE.md` documentation rules | git, `main` |
@@ -19,7 +19,8 @@ Maps each factual claim in `interim-report.md` to its source. Revised 1 Nov 2026
 | S10 | L0 daily digest of 1 Nov 2026 and updated `human-tasks.md` (PR #26, **open, not merged**; snapshot ~20:35 SGT at `main@c46c5d8`) | branch `l0/digest-2026-11-01` |
 | S11 | PR #16, "Make PR approvals optional in the agent rules" (merged 1 Nov 2026, 10:16 UTC, `4adc272`) | `gh pr view 16` |
 | S12 | GitHub branch-protection API for `main`, read 1 Nov 2026: PR required, `required_approving_review_count` 0, `require_code_owner_reviews` false, `enforce_admins` true | `gh api repos/KIREETI001/sewsure/branches/main/protection` |
-| S13 | `gh pr list --state all`, 1 Nov 2026: 14 merged (#1–#7, #9–#12, #14–#16), 13 open (#8, #13, #17–#26, #32) | GitHub |
+| S13 | `gh pr list --state all`: on 1 Nov 14 merged (#1–#7, #9–#12, #14–#16), 13 open (#8, #13, #17–#26, #32); on 2 Nov 15 open (adds #33, #34) | GitHub |
+| S14 | GitHub collaborators and invitations API for the repo, 2 Nov 2026: collaborators KIREETI001, vanilaa23, delfinee; 0 pending invitations | `gh api repos/KIREETI001/sewsure/collaborators` and `/invitations` |
 
 S8, S10 are L0's own reports. S10 is unmerged and unreviewed by a founder.
 
@@ -58,9 +59,9 @@ S8, S10 are L0's own reports. S10 is unmerged and unreviewed by a founder.
 | 2.1 | Deck and blueprint dated 22 Oct | S1 slide 1; S3 cover |
 | 2.1 | Scaffold commit 28 Oct 2026; 29 agents; hooks; CODEOWNERS | S6 (`git log`: 84efce5, 2026-10-28; `ls .claude/agents`) |
 | 2.1 | Branch protection on 28 Oct: PR + one code-owner review | S8 audit ("What exists on main") |
-| 2.1 | 1 Nov: 0 approving reviews required, admins still need a PR; A0–A3 become guidance | S11; S12 |
+| 2.1 | By 1 Nov: 0 approving reviews required (one was seen on 28 Oct, so the change date is unknown), admins still need a PR; A0–A3 become guidance | S11; S12 |
 | 2.1 | 14 PRs merged 18:16–18:18 SGT on 1 Nov, all from KIREETI001, no approving review; list and contents | S10 "Merged"; S13 |
-| 2.1 | 13 PRs open on 1 Nov | S13 |
+| 2.1 | 13 PRs open on 1 Nov (L0 snapshot); 15 on 2 Nov | S13 |
 | 2.2 | Source precedence rule | S2 §02 |
 | 2.2 | Decision register mostly unresolved | S2 §14; S3 §20; S8 `docs/decisions.md` (all open) |
 | 2.3 | Architecture, design record, AI boundary, gates, cut guidance | S1 slide 11; S3 §2, §3, §4.1, §4.3, §5.4, §5.5, §6; S2 §08 |
@@ -75,14 +76,14 @@ S8, S10 are L0's own reports. S10 is unmerged and unreviewed by a founder.
 | 2.4 | Four hooks and their effects | S6 `.claude/hooks/guard-paths.mjs`, `guard-shell.mjs`, `guard-outbound.mjs`, `format-on-edit.mjs` |
 | 2.4 | Non-negotiable rules | S6 `CLAUDE.md` |
 | 2.4 | `needs-human` label missing on 28 Oct and still open on 1 Nov | S8 audit; S10 (`human-tasks.md` H-07b) |
-| 2.5 | 14 agents running on 28 Oct (the "15 queued" figure in v0.1 is dropped; the digests disagree: 15 on 28 Oct, 14 on 1 Nov) | S8 daily digest |
+| 2.5 | 14 agents running on 28 Oct (queued figure dropped) | S8 daily digest |
 | 2.5 | Contract draft.2 not frozen; recipe `draft`, no reviewer; ease ranges unverified; X1/X2 outcomes; CI Benchmarks failure; PR #19 synthetic counts (27 cases, 29 checks, 0/21, 21/21, 8/8, 0/8, 0/29) | S10 |
 | 2.6 | Questions Q1–Q4 on physical work | S8 audit |
 | 2.6 | Keep denominators and negative results | S9 |
 | 2.7 | Page counts (scope 10, blueprint 21) | S2 footer; S3 footer |
-| 2.8 | P0 red: 28 Oct 0 of 5 items in repo (4 days left); 1 Nov still RED, window ended | S8 audit; S10 |
+| 2.8 | P0 red: 28 Oct 0 of 5 items in repo (4 days left); 1 Nov still RED, window ended; 0 of 5 fully met, 4 partial, 1 absent; §12 re-plan recommended by L0, not recorded | S8 audit; S10 |
 | 2.8 | CI added in PR #6, Benchmarks failing on `main` | S10 |
-| 2.8 | Invites: one accepted, Narthananilaa's pending, created 27 Oct | S7 body; S10 |
+| 2.8 | Invites pending on 28 Oct; by 2 Nov all three are collaborators, 0 pending (S10 still shows the 1 Nov snapshot with one pending) | S7 body; S14 |
 | 2.8 | Ethics/consent route open (H-05, formerly H-08; D12) | S10 `human-tasks.md`; S3 §20 D12 |
 | 2.8 | Founders' physical-progress answers outstanding | S10 |
 | 3.1 | Open wave-2 PRs and P0 evidence state on `main` | S10; S13; S8 audit table |
