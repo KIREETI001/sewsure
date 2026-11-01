@@ -163,17 +163,17 @@ def _fit_homography(src: Vec, dst: Vec) -> Vec:
     if sv[-2] < 1e-9 * max(sv[0], 1.0):
         raise ValueError("degenerate point configuration")
     h = vt[-1].reshape(3, 3)
-    full = np.linalg.inv(td) @ h @ ts
+    full: Vec = np.linalg.inv(td) @ h @ ts
     w = np.hstack([src, np.ones((len(src), 1))]) @ full[2]
     if np.all(w < 0):
-        full = -full
+        full = np.negative(full)
     elif not np.all(w > 0):
         raise ValueError("points straddle the horizon line")
     # With w > 0 on every point, det(H) > 0 means orientation is preserved. A reflection must be
     # declared with ``mirrored``; a homography must not absorb a left/right mix-up silently.
     if np.linalg.det(full) <= 0:
         raise ValueError("homography reverses orientation")
-    return full / np.linalg.norm(full)
+    return full / float(np.linalg.norm(full))
 
 
 def apply_transform(matrix: Vec, pts: Vec) -> Vec:
@@ -222,7 +222,7 @@ def _local_scale_px_per_mm(image_to_plane: Vec, centre_px: Vec) -> float:
     """px per mm of the plane->image map at the point set's centre (1/s for a similarity)."""
     inv = np.linalg.inv(image_to_plane)
     c = apply_transform(image_to_plane, centre_px[None, :])[0]
-    probes = np.array([c, c + [1.0, 0.0], c + [0.0, 1.0]])
+    probes = np.array([c, c + np.array([1.0, 0.0]), c + np.array([0.0, 1.0])])
     px = apply_transform(inv, probes)
     return float(math.sqrt(np.hypot(*(px[1] - px[0])) * np.hypot(*(px[2] - px[0]))))
 
@@ -237,7 +237,7 @@ def fit_calibration(
     *,
     mirrored: bool = False,
 ) -> CalibrationResult:
-    """Fit a calibration. Never raises on bad data: it returns ``rejected``/``uncalibrated``/``none``.
+    """Fit a calibration. Bad data never raises; the state says what happened.
 
     ``calibrated`` requires a human-set tolerance, valid points, and worst-case leave-one-out
     error within that tolerance.

@@ -168,7 +168,8 @@ def test_flat_photo_stays_on_scale_model_even_with_many_points() -> None:
 
 def test_perspective_needs_five_points() -> None:
     plane = PLANE_MM[:4]
-    r = fit_calibration(make_points(homography_px(plane), plane), CalibrationConfig(tolerance_mm=2.0))
+    cfg = CalibrationConfig(tolerance_mm=2.0)
+    r = fit_calibration(make_points(homography_px(plane), plane), cfg)
     assert r.model is CalibrationModel.SCALE
     assert r.scale_model_max_error_mm == r.max_error_mm
 
@@ -319,7 +320,9 @@ def test_contract_calibration_record_matches_schema() -> None:
     for state in (
         good_calibration(None).state,
         fit_calibration([], CFG).state,
-        fit_calibration(make_points(similarity(2.0, 0.0, 0.0, 0.0, PLANE_MM)[:2], PLANE_MM[:2]), CFG).state,
+        fit_calibration(
+            make_points(similarity(2.0, 0.0, 0.0, 0.0, PLANE_MM)[:2], PLANE_MM[:2]), CFG
+        ).state,
     ):
         assert state in cal_def["properties"]["state"]["enum"]
 
