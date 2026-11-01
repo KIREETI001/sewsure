@@ -1,0 +1,14 @@
+# Model failure: the message shows, the request stays visible, and Try again recovers.
+appId: com.sewsure.mobile
+---
+- launchApp
+- openLink: sewsure:///generating?scenario=job_failed_no_designs
+- extendedWaitUntil:
+    visible: "Generation did not finish"
+    timeout: 20000
+- assertVisible: ".*took too long.*"
+- assertVisible: "Your request is saved.*"
+- tapOn: "Try again"
+- extendedWaitUntil:
+    visible: "Showing 2 options"
+    timeout: 20000

@@ -1,0 +1,21 @@
+# Editing creates a new version; the earlier version becomes read only (superseded).
+appId: com.sewsure.mobile
+---
+- launchApp
+- openLink: sewsure:///generating?scenario=woven_shirt_crop_pass
+- extendedWaitUntil:
+    visible: "Showing 2 options"
+    timeout: 20000
+- tapOn: "View design: Cropped shirt, 500 mm"
+- assertVisible: "Approximate outline only.*"
+- tapOn:
+    text: "Hem allowance, cm"
+- eraseText
+- inputText: "3"
+- tapOn: "Recheck design"
+- assertVisible: "Version 3 \(current\)"
+- scrollUntilVisible:
+    element: "Open version 2"
+- tapOn: "Open version 2"
+- assertVisible: "Read only: replaced by a newer version"
+- assertNotVisible: "Recheck design"
