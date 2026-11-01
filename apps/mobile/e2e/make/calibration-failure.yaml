@@ -1,0 +1,10 @@
+# Calibration absent or rejected: the dimensioned diagram shows, never a photo overlay.
+# Uses the demo fixture, which is uncalibrated.
+appId: com.sewsure.mobile
+---
+- openLink: sewsure:///cut?revisionId=rev-crop-a-2
+- assertVisible: "Showing the diagram instead of a photo overlay"
+- assertVisible: "Dimensioned diagram"
+- assertVisible: "Not yet reviewed.*"
+- assertVisible: "MOCK DATA"
+- assertNotVisible: "Photo overlay"
