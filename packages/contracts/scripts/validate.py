@@ -72,6 +72,8 @@ def check_fixture_invariants(name: str, fx: dict[str, Any]) -> list[str]:
             continue
         if d["status"] != rev["status"]:
             errors.append(f"{name}: design {d['design_id']} status {d['status']} != revision status {rev['status']}")
+        if d["stale"] != rev["stale"]:
+            errors.append(f"{name}: design {d['design_id']} stale {d['stale']} != revision stale {rev['stale']}")
         if rev["design_id"] != d["design_id"]:
             errors.append(f"{name}: revision {rev['revision_id']} belongs to another design")
     if fx["job"]["state"] == "complete":
@@ -85,6 +87,12 @@ def check_fixture_invariants(name: str, fx: dict[str, Any]) -> list[str]:
         parent = rev["parent_revision_id"]
         if parent is not None and parent not in revisions:
             errors.append(f"{name}: revision {rev['revision_id']} has unknown parent {parent}")
+    for rev in revisions.values():
+        is_stale = rev["inputs"]["measurements_id"] != fx["project"]["measurements_id"]
+        if rev["stale"] != is_stale:
+            errors.append(f"{name}: revision {rev['revision_id']} stale must be {is_stale} for its measurements_id")
+    if fx.get("cut_plan") and any(r["stale"] and r["cut_plan_id"] == fx["cut_plan"]["cut_plan_id"] for r in revisions.values()):
+        errors.append(f"{name}: a stale revision must not be served a cut plan")
     cut_plan = fx.get("cut_plan")
     if cut_plan:
         rev = revisions.get(cut_plan["revision_id"])
