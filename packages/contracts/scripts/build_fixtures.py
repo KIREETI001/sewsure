@@ -180,6 +180,7 @@ def revision(
     cut_plan_id: str | None = None,
     superseded_by: str | None = None,
     preview_kind: str = "silhouette_2d",
+    stale: bool = False,
 ) -> dict[str, Any]:
     recipe_version = "1.0" if recipe_id else None
     inputs = {
@@ -206,6 +207,7 @@ def revision(
         "geometry_mm": geometry,
         "checks": check,
         "status": status,
+        "stale": stale,
         "diy_suitability": diy,
         "pending_checks": pending,
         "fit": None,
@@ -225,6 +227,7 @@ def candidate(rev: dict[str, Any], rank: int, title: str, explanation: str, pane
         "title": title,
         "current_revision_id": rev["revision_id"],
         "status": rev["status"],
+        "stale": rev["stale"],
         "recipe_id": rev["recipe_id"],
         "parameters": rev["parameters"],
         "required_panels": panels,
@@ -266,7 +269,7 @@ PASS_OUTCOMES: list[tuple[str, str, str | None]] = [
     ("structure", "pass", None),
     ("construction", "pass", None),
 ]
-SHIRT_DIMS = {"shoulder_to_hem": mv(780), "chest_flat_width": mv(560), "hem_width": mv(540)}
+SHIRT_DIMS = {"shoulder_to_hem": mv(780), "chest_flat_width": mv(560), "hem_width": mv(540), "placket_end_from_shoulder": mv(700)}
 CROP_EXPLANATION = "Crop to {f} mm finished length with a {h} mm hem turn-up. The cut mark sits {c} mm below the shoulder point. Side seams are not verified by this check; measure with a ruler before cutting."
 
 
@@ -516,6 +519,7 @@ def needs_input() -> dict[str, Any]:
     dims = {
         "shoulder_to_hem": mv(760, origin="vision_suggested", confirmed=None, entered_unit="mm"),
         "chest_flat_width": mv(550),
+        "placket_end_from_shoulder": mv(680),
     }
     issues = [{"dimension": "shoulder_to_hem", "code": "UNCONFIRMED_DIMENSION", "message": "Measure shoulder to hem with a tape and confirm the value."}]
     params = {"finished_length_mm": 500, "hem_allowance_mm": 30, "hem_finish": "double_fold"}
@@ -612,6 +616,42 @@ def idea_only() -> dict[str, Any]:
     }
 
 
+def stale_after_measurements_change() -> dict[str, Any]:
+    key = "stale"
+    params = {"finished_length_mm": 500, "hem_allowance_mm": 25, "hem_finish": "double_fold"}
+    rev = revision(
+        key, "stale-a", 1, category="woven_shirt", fabric="woven", recipe_id=CROP, parameters=params,
+        geometry=crop_geometry(780, 500, 25),
+        check=checks(True, PASS_OUTCOMES, [length_residual(525, 780)], flags=["SIDE_SEAMS_NOT_VERIFIED"]),
+        status="PASS_SUPPORTED_CHECKS", diy="DIY_WITH_PRACTICE",
+        pending=["Measurements changed since this check; recheck this design before cutting."],
+        measurements_id=f"msr-{key}-old", cut_plan_id="cut-stale-a-1", stale=True,
+    )
+    explanation = "Measurements changed since this check; recheck this design before cutting."
+    return {
+        "mock": True,
+        "scenario": "stale_after_measurements_change",
+        "description": "The user replaced the measurements after a crop passed. The revision keeps PASS_SUPPORTED_CHECKS because only the engine sets states, stale is true, and GET cut-plan returns 409 REVISION_STALE until a recheck.",
+        "project": project(key, f"msr-{key}", f"job-{key}"),
+        "garment": garment(key, "woven_shirt", "woven", ["button_placket"]),
+        "measurements": measurements(key, {**SHIRT_DIMS, "shoulder_to_hem": mv(760)}, [], []),
+        "inspiration": inspiration(key, "Make it a cropped shirt.", {"transformation": "crop", "target_finished_length_mm": 500}),
+        "job": job(key, "complete", ["des-stale-a"], "designs"),
+        "designs": {
+            "project_id": f"prj-{key}",
+            "job_id": f"job-{key}",
+            "designs": [candidate(rev, 1, "Cropped shirt", explanation, ["front_left", "front_right", "back_panel"])],
+            "binding_constraint": None,
+        },
+        "revisions": [rev],
+        "cut_plan_error": {
+            "code": "REVISION_STALE",
+            "message": "Measurements changed since this check. Recheck the design before cutting.",
+            "recoverable": True,
+        },
+    }
+
+
 def job_failed_no_designs() -> dict[str, Any]:
     key = "timeout"
     error = {
@@ -641,7 +681,7 @@ def job_failed_no_designs() -> dict[str, Any]:
 
 def main() -> None:
     FIXTURES.mkdir(exist_ok=True)
-    for build in [woven_shirt_crop_pass, lengthening_impossible, needs_input, idea_only, job_failed_no_designs]:
+    for build in [woven_shirt_crop_pass, lengthening_impossible, needs_input, idea_only, stale_after_measurements_change, job_failed_no_designs]:
         fx = copy.deepcopy(build())
         path = FIXTURES / f"{fx['scenario']}.json"
         path.write_text(json.dumps(fx, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

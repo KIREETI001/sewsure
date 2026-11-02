@@ -59,6 +59,10 @@ class DesignCandidate(BaseModel):
     Opaque server-issued identifier. Clients must not parse it.
     """
     status: design_state_schema.DesignState
+    stale: bool
+    """
+    Mirrors stale on the current revision. true means the measurements changed after the check: not a design state, and status is unchanged. Lead the card with the recheck; do not present the result as current.
+    """
     recipe_id: common_schema.RecipeId | None
     parameters: common_schema.Parameters
     required_panels: list[common_schema.Slug]
