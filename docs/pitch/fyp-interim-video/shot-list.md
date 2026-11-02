@@ -37,8 +37,8 @@ Schedule: **not agreed.** Three dates conflict and D8 has not chosen between the
 |---|---|---|---|---|
 | M1 | Entry and garment capture screens | Merged D2 code, `apps/mobile/app/(intake)/` (#14), sample data | PROTOTYPE, SAMPLE DATA | planned (record on the day) |
 | M2 | Inspiration and measurements screens | Merged D2 code (#14), sample data | PROTOTYPE, SAMPLE DATA | planned (record on the day) |
-| M3 | Result card with status badge, fewer than three options | D3 design | MOCK-UP | only if the PR is merged on recording day (open: #24, #25); otherwise label `OPEN PR, NOT MERGED, UNREVIEWED` |
-| M4 | Cut guide with ruler checkpoint (fallback diagram) | D4 design | MOCK-UP | only if the PR is merged on recording day (open: #24, #25); otherwise label `OPEN PR, NOT MERGED, UNREVIEWED` |
+| M3 | Result card with status badge, fewer than three options | D3 design | MOCK-UP | only if the PR is merged on recording day (open: #24, #25); otherwise label `OPEN PR, NOT MERGED` |
+| M4 | Cut guide with ruler checkpoint (fallback diagram) | D4 design | MOCK-UP | only if the PR is merged on recording day (open: #24, #25); otherwise label `OPEN PR, NOT MERGED` |
 | M5 | (Only if an installable build exists) screen recording on a real Android device | D6 | label by what is real: "prototype build" only if connected to the real engine, else MOCK-UP | planned, conditional |
 
 ## E. Graphics (can be produced without filming)
