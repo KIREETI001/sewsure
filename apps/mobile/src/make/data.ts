@@ -5,6 +5,7 @@
 import crop from "../../../../packages/contracts/fixtures/woven_shirt_crop_pass.json";
 import ideaOnly from "../../../../packages/contracts/fixtures/idea_only.json";
 import needsInput from "../../../../packages/contracts/fixtures/needs_input.json";
+import stale from "../../../../packages/contracts/fixtures/stale_after_measurements_change.json";
 import lengthening from "../../../../packages/contracts/fixtures/lengthening_impossible.json";
 import type { DesignRevision, MakeBundle } from "./types";
 
@@ -13,10 +14,11 @@ type Fixture = {
   cut_plan?: unknown;
   diy_steps?: unknown;
   diy_progress?: unknown;
+  cut_plan_error?: { code: string; recoverable: boolean };
   garment: { photos: unknown[] };
 };
 
-const fixtures = [crop, ideaOnly, needsInput, lengthening] as unknown as Fixture[];
+const fixtures = [crop, ideaOnly, needsInput, lengthening, stale] as unknown as Fixture[];
 
 /** Resolves to null for a revision the source does not know, so screens fail closed. */
 export async function loadMakeBundle(revisionId: string): Promise<MakeBundle | null> {
@@ -35,6 +37,7 @@ export async function loadMakeBundle(revisionId: string): Promise<MakeBundle | n
       revision,
       cutPlan: owns && cutPlan ? cutPlan : null,
       diySteps: owns && diy ? diy : null,
+      cutPlanError: f.cut_plan_error ?? null,
       serverProgress: owns && progress ? progress : null,
       photo: owns ? (photos.find((p) => p.photo_id === photoId) ?? null) : null,
     };

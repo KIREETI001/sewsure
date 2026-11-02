@@ -39,7 +39,7 @@ export default function DiyScreen() {
   if (q.data === null) return <GateNotice reason="not_found" onBack={() => goBack(router)} />;
   if (!b) return <Loading />;
   const { cutPlan, diySteps } = b;
-  const access = cutGuideAccess(b.revision, cutPlan);
+  const access = cutGuideAccess(b.revision, cutPlan, b.cutPlanError);
   if (!access.allowed || !cutPlan || !diySteps) {
     return (
       <Page bundle={b}>

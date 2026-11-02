@@ -29,6 +29,8 @@ export interface MakeBundle {
   diySteps: DiySteps | null;
   /** Progress the server already holds. Local progress is merged over it. */
   serverProgress: DiyProgress | null;
+  /** The 409 the cut-plan endpoint returned (REVISION_STALE or REVISION_NOT_PASSING), if any. */
+  cutPlanError?: { code: string; recoverable: boolean } | null;
   /** The garment photo the cut plan was calibrated against, if the API returned it. */
   photo: PhotoRef | null;
 }

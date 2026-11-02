@@ -18,14 +18,14 @@ import type {
 // ---- Cut guide access -------------------------------------------------------------------------
 
 export type NextStep =
-  "ask_tailor" | "add_measurements" | "choose_supported_change" | "open_newer_revision" | "go_back";
+  "ask_tailor" | "add_measurements" | "choose_supported_change" | "open_newer_revision" | "recheck_design" | "go_back";
 
 export type CutGuideAccess =
   | { allowed: true }
   | {
       allowed: false;
       /** i18n key suffix explaining why the guide is closed. */
-      reason: "idea_only" | "needs_input" | "failed_checks" | "superseded" | "plan_mismatch" | "no_plan";
+      reason: "idea_only" | "needs_input" | "failed_checks" | "superseded" | "stale" | "plan_mismatch" | "no_plan";
       next: NextStep;
       /** Set for SUPERSEDED when the API names the newer revision. */
       newerRevisionId: string | null;
@@ -48,6 +48,7 @@ const blockedByState: Record<
 export function cutGuideAccess(
   revision: DesignRevision | null | undefined,
   cutPlan: CutPlan | null | undefined,
+  cutPlanError?: { code: string } | null,
 ): CutGuideAccess {
   if (!revision) {
     return { allowed: false, reason: "no_plan", next: "go_back", newerRevisionId: null };
@@ -63,6 +64,14 @@ export function cutGuideAccess(
       };
     }
     // A state this build does not know is treated as closed.
+    return { allowed: false, reason: "no_plan", next: "go_back", newerRevisionId: null };
+  }
+  // A stale revision keeps PASS_SUPPORTED_CHECKS, so staleness is checked here. A missing flag is
+  // treated as stale: the guide opens only when the API said `stale: false`.
+  if (revision.stale !== false || cutPlanError?.code === "REVISION_STALE") {
+    return { allowed: false, reason: "stale", next: "recheck_design", newerRevisionId: null };
+  }
+  if (cutPlanError) {
     return { allowed: false, reason: "no_plan", next: "go_back", newerRevisionId: null };
   }
   if (!cutPlan) {

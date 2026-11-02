@@ -19,6 +19,8 @@ export const makeEn = {
   "make.gate.reason.failed_checks": "This design did not pass the checks, so there is no cut guide.",
   "make.gate.reason.superseded":
     "You changed this design after it was checked. This older version is read-only.",
+  "make.gate.reason.stale":
+    "Your measurements changed after this design was checked, so the check may no longer apply. There is no cut guide until it is rechecked.",
   "make.gate.reason.plan_mismatch":
     "The cut plan does not belong to this version of the design, so it is not shown.",
   "make.gate.reason.no_plan": "There is no cut plan for this design yet.",
@@ -28,6 +30,7 @@ export const makeEn = {
   "make.gate.next.add_measurements": "Next step: add or correct your measurements.",
   "make.gate.next.choose_supported_change": "Next step: pick a change that the checks support.",
   "make.gate.next.open_newer_revision": "Next step: open the newer version. It must pass its own checks.",
+  "make.gate.next.recheck_design": "Next step: recheck this design against your current measurements.",
   "make.gate.next.go_back": "Next step: go back to your designs.",
   "make.gate.openNewer": "Open newer version",
   "make.gate.addMeasurements": "Add measurements",

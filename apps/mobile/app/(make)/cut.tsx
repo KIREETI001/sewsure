@@ -22,7 +22,7 @@ export default function CutScreen() {
   if (q.data === null) return <GateNotice reason="not_found" onBack={() => goBack(router)} />;
   if (!q.data) return <Loading />;
   const b = q.data;
-  const access = cutGuideAccess(b.revision, b.cutPlan);
+  const access = cutGuideAccess(b.revision, b.cutPlan, b.cutPlanError);
 
   if (!access.allowed || !b.cutPlan) {
     const reason = access.allowed ? "no_plan" : access.reason;

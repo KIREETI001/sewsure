@@ -1,6 +1,8 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react-native";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactElement } from "react";
+import { AppState } from "react-native";
+import { invalidateMake } from "../../src/make/useMakeBundle";
 import * as data from "../../src/make/data";
 import { useMakeStore } from "../../src/make/store";
 import CutScreen from "../../app/(make)/cut";
@@ -10,6 +12,7 @@ let mockParams: Record<string, string | string[]> = {};
 const mockBack = jest.fn();
 const mockReplace = jest.fn();
 let mockCanGoBack = true;
+let mockFocusCb: (() => void) | null = null;
 jest.mock("expo-router", () => ({
   useRouter: () => ({
     push: jest.fn(),
@@ -18,6 +21,10 @@ jest.mock("expo-router", () => ({
     canGoBack: () => mockCanGoBack,
   }),
   useLocalSearchParams: () => mockParams,
+  // Runs the effect on every render here; the hook skips the first focus itself.
+  useFocusEffect: (cb: () => void) => {
+    mockFocusCb = cb;
+  },
 }));
 
 const PASS = "rev-crop-a-2";
@@ -69,6 +76,92 @@ describe("state gate on both screens, with a plan and steps present", () => {
       expect(screen.queryByText(/Cut through one layer/)).toBeNull();
     },
   );
+});
+
+describe("stale pass (N4)", () => {
+  const stalePass = async () => {
+    const real = await data.loadMakeBundle(PASS);
+    return { ...real!, revision: { ...real!.revision, stale: true } } as never;
+  };
+
+  it("a stale PASS with a plan and steps never renders the guide on either screen", async () => {
+    jest.spyOn(data, "loadMakeBundle").mockResolvedValue(await stalePass());
+    const cut = await wrap(<CutScreen />);
+    await screen.findByTestId("gate-reason");
+    expect(screen.getByText(/measurements changed/i)).toBeTruthy();
+    expect(screen.getByText(/recheck this design/i)).toBeTruthy();
+    expect(screen.queryByTestId("checkpoint-list")).toBeNull();
+    expect(screen.queryByTestId("dimensioned-diagram")).toBeNull();
+    await cut.unmount();
+    await wrap(<DiyScreen />);
+    await screen.findByTestId("gate-reason");
+    expect(screen.queryByTestId("progress-count")).toBeNull();
+    expect(screen.queryByText(/Cut through one layer/)).toBeNull();
+  });
+
+  it("a revision without the stale flag fails closed", async () => {
+    const real = await data.loadMakeBundle(PASS);
+    const { stale: _s, ...rev } = real!.revision as unknown as Record<string, unknown>;
+    jest.spyOn(data, "loadMakeBundle").mockResolvedValue({ ...real!, revision: rev } as never);
+    await wrap(<CutScreen />);
+    await screen.findByTestId("gate-reason");
+    expect(screen.queryByTestId("dimensioned-diagram")).toBeNull();
+  });
+
+  it("a 409 REVISION_STALE closes the guide even when the revision says stale false", async () => {
+    const real = await data.loadMakeBundle(PASS);
+    jest
+      .spyOn(data, "loadMakeBundle")
+      .mockResolvedValue({ ...real!, cutPlanError: { code: "REVISION_STALE", recoverable: true } } as never);
+    await wrap(<CutScreen />);
+    await screen.findByTestId("gate-reason");
+    expect(screen.getByText(/measurements changed/i)).toBeTruthy();
+    expect(screen.queryByTestId("dimensioned-diagram")).toBeNull();
+  });
+
+  it("the stale fixture is closed", async () => {
+    mockParams = { revisionId: "rev-stale-a-1" };
+    await wrap(<CutScreen />);
+    await screen.findByTestId("gate-reason");
+    expect(screen.getByText(/measurements changed/i)).toBeTruthy();
+  });
+
+  it("a mounted guide closes when the server marks it stale and the screen regains focus", async () => {
+    const real = await data.loadMakeBundle(PASS);
+    const spy = jest.spyOn(data, "loadMakeBundle").mockResolvedValue(real);
+    await wrap(<CutScreen />);
+    await screen.findByTestId("dimensioned-diagram");
+    spy.mockResolvedValue((await stalePass()) as never);
+    await act(async () => {
+      mockFocusCb?.(); // first focus is skipped
+      mockFocusCb?.();
+    });
+    await screen.findByTestId("gate-reason");
+    expect(screen.queryByTestId("dimensioned-diagram")).toBeNull();
+  });
+
+  it("a mounted guide closes when the app returns to the foreground", async () => {
+    const real = await data.loadMakeBundle(PASS);
+    const spy = jest.spyOn(data, "loadMakeBundle").mockResolvedValue(real);
+    const listeners: ((s: string) => void)[] = [];
+    jest.spyOn(AppState, "addEventListener").mockImplementation(((_: string, l: (s: string) => void) => {
+      listeners.push(l);
+      return { remove: jest.fn() };
+    }) as never);
+    await wrap(<CutScreen />);
+    await screen.findByTestId("dimensioned-diagram");
+    spy.mockResolvedValue((await stalePass()) as never);
+    await act(async () => listeners.forEach((l) => l("active")));
+    await screen.findByTestId("gate-reason");
+    expect(screen.queryByTestId("dimensioned-diagram")).toBeNull();
+  });
+
+  it("invalidateMake drops the cached guide for the old revision", async () => {
+    const client = newClient();
+    client.setQueryData(["make", PASS], await data.loadMakeBundle(PASS));
+    await invalidateMake(client, PASS);
+    expect(client.getQueryState(["make", PASS])?.isInvalidated).toBe(true);
+  });
 });
 
 describe("cut screen gate", () => {
