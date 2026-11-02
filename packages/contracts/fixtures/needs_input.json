@@ -76,6 +76,13 @@
           "confirmed_at": "2026-10-28T09:00:00Z",
           "entered_unit": "cm",
           "note": null
+        },
+        "placket_end_from_shoulder": {
+          "value_mm": 680,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
         }
       },
       "body": null,
@@ -141,6 +148,7 @@
         "title": "Cropped shirt, 500 mm",
         "current_revision_id": "rev-unsure-a-1",
         "status": "NEEDS_INPUT",
+        "stale": false,
         "recipe_id": "woven_shirt_crop_v1",
         "parameters": {
           "finished_length_mm": 500,
@@ -249,6 +257,7 @@
         "checked_at": "2026-10-28T09:01:30Z"
       },
       "status": "NEEDS_INPUT",
+      "stale": false,
       "diy_suitability": null,
       "pending_checks": [],
       "fit": null,

@@ -84,6 +84,13 @@
           "confirmed_at": "2026-10-28T09:00:00Z",
           "entered_unit": "cm",
           "note": null
+        },
+        "placket_end_from_shoulder": {
+          "value_mm": 700,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
         }
       },
       "body": null,
@@ -141,6 +148,7 @@
         "title": "Longer shirt dress, 900 mm",
         "current_revision_id": "rev-longer-a-1",
         "status": "FAILED_CHECKS",
+        "stale": false,
         "recipe_id": "woven_shirt_crop_v1",
         "parameters": {
           "finished_length_mm": 900,
@@ -331,6 +339,7 @@
         "checked_at": "2026-10-28T09:01:30Z"
       },
       "status": "FAILED_CHECKS",
+      "stale": false,
       "diy_suitability": null,
       "pending_checks": [],
       "fit": null,

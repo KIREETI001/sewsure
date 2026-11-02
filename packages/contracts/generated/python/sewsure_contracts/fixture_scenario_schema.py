@@ -8,6 +8,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from . import (
+    api_error_schema,
     cut_plan_schema,
     design_candidate_schema,
     design_revision_schema,
@@ -41,6 +42,10 @@ class FixtureScenario(BaseModel):
     garment: garment_schema.Garment
     measurements: measurements_schema.MeasurementsResult
     inspiration: inspiration_schema.Inspiration | None = None
+    cut_plan_error: api_error_schema.ApiError | None = None
+    """
+    The 409 body GET cut-plan returns in this scenario, where no plan is served.
+    """
     job: job_schema.Job
     designs: design_candidate_schema.DesignList
     revisions: list[design_revision_schema.DesignRevision]
