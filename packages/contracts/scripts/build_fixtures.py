@@ -278,7 +278,7 @@ def woven_shirt_crop_pass() -> dict[str, Any]:
     # Design A: first revision passed, the user then changed the hem allowance (rev 2). Rev 1 is SUPERSEDED.
     a1_params = {"finished_length_mm": 500, "hem_allowance_mm": 30, "hem_finish": "double_fold"}
     a2_params = {**a1_params, "hem_allowance_mm": 25}
-    common = dict(category="woven_shirt", fabric="woven", recipe_id=CROP, diy="DIY_WITH_PRACTICE", measurements_id=f"msr-{key}")
+    common: dict[str, Any] = dict(category="woven_shirt", fabric="woven", recipe_id=CROP, diy="DIY_WITH_PRACTICE", measurements_id=f"msr-{key}")
     pending = ["Verify the shoulder-to-hem reference with a ruler on the garment before cutting."]
     a1 = revision(
         key, "crop-a", 1, parameters=a1_params, geometry=crop_geometry(780, 500, 30),
