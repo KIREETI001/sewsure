@@ -9,6 +9,7 @@ import {
   RECIPE_STATUS,
   blockedReason,
   checkpointsComplete,
+  checkpointsUnlocked,
   cutGuideAccess,
   guideMode,
   overlayDecision,
@@ -114,21 +115,32 @@ describe("ruler checkpoint cannot be skipped", () => {
 describe("resolveSteps", () => {
   type R = ReturnType<typeof resolveSteps<(typeof diy.steps)[number]>>;
   const byId = (r: R, id: string) => r.find((x) => x.step.step_id === id)!;
+  const early = { s1_prepare: true, s2_measure: true, s3_mark: true };
 
   it("checkpoint step is never done by its own tick", () => {
-    expect(byId(resolveSteps(diy.steps, false, { s4_ruler_checkpoint: true }), "s4_ruler_checkpoint").done).toBe(false);
-    expect(byId(resolveSteps(diy.steps, true, {}), "s4_ruler_checkpoint").done).toBe(true);
+    expect(byId(resolveSteps(diy.steps, false, { ...early, s4_ruler_checkpoint: true }), "s4_ruler_checkpoint").done).toBe(false);
+    expect(byId(resolveSteps(diy.steps, true, early), "s4_ruler_checkpoint").done).toBe(true);
   });
-  it("locks the cut until checkpoints are done, and later steps until the cut is done", () => {
-    let r = resolveSteps(diy.steps, false, {});
+  it("locks the cut until earlier steps and checkpoints are done, and later steps until the cut is done", () => {
+    let r = resolveSteps(diy.steps, false, early);
     expect(byId(r, "s5_cut").lock).toBe("checkpoint_required");
     expect(byId(r, "s6_finish").lock).toBe("cut_required");
     expect(byId(r, "s7_verify").lock).toBe("cut_required");
-    r = resolveSteps(diy.steps, true, {});
+    r = resolveSteps(diy.steps, true, early);
     expect(byId(r, "s5_cut").lock).toBeNull();
     expect(byId(r, "s6_finish").lock).toBe("cut_required");
-    r = resolveSteps(diy.steps, true, { s5_cut: true });
+    r = resolveSteps(diy.steps, true, { ...early, s5_cut: true });
     expect(byId(r, "s6_finish").lock).toBeNull();
+  });
+  it("N2: ticked checkpoints do not unlock the cut while marking or measuring is not done", () => {
+    for (const missing of ["s1_prepare", "s2_measure", "s3_mark"]) {
+      const ticked = { ...early, [missing]: false };
+      const r = resolveSteps(diy.steps, true, ticked);
+      expect(byId(r, "s5_cut").lock).toBe("earlier_required");
+      expect(byId(r, "s4_ruler_checkpoint").done).toBe(false);
+      expect(checkpointsUnlocked(diy.steps, ticked)).toBe(false);
+    }
+    expect(checkpointsUnlocked(diy.steps, early)).toBe(true);
   });
   it("a cut already recorded (restored from the server) shows done, with the checkpoint step done", () => {
     const r = resolveSteps(diy.steps, false, { s5_cut: true });
@@ -149,6 +161,23 @@ describe("draft recipe", () => {
     // Release builds (no __DEV__, no demo flag) never preview a draft, even on fixture data.
     expect(guideMode(diy, plan, "mock", false)).toBe("blocked");
     expect(guideMode({ ...diy, recipe_id: "unknown_v1" }, { ...plan, recipe_id: "unknown_v1" }, "live")).toBe("blocked");
+  });
+  it("N1: a reviewed recipe on mock data is a demo preview, never executable", () => {
+    const prev = RECIPE_STATUS.woven_shirt_crop_v1;
+    RECIPE_STATUS.woven_shirt_crop_v1 = "reviewed";
+    try {
+      expect(guideMode(diy, plan, "mock", true)).toBe("demo_preview");
+      expect(guideMode(diy, plan, "mock", false)).toBe("blocked");
+      expect(guideMode(diy, plan, "live", false)).toBe("executable");
+      expect(guideMode(diy, plan, "live", true)).toBe("executable");
+    } finally {
+      RECIPE_STATUS.woven_shirt_crop_v1 = prev as typeof RECIPE_STATUS.woven_shirt_crop_v1;
+    }
+  });
+  it("N8: a cut with no checkpoint step is blocked", () => {
+    const noCp = { ...diy, steps: diy.steps.filter((s) => s.phase !== "ruler_checkpoint") };
+    expect(guideMode(noCp, plan, "mock", true)).toBe("blocked");
+    expect(blockedReason(noCp, plan)).toBe("no_checkpoint_step");
   });
   it("names the real reason a guide is blocked", () => {
     expect(blockedReason(null, plan)).toBe("no_steps");

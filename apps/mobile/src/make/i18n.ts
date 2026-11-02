@@ -50,21 +50,14 @@ export const makeEn = {
   "make.cut.kind.fold": "Fold (dashed line)",
   "make.cut.kind.stitch": "Stitch (dotted line)",
   "make.cut.kind.reference": "Reference (thin line)",
-  "make.cut.fallbackHeading": "Showing the diagram instead of a photo overlay",
-  "make.cut.fallback.mode_diagram": "The photo overlay is not offered for this plan.",
-  "make.cut.fallback.not_calibrated": "Your photo has not been calibrated against a ruler yet.",
-  "make.cut.fallback.rejected": "The photo calibration was rejected.",
-  "make.cut.fallback.out_of_tolerance": "The photo calibration was not close enough to draw lines.",
-  "make.cut.fallback.missing_calibration_data": "The calibration data is incomplete.",
-  "make.cut.fallback.missing_projection": "We cannot place the lines on your photo yet.",
-  "make.cut.fallback.photo_not_verified": "The photo has not been verified.",
-  "make.cut.fallbackApiReason": "Reason from the server: {reason}",
+  "make.cut.fallbackHeading": "Measure from this diagram",
   "make.cut.continue": "Continue to DIY steps",
 
   // Checkpoints
   "make.cp.heading": "Ruler checkpoints",
   "make.cp.intro":
     "Cutting cannot be undone. Tick each checkpoint only after you measured with a ruler. You cannot skip this.",
+  "make.cp.locked": "Locked until the earlier steps are done.",
   "make.cp.label": "{instruction} Distance: {cm} cm from the {landmark}, give or take {tol} cm.",
   "make.cp.remaining": "{n} checkpoint(s) left before any cut step",
   "make.cp.done": "All checkpoints ticked. Cut steps are now unlocked.",
@@ -81,6 +74,7 @@ export const makeEn = {
   "make.blocked.no_steps": "There are no DIY steps for this design, so there is nothing to follow. Ask a tailor instead.",
   "make.blocked.version_mismatch":
     "The cut plan and the DIY steps come from different recipe versions, so neither is shown. Ask a tailor instead.",
+  "make.blocked.no_checkpoint_step": "These steps have a cut but no ruler check before it, so they are not shown.",
   "make.blocked.not_reviewed":
     "This recipe has not been reviewed by a sewist, so it cannot be shown as a guide. Use the tailor route instead.",
 
@@ -98,6 +92,7 @@ export const makeEn = {
   "make.diy.untick": "Undo tick",
   "make.diy.irreversible": "This step cannot be undone.",
   "make.diy.lockedCheckpoint": "Locked. Tick every ruler checkpoint in step {n} first.",
+  "make.diy.lockedEarlier": "Locked. Finish the earlier steps first.",
   "make.diy.lockedCut": "Locked. Finish the cut step first.",
   "make.diy.checkpointStep": "This step is ticked for you once every checkpoint below is ticked.",
   "make.diy.selfReported": "Ticks are your own record. They are not checked by anyone.",

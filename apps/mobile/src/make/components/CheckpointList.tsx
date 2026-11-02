@@ -7,7 +7,7 @@ import { useMakeStore } from "../store";
 import type { CutPlan } from "../types";
 
 /** Ruler checkpoints for one cut plan. No skip control exists by design. */
-export function CheckpointList({ revisionId, cutPlan }: { revisionId: string; cutPlan: CutPlan }) {
+export function CheckpointList({ revisionId, cutPlan, locked }: { revisionId: string; cutPlan: CutPlan; locked: boolean }) {
   const ticked = useMakeStore((s) => s.byRevision[revisionId]);
   const set = useMakeStore((s) => s.setCheckpoint);
   const marks = ticked && ticked.cutPlanId === cutPlan.cut_plan_id ? ticked.checkpoints : {};
@@ -16,6 +16,7 @@ export function CheckpointList({ revisionId, cutPlan }: { revisionId: string; cu
     <View style={{ gap: 8 }} testID="checkpoint-list">
       <Text variant="heading">{tm("make.cp.heading")}</Text>
       <Text>{tm("make.cp.intro")}</Text>
+      {locked ? <Text testID="checkpoints-locked">{tm("make.cp.locked")}</Text> : null}
       {cutPlan.ruler_checkpoints.map((c) => (
         <ChecklistItem
           key={c.checkpoint_id}
@@ -26,11 +27,12 @@ export function CheckpointList({ revisionId, cutPlan }: { revisionId: string; cu
             tol: mmToCmText(c.tolerance_mm),
           })}
           checked={marks[c.checkpoint_id] === true}
-          onToggle={(v) => set(revisionId, cutPlan.cut_plan_id, c.checkpoint_id, v)}
+          disabled={locked}
+          onToggle={(v) => !locked && set(revisionId, cutPlan.cut_plan_id, c.checkpoint_id, v)}
         />
       ))}
       <Text tone="secondary">
-        {checkpointsComplete(cutPlan, marks) ? tm("make.cp.done") : tm("make.cp.remaining", { n: left })}
+        {locked ? tm("make.cp.locked") : checkpointsComplete(cutPlan, marks) ? tm("make.cp.done") : tm("make.cp.remaining", { n: left })}
       </Text>
     </View>
   );

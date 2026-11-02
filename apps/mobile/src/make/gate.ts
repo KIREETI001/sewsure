@@ -141,9 +141,9 @@ export const RECIPE_STATUS: Record<string, RecipeStatus> = {
 export const recipeStatusOf = (recipeId: string): RecipeStatus => RECIPE_STATUS[recipeId] ?? "draft";
 
 export type GuideMode =
-  /** Reviewed recipe, real data. */
+  /** Reviewed recipe on live data. The only mode that reads as a real guide. */
   | "executable"
-  /** Draft recipe on fixture data: viewable with a "not yet reviewed" label, never a real guide. */
+  /** Fixture data, or a draft recipe: viewable with a demo label in demo builds, never a real guide. */
   | "demo_preview"
   /** Draft or retired recipe on live data, or recipe and DIY content disagree. */
   | "blocked";
@@ -152,13 +152,18 @@ export type GuideMode =
 export const isDemoBuild = (): boolean =>
   (typeof __DEV__ !== "undefined" && __DEV__) || process.env.EXPO_PUBLIC_SEWSURE_DEMO === "1";
 
-export type BlockedReason = "no_steps" | "version_mismatch" | "not_reviewed";
+export type BlockedReason = "no_steps" | "version_mismatch" | "not_reviewed" | "no_checkpoint_step";
+
+/** A cut with no ruler checkpoint step before it breaks the contract: nothing could unlock it. */
+const lacksCheckpointStep = (d: DiySteps): boolean =>
+  d.steps.some((s) => s.irreversible || s.phase === "cut") && !d.steps.some((s) => s.phase === "ruler_checkpoint");
 
 export function blockedReason(diySteps: DiySteps | null, cutPlan: CutPlan | null): BlockedReason {
   if (!diySteps) return "no_steps";
   if (cutPlan && (cutPlan.recipe_id !== diySteps.recipe_id || cutPlan.recipe_version !== diySteps.recipe_version)) {
     return "version_mismatch";
   }
+  if (lacksCheckpointStep(diySteps)) return "no_checkpoint_step";
   return "not_reviewed";
 }
 
@@ -172,10 +177,11 @@ export function guideMode(
   if (cutPlan && (cutPlan.recipe_id !== diySteps.recipe_id || cutPlan.recipe_version !== diySteps.recipe_version)) {
     return "blocked";
   }
+  if (lacksCheckpointStep(diySteps)) return "blocked";
   const status = recipeStatusOf(diySteps.recipe_id);
-  if (status === "reviewed") return "executable";
-  if (status === "draft" && provenance === "mock" && demoAllowed) return "demo_preview";
-  return "blocked";
+  // Fixture data never reads as a real guide, whatever the recipe status.
+  if (provenance === "mock") return (status === "draft" || status === "reviewed") && demoAllowed ? "demo_preview" : "blocked";
+  return status === "reviewed" ? "executable" : "blocked";
 }
 
 // ---- Ruler checkpoints ------------------------------------------------------------------------
@@ -204,7 +210,7 @@ export function stepLock(
 
 // ---- Step order and locks ---------------------------------------------------------------------
 
-export type StepLockReason = "checkpoint_required" | "cut_required";
+export type StepLockReason = "earlier_required" | "checkpoint_required" | "cut_required";
 
 export interface ResolvedStep<S> {
   step: S;
@@ -219,11 +225,22 @@ interface StepLike {
   irreversible: boolean;
 }
 
+/** True when every step before `step` (other than the checkpoint step, which is derived) is ticked. */
+const earlierDone = <S extends StepLike>(sorted: readonly S[], step: S, ticked: Readonly<Record<string, boolean>>) =>
+  sorted.every((s) => s.order >= step.order || s.phase === "ruler_checkpoint" || ticked[s.step_id] === true);
+
+/** Checkpoints can be ticked only once the steps before the first cut are done. */
+export function checkpointsUnlocked(steps: readonly StepLike[], ticked: Readonly<Record<string, boolean>>): boolean {
+  const sorted = [...steps].sort((a, b) => a.order - b.order);
+  const firstCut = sorted.find((s) => s.irreversible || s.phase === "cut");
+  return firstCut ? earlierDone(sorted, firstCut, ticked) : true;
+}
+
 /**
  * Resolves done and lock for every step, in order.
  * - The ruler checkpoint step has no tick of its own: it is done when every checkpoint is ticked
  *   (or a later cut is already recorded, e.g. restored from the server after a reinstall).
- * - Cut steps stay locked until the checkpoints are complete.
+ * - Cut steps stay locked until every earlier step is done, then until the checkpoints are complete.
  * - Steps after a cut stay locked until that cut is done.
  * A step already recorded done is shown done, never locked: the lock stops new actions only.
  */
@@ -241,11 +258,12 @@ export function resolveSteps<S extends StepLike>(
     let done: boolean;
     let lock: StepLockReason | null = null;
     if (step.phase === "ruler_checkpoint") {
-      done = checkpointsDone || sorted.some((s) => s.order > step.order && cutTicked(s));
+      done = (checkpointsDone && earlierDone(sorted, step, ticked)) || sorted.some((s) => s.order > step.order && cutTicked(s));
     } else {
       done = ticked[step.step_id] === true;
       if (!done) {
-        if (isCut && !checkpointsDone) lock = "checkpoint_required";
+        if (isCut && !earlierDone(sorted, step, ticked)) lock = "earlier_required";
+        else if (isCut && !checkpointsDone) lock = "checkpoint_required";
         else if (cutPending) lock = "cut_required";
       }
     }

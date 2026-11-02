@@ -3,9 +3,10 @@ import { Button, StateBadge, Text } from "../../ui";
 import { CheckpointList } from "@/make/components/CheckpointList";
 import { DimensionedDiagram } from "@/make/components/DimensionedDiagram";
 import { BlockedGuide, DraftBanner, GateNotice, LoadFailed, Loading, Page } from "@/make/components/Shell";
-import { blockedReason, cutGuideAccess, guideMode, overlayDecision } from "@/make/gate";
+import { blockedReason, checkpointsUnlocked, cutGuideAccess, guideMode } from "@/make/gate";
 import { tm } from "@/make/i18n";
 import { goBack } from "@/make/nav";
+import { useMakeStore } from "@/make/store";
 import { revisionIdParam, useMakeBundle } from "@/make/useMakeBundle";
 
 export default function CutScreen() {
@@ -13,6 +14,7 @@ export default function CutScreen() {
   const revisionId = revisionIdParam(params.revisionId);
   const router = useRouter();
   const q = useMakeBundle(revisionId);
+  const mine = useMakeStore((s) => (q.data ? s.byRevision[q.data.revision.revision_id] : undefined));
   if (!revisionId) return <GateNotice reason="no_revision" onBack={() => goBack(router)} />;
   // A cached bundle is not trusted while a refetch runs: the revision may have been superseded.
   if (q.isLoading || (q.isFetching && !q.isError)) return <Loading />;
@@ -54,7 +56,8 @@ export default function CutScreen() {
       </Page>
     );
   }
-  const decision = overlayDecision(b.cutPlan, b.photo);
+  const same = mine !== undefined && mine.cutPlanId === b.cutPlan.cut_plan_id;
+  const unlocked = b.diySteps ? checkpointsUnlocked(b.diySteps.steps, same ? mine.steps : {}) : false;
   return (
     <Page bundle={b}>
       {mode === "demo_preview" ? (
@@ -66,14 +69,10 @@ export default function CutScreen() {
         <StateBadge state={b.revision.status} />
       )}
       <Text>{tm("make.cut.approx")}</Text>
-      <CheckpointList revisionId={b.revision.revision_id} cutPlan={b.cutPlan} />
+      <CheckpointList revisionId={b.revision.revision_id} cutPlan={b.cutPlan} locked={!unlocked} />
       <Text variant="bodyStrong" testID="fallback-heading">
         {tm("make.cut.fallbackHeading")}
       </Text>
-      <Text>{tm(`make.cut.fallback.${decision.reason}` as const)}</Text>
-      {decision.apiReason ? (
-        <Text tone="secondary">{tm("make.cut.fallbackApiReason", { reason: decision.apiReason })}</Text>
-      ) : null}
       <DimensionedDiagram plan={b.cutPlan} />
       <Button
         label={tm("make.cut.continue")}

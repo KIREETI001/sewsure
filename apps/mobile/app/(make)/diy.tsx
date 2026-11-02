@@ -4,7 +4,7 @@ import { View } from "react-native";
 import { Button, ChecklistItem, StepCard, Text } from "../../ui";
 import { CheckpointList } from "@/make/components/CheckpointList";
 import { BlockedGuide, DraftBanner, GateNotice, LoadFailed, Loading, Page } from "@/make/components/Shell";
-import { blockedReason, checkpointsComplete, cutGuideAccess, guideMode, resolveSteps } from "@/make/gate";
+import { blockedReason, checkpointsComplete, checkpointsUnlocked, cutGuideAccess, guideMode, resolveSteps } from "@/make/gate";
 import { tm } from "@/make/i18n";
 import { useMakeStore } from "@/make/store";
 import { goBack } from "@/make/nav";
@@ -59,6 +59,7 @@ export default function DiyScreen() {
 
   const same = mine !== undefined && mine.cutPlanId === planId;
   const cpDone = checkpointsComplete(cutPlan, same ? mine.checkpoints : {});
+  const cpUnlocked = checkpointsUnlocked(diySteps.steps, same ? mine.steps : {});
   const resolved = resolveSteps(diySteps.steps, cpDone, same ? mine.steps : {});
   const doneCount = resolved.filter((r) => r.done).length;
   const next = resolved.find((r) => !r.done)?.step;
@@ -66,7 +67,8 @@ export default function DiyScreen() {
   const bodyOf = (r: (typeof resolved)[number]) => {
     const parts: string[] = [];
     if (mode === "demo_preview" && r.step.irreversible) parts.push(tm("make.draft.step"));
-    if (r.lock === "checkpoint_required") parts.push(tm("make.diy.lockedCheckpoint", { n: checkpointOrder }));
+    if (r.lock === "earlier_required") parts.push(tm("make.diy.lockedEarlier"));
+    else if (r.lock === "checkpoint_required") parts.push(tm("make.diy.lockedCheckpoint", { n: checkpointOrder }));
     else if (r.lock === "cut_required") parts.push(tm("make.diy.lockedCut"));
     else parts.push(r.step.body);
     if (r.step.irreversible) parts.push(tm("make.diy.irreversible"));
@@ -111,7 +113,7 @@ export default function DiyScreen() {
           {r.step.phase === "ruler_checkpoint" ? (
             <>
               <Text tone="secondary">{tm("make.diy.checkpointStep")}</Text>
-              <CheckpointList revisionId={rid} cutPlan={cutPlan} />
+              <CheckpointList revisionId={rid} cutPlan={cutPlan} locked={!cpUnlocked} />
             </>
           ) : (
             <ChecklistItem

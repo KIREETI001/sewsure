@@ -41,6 +41,36 @@ const tickCheckpoints = async () => {
   }
 };
 
+const tickEarlier = async () => {
+  const box = screen.getByLabelText(/I did this step: Mark the cut line/);
+  if (box.props.accessibilityState.checked !== true) await fireEvent.press(box);
+};
+
+describe("state gate on both screens, with a plan and steps present", () => {
+  it.each(["IDEA_ONLY", "NEEDS_INPUT", "FAILED_CHECKS", "SUPERSEDED"])(
+    "%s never renders the guide, even when the bundle carries a plan and steps",
+    async (status) => {
+      const real = await data.loadMakeBundle(PASS);
+      const bundle = { ...real!, revision: { ...real!.revision, status } } as never;
+      expect(real!.cutPlan).toBeTruthy();
+      expect(real!.diySteps).toBeTruthy();
+      jest.spyOn(data, "loadMakeBundle").mockResolvedValue(bundle);
+
+      const cut = await wrap(<CutScreen />);
+      await screen.findByTestId("gate-reason");
+      expect(screen.queryByTestId("checkpoint-list")).toBeNull();
+      expect(screen.queryByTestId("dimensioned-diagram")).toBeNull();
+      await cut.unmount();
+
+      await wrap(<DiyScreen />);
+      await screen.findByTestId("gate-reason");
+      expect(screen.queryByTestId("progress-count")).toBeNull();
+      expect(screen.queryByTestId("checkpoint-list")).toBeNull();
+      expect(screen.queryByText(/Cut through one layer/)).toBeNull();
+    },
+  );
+});
+
 describe("cut screen gate", () => {
   it.each(["rev-crop-a-1", "rev-idea-a-1", "rev-unsure-a-1", "rev-longer-a-1"])("%s shows a reason, no guide", async (id) => {
     mockParams = { revisionId: id };
@@ -102,6 +132,15 @@ describe("cut screen gate", () => {
 });
 
 describe("diy screen gate", () => {
+  it("N9: does not show a cached passing guide while a refetch runs", async () => {
+    const client = newClient();
+    client.setQueryData(["make", PASS], await data.loadMakeBundle(PASS));
+    jest.spyOn(data, "loadMakeBundle").mockReturnValue(new Promise(() => {}));
+    await wrap(<DiyScreen />, client);
+    expect(screen.queryByTestId("progress-count")).toBeNull();
+    expect(screen.queryByTestId("checkpoint-list")).toBeNull();
+  });
+
   it.each([[{}], [{ revisionId: [PASS] }]])("fails closed without a single revisionId", async (params) => {
     mockParams = params as Record<string, string | string[]>;
     await wrap(<DiyScreen />);
@@ -118,10 +157,12 @@ describe("diy screen checkpoint enforcement", () => {
     await screen.findByTestId("progress-count");
     expect(screen.queryByText(/Cut through one layer/)).toBeNull();
     expect(stepCard(5).props.accessibilityLabel).not.toMatch(/Cut through one layer/);
-    expect(screen.getByText(/Locked\. Tick every ruler checkpoint in step 4 first\./)).toBeTruthy();
+    expect(screen.getByText(/Locked\. Finish the earlier steps first\./)).toBeTruthy();
     const cutTick = screen.getByLabelText(/I did this step: Cut along the line/);
     expect(cutTick.props.accessibilityState.disabled).toBe(true);
 
+    await tickEarlier();
+    expect(screen.getByText(/Locked\. Tick every ruler checkpoint in step 4 first\./)).toBeTruthy();
     await tickCheckpoints();
     await waitFor(() => expect(screen.getByText(/Cut through one layer/)).toBeTruthy());
   });
@@ -133,6 +174,7 @@ describe("diy screen checkpoint enforcement", () => {
     expect(stepCard(4).props.accessibilityLabel).toMatch(/Not done/);
     await fireEvent.press(screen.getAllByRole("checkbox").filter((b) => /Measure straight down/.test(b.props.accessibilityLabel))[0]!);
     await waitFor(() => expect(stepCard(4).props.accessibilityLabel).toMatch(/Not done/));
+    await tickEarlier();
     await tickCheckpoints();
     await waitFor(() => expect(stepCard(4).props.accessibilityLabel).toMatch(/\bDone\b/));
   });
@@ -148,6 +190,7 @@ describe("diy screen checkpoint enforcement", () => {
     expect(screen.getAllByText(/Locked\. Finish the cut step first\./)).toHaveLength(2);
     expect(screen.getByTestId("progress-count").props.children).toMatch(/^2 of 7/);
 
+    await tickEarlier();
     await tickCheckpoints();
     await waitFor(() =>
       expect(screen.getByLabelText(/I did this step: Cut along the line/).props.accessibilityState.disabled).toBe(false),
@@ -157,6 +200,49 @@ describe("diy screen checkpoint enforcement", () => {
     await waitFor(() =>
       expect(screen.getByLabelText(/I did this step: Hem/).props.accessibilityState.disabled).toBe(false),
     );
+  });
+
+  it("N2: ticked checkpoints do not unlock the cut while an earlier step is not done", async () => {
+    await wrap(<DiyScreen />);
+    await screen.findByTestId("progress-count");
+    expect(screen.getByTestId("checkpoints-locked")).toBeTruthy();
+    for (const re of [/Measure straight down/, /Repeat on the back/]) {
+      const box = screen.getAllByRole("checkbox").filter((b) => re.test(b.props.accessibilityLabel))[0]!;
+      expect(box.props.accessibilityState.disabled).toBe(true);
+      await fireEvent.press(box);
+    }
+    expect(screen.getByLabelText(/I did this step: Cut along the line/).props.accessibilityState.disabled).toBe(true);
+    expect(screen.queryByText(/Cut through one layer/)).toBeNull();
+    await tickEarlier();
+    await waitFor(() => expect(screen.queryByTestId("checkpoints-locked")).toBeNull());
+  });
+
+  it("N2: the cut screen shows checkpoints locked until the earlier steps are done", async () => {
+    await wrap(<CutScreen />);
+    await screen.findByTestId("checkpoint-list");
+    expect(screen.getByTestId("checkpoints-locked")).toBeTruthy();
+    const box = screen.getAllByRole("checkbox").find((b) => /Measure straight down/.test(b.props.accessibilityLabel))!;
+    expect(box.props.accessibilityState.disabled).toBe(true);
+  });
+
+  it("N9: checkpoints and steps stored for a different cut plan do not count", async () => {
+    const real = await data.loadMakeBundle(PASS);
+    const ids = real!.cutPlan!.ruler_checkpoints.map((c) => c.checkpoint_id);
+    useMakeStore.setState({
+      byRevision: {
+        [PASS]: {
+          cutPlanId: "some-other-plan",
+          checkpoints: Object.fromEntries(ids.map((i) => [i, true])),
+          steps: { s1_prepare: true, s2_measure: true, s3_mark: true },
+          updatedAt: "2026-01-01T00:00:00Z",
+        },
+      } as never,
+      hydrated: true,
+    });
+    await wrap(<DiyScreen />);
+    await screen.findByTestId("progress-count");
+    expect(screen.queryByText(/Cut through one layer/)).toBeNull();
+    expect(screen.getByLabelText(/I did this step: Cut along the line/).props.accessibilityState.disabled).toBe(true);
   });
 
   it("resumes from stored progress", async () => {

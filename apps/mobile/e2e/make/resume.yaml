@@ -1,4 +1,5 @@
 # Progress survives closing the app and the DIY screen offers to resume.
+# Needs a development or demo build (EXPO_PUBLIC_SEWSURE_DEMO=1). Not yet run on a device.
 appId: com.sewsure.mobile
 ---
 - clearState
