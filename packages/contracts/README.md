@@ -37,6 +37,7 @@ Request and response types per route live under `paths` and `operations` (e.g. `
 | `lengthening_impossible` | `FAILED_CHECKS`, `INSUFFICIENT_LENGTH`, residual −150 mm, a supported crop offered instead. |
 | `needs_input` | `NEEDS_INPUT`: `shoulder_to_hem` is only a vision suggestion (`confirmed_at: null`). |
 | `idea_only` | `IDEA_ONLY`: knit tee to corset top, no recipe, no cut plan, brief labelled `inspiration_only`. |
+| `stale_after_measurements_change` | A passed revision whose measurements were replaced: `stale: true`, state unchanged, cut plan route returns 409 `REVISION_STALE`. |
 | `job_failed_no_designs` | Failed job with a recoverable error and an empty design list. |
 
 ## Change it
