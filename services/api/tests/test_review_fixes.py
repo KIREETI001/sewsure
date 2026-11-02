@@ -282,3 +282,51 @@ def test_revision_and_binding_constraint_name_the_placket(client: TestClient) ->
     assert rev["checks"]["missing_dimensions"] == ["placket_end_from_shoulder"]
     listing = designs(client, pid)
     assert listing["binding_constraint"]["missing_dimensions"] == ["placket_end_from_shoulder"]
+
+
+# ---- N1: machine-readable stale signal (contract 1.0.0-draft.3) -----------------------
+
+
+def test_stale_flag_on_revision_and_candidate(client: TestClient) -> None:
+    pid = project(client)
+    put(client, pid, dims())
+    generate(client, pid, "crop", 500)
+    cand = designs(client, pid)["designs"][0]
+    rev = first(client, pid)
+    assert cand["stale"] is False and rev["stale"] is False
+    assert "530" in cand["explanation"]
+    put(client, pid, dims())  # measurements replaced
+    cand = designs(client, pid)["designs"][0]
+    rev = _rev(client, rev)
+    assert cand["stale"] is True and rev["stale"] is True
+    assert rev["status"] == "PASS_SUPPORTED_CHECKS"  # the API never changes the verdict
+    assert cand["explanation"].lower().startswith("measurements changed")
+    assert "530" not in cand["explanation"]
+    r = cut_plan(client, rev["revision_id"])
+    assert r.status_code == 409
+    assert r.json()["code"] == "REVISION_STALE" and r.json()["recoverable"] is True
+
+
+def test_recheck_clears_stale_and_not_passing_is_not_recoverable(client: TestClient) -> None:
+    pid = project(client)
+    put(client, pid, dims())
+    generate(client, pid, "crop", 500)
+    old = first(client, pid)
+    put(client, pid, dims())
+    new = edit(client, old, "recheck").json()  # empty parameters = recheck
+    assert new["stale"] is False and new["status"] == "PASS_SUPPORTED_CHECKS"
+    assert cut_plan(client, new["revision_id"]).status_code == 200
+    gone = cut_plan(client, old["revision_id"])  # now superseded
+    assert gone.json()["code"] == "REVISION_NOT_PASSING"
+    assert gone.json()["recoverable"] is False
+
+
+def test_stale_lengthen_design_says_start_a_new_request(client: TestClient) -> None:
+    pid = project(client)
+    put(client, pid, dims())
+    generate(client, pid, "lengthen", 900)
+    put(client, pid, dims())
+    cand = designs(client, pid)["designs"][0]
+    assert cand["stale"] is True
+    assert "new request" in cand["explanation"].lower()
+    assert any("new request" in c for c in first(client, pid)["pending_checks"])

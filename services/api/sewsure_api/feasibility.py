@@ -49,6 +49,10 @@ def matches_crop_recipe(category: str, fabric_family: str) -> bool:
 
 
 STALE_CHECK = "Measurements changed since this check; recheck this design before cutting."
+STALE_LENGTHEN = (
+    "Measurements changed since this check. This lengthen request cannot be rechecked with "
+    "the available recipe; start a new request."
+)
 PENDING_RULER_CHECK = (
     "Verify the shoulder-to-hem reference with a ruler on the garment before cutting."
 )

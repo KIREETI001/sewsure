@@ -427,12 +427,7 @@ def create_revision(
         )
     if parent.recipe_id is None:
         raise Unprocessable("this design has no reviewed recipe to customise")
-    design_row = db.get(Design, design_id)
-    if (
-        design_row is not None
-        and design_row.transformation == "lengthen"
-        and parent.recipe_id in engine.SHORTENING_RECIPES
-    ):
+    if recheck_unavailable(db, parent):
         # The only recipe behind this design removes fabric. Re-checking a lengthen request with
         # it could hand out a plan that shortens the garment, so the user starts a new request.
         raise Unprocessable(
@@ -540,6 +535,16 @@ def get_cut_plan(db: Session, owner_id: str, revision_id: str) -> dict[str, Any]
         "REVISION_NOT_PASSING",
         "This revision did not pass the implemented checks, or has been replaced; "
         "it has no cut plan.",
+    )
+
+
+def recheck_unavailable(db: Session, revision: DesignRevision) -> bool:
+    """True when a recheck would be refused (lengthen request, shortening-only recipe)."""
+    design = db.get(Design, revision.design_id)
+    return (
+        design is not None
+        and design.transformation == "lengthen"
+        and revision.recipe_id in engine.SHORTENING_RECIPES
     )
 
 

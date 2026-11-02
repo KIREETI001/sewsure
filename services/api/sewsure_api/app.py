@@ -76,8 +76,11 @@ def garment_out(g: models.Garment) -> GarmentOut:
     )
 
 
-def revision_out(r: models.DesignRevision, stale: bool = False) -> RevisionOut:
-    pending = [*r.pending_checks, engine.STALE_CHECK] if stale else r.pending_checks
+def revision_out(
+    r: models.DesignRevision, stale: bool = False, lengthen: bool = False
+) -> RevisionOut:
+    note = engine.STALE_LENGTHEN if lengthen else engine.STALE_CHECK
+    pending = [*r.pending_checks, note] if stale else r.pending_checks
     return RevisionOut.model_validate(
         {
             "revision_id": r.id,
@@ -97,6 +100,7 @@ def revision_out(r: models.DesignRevision, stale: bool = False) -> RevisionOut:
             "status": r.status,
             "diy_suitability": None,
             "pending_checks": pending,
+            "stale": stale,
             "fit": None,
             "cut_plan_id": r.cut_plan_id,
             "preview": None,
@@ -144,9 +148,11 @@ def job_out(j: models.Job) -> JobOut:
 
 
 def candidate_out(
-    d: models.Design, r: models.DesignRevision, stale: bool = False
+    d: models.Design, r: models.DesignRevision, stale: bool = False, lengthen: bool = False
 ) -> DesignCandidate:
-    note = f" {engine.STALE_CHECK}" if stale else ""
+    # A stale design leads with the recheck and says nothing about the old cut mark.
+    text = engine.STALE_LENGTHEN if lengthen else engine.STALE_CHECK
+    explanation = text if stale else engine.explanation(r.status, r.checks, r.parameters)
     return DesignCandidate.model_validate(
         {
             "design_id": d.id,
@@ -158,7 +164,8 @@ def candidate_out(
             "recipe_id": r.recipe_id,
             "parameters": r.parameters,
             "required_panels": r.required_panels,
-            "explanation": (engine.explanation(r.status, r.checks, r.parameters) + note)[:600],
+            "explanation": explanation[:600],
+            "stale": stale,
             "failure_codes": r.checks["failure_codes"],
             "missing_dimensions": engine.user_missing(r.checks["missing_dimensions"]),
             "preview": None,
@@ -290,7 +297,10 @@ def list_designs(
         {
             "project_id": project_id,
             "job_id": project.latest_job_id,
-            "designs": [candidate_out(d, r, services.is_stale(db, r)) for d, r in pairs],
+            "designs": [
+                candidate_out(d, r, services.is_stale(db, r), services.recheck_unavailable(db, r))
+                for d, r in pairs
+            ],
             "binding_constraint": binding,
         }
     )
@@ -315,7 +325,9 @@ def create_revision(
     )
     if not created:
         response.headers["Idempotent-Replayed"] = "true"
-    return revision_out(revision, services.is_stale(db, revision))
+    return revision_out(
+        revision, services.is_stale(db, revision), services.recheck_unavailable(db, revision)
+    )
 
 
 @router.get("/revisions/{revision_id}", response_model=RevisionOut)
@@ -323,7 +335,9 @@ def read_revision(
     revision_id: str, user: CurrentUser = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     revision = services.get_revision(db, user.id, revision_id)
-    return revision_out(revision, services.is_stale(db, revision))
+    return revision_out(
+        revision, services.is_stale(db, revision), services.recheck_unavailable(db, revision)
+    )
 
 
 @router.get("/revisions/{revision_id}/cut-plan", response_model=CutPlan)
