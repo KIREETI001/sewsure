@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 import pytest
+import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -55,6 +56,7 @@ def test_fixtures_match_builder(path: Path) -> None:
         build_fixtures.lengthening_impossible,
         build_fixtures.needs_input,
         build_fixtures.idea_only,
+        build_fixtures.stale_after_measurements_change,
         build_fixtures.job_failed_no_designs,
     ]}
     fx = json.loads(path.read_text(encoding="utf-8"))
@@ -115,6 +117,10 @@ NEGATIVE_CASES: dict[str, tuple[str, Mutation]] = {
     "verified brief for idea": ("idea_only", lambda fx: fx["maker_request"]["brief"].update(verification_label="verified_checks")),
     "public photo url field": ("woven_shirt_crop_pass", lambda fx: fx["garment"]["photos"][0].update(url="https://example.com/p.jpg")),
     "bad timestamp": ("woven_shirt_crop_pass", lambda fx: fx["project"].update(created_at="yesterday")),
+    "revision without stale": ("woven_shirt_crop_pass", lambda fx: _first_rev(fx).pop("stale")),
+    "candidate without stale": ("woven_shirt_crop_pass", lambda fx: fx["designs"]["designs"][0].pop("stale")),
+    "stale not boolean": ("woven_shirt_crop_pass", lambda fx: _first_rev(fx).update(stale="yes")),
+    "stale as a design state": ("woven_shirt_crop_pass", lambda fx: _first_rev(fx).update(status="STALE")),
     "unknown failure code": ("lengthening_impossible", lambda fx: _first_rev(fx)["checks"].update(failure_codes=["LOOKS_WRONG"])),
     # X1 review on #15, finding 1: a pass must mean every hard gate ran and passed.
     "pass with negative residual": ("woven_shirt_crop_pass", lambda fx: _first_rev(fx)["checks"]["residuals"][0].update(available_mm=650, residual_mm=-150)),
@@ -156,6 +162,56 @@ def test_invariants_catch_status_mismatch() -> None:
     fx = load("woven_shirt_crop_pass")
     fx["designs"]["designs"][0]["status"] = "FAILED_CHECKS"
     assert validate.check_fixture_invariants("x", fx)
+
+
+def test_stale_pass_keeps_its_state_and_gets_no_cut_plan() -> None:
+    fx = load("stale_after_measurements_change")
+    rev = fx["revisions"][0]
+    assert rev["status"] == "PASS_SUPPORTED_CHECKS" and rev["stale"] is True
+    assert fx["designs"]["designs"][0]["stale"] is True
+    assert "cut_plan" not in fx
+    assert fx["cut_plan_error"]["code"] == "REVISION_STALE" and fx["cut_plan_error"]["recoverable"] is True
+
+
+def test_stale_is_not_a_design_state() -> None:
+    assert not {"STALE", "REVISION_STALE"} & validate.DESIGN_STATES
+
+
+@pytest.mark.parametrize("name", [p.stem for p in FIXTURE_PATHS if p.stem != "stale_after_measurements_change"])
+def test_other_scenarios_are_not_stale(name: str) -> None:
+    fx = load(name)
+    assert not any(r["stale"] for r in fx["revisions"]) and not any(d["stale"] for d in fx["designs"]["designs"])
+
+
+def test_invariants_catch_stale_mismatches() -> None:
+    fx = load("stale_after_measurements_change")
+    fx["designs"]["designs"][0]["stale"] = False
+    assert validate.check_fixture_invariants("x", fx)
+    fx = load("stale_after_measurements_change")
+    fx["revisions"][0]["stale"] = False
+    fx["designs"]["designs"][0]["stale"] = False
+    assert validate.check_fixture_invariants("x", fx)
+    fx = load("woven_shirt_crop_pass")
+    fx["project"]["measurements_id"] = "msr-newer"
+    assert validate.check_fixture_invariants("x", fx)
+
+
+def test_cut_plan_route_documents_both_409_codes() -> None:
+    spec = yaml.safe_load((ROOT / "openapi" / "sewsure.v1.yaml").read_text(encoding="utf-8"))
+    ref = spec["paths"]["/v1/revisions/{revision_id}/cut-plan"]["get"]["responses"]["409"]["$ref"]
+    media = spec["components"]["responses"][ref.rsplit("/", 1)[-1]]["content"]["application/json"]
+    assert media["schema"]["allOf"][1]["properties"]["code"]["enum"] == ["REVISION_NOT_PASSING", "REVISION_STALE"]
+    assert {e["value"]["code"]: e["value"]["recoverable"] for e in media["examples"].values()} == {
+        "REVISION_NOT_PASSING": False,
+        "REVISION_STALE": True,
+    }
+
+
+@pytest.mark.parametrize("path", FIXTURE_PATHS, ids=lambda p: p.stem)
+def test_shirt_fixtures_carry_the_placket_dimension(path: Path) -> None:
+    fx = json.loads(path.read_text(encoding="utf-8"))
+    if fx["garment"]["category"] == "woven_shirt" and fx["revisions"]:
+        assert "placket_end_from_shoulder" in fx["measurements"]["measurements"]["garment"]
 
 
 def test_invariants_catch_guarantee_language() -> None:

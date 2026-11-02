@@ -13,6 +13,10 @@
     "garment": { "$ref": "garment.schema.json" },
     "measurements": { "$ref": "measurements.schema.json#/$defs/MeasurementsResult" },
     "inspiration": { "$ref": "inspiration.schema.json" },
+    "cut_plan_error": {
+      "$ref": "api-error.schema.json",
+      "description": "The 409 body GET cut-plan returns in this scenario, where no plan is served."
+    },
     "job": { "$ref": "job.schema.json" },
     "designs": { "$ref": "design-candidate.schema.json#/$defs/DesignList" },
     "revisions": { "type": "array", "items": { "$ref": "design-revision.schema.json" } },
