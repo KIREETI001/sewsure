@@ -1,4 +1,4 @@
-# SewSure: FYP Interim Report (DRAFT v0.1)
+# SewSure: FYP Interim Report (DRAFT v0.4)
 
 | | |
 |---|---|
@@ -7,7 +7,7 @@
 | Supervisor | Dr Wesley (the advisor deck is addressed to Dr Wesley [S1 slide 1]; `[FOUNDER INPUT NEEDED: confirm Dr Wesley's role, full name and title, and the examiner's name]`) |
 | Programme | School of EEE, Final Year Project, FYP 2026 S1 (Aug 2026 – May 2027) [S5] |
 | Report due | 10 Nov 2026, to supervisor and examiner, with a video presentation [S5] |
-| Draft status | Draft v0.2, revised 1 Nov 2026 after the X1 and X2 reviews of v0.1. Repository facts are as of 1 Nov 2026 (`main@c46c5d8` plus PRs open that day). Not yet cleared by X2 on this revision or by the founders. |
+| Draft status | Draft v0.4, revised 2 Nov 2026 after the X1 and X2 reviews of earlier versions. Repository facts were re-read on 2 Nov 2026 (`main@c46c5d8` plus the PRs open that day); items dated 1 Nov are marked as such. Not yet cleared by X2 on this revision or by the founders. |
 | Status date | **As of `[AS-OF DATE: one date shared with the video script (PR #13); founders to set]`**. Every status statement in Sections 2–4 must be re-checked against this date. |
 
 > **How to read this draft.** Facts carry a source tag such as [S3 §12]; `SOURCES.md` maps the tags to a document and location. Factual claims are tagged; judgments in the Conclusion are the drafter's. Text marked **planned** has not happened. Text marked **proposed** is a target that has not been agreed as a threshold. `[FOUNDER INPUT NEEDED: …]` marks work that happens off the repository (sewing, measuring, interviews, meetings) and that this draft cannot know. Nothing in this draft is a result unless it says so.
@@ -50,7 +50,7 @@ Garment coverage is deliberately narrow [S2 §03; S1 slide 4]. These are target 
 | 3, inspiration only | Other garments | Concept ideas labelled unverified; no cutting map, no "feasible" badge |
 | Accessory pilot | 1–2 recipes (for example headband or tote) | **Proposed, conditional**: verified only if material area and seam rules are tested |
 
-Core features: garment intake, AI design studio, checked options, controlled customisation, calibrated static cut overlay with a dimensioned-diagram fallback, DIY steps with manual checkpoints, and an in-app tailor request and quote flow with no payments [S2 §05, §08, §09, §11]. Live camera AR, photo try-on, progress-photo feedback and 3D drape are stretch or future [S2 §07, §08].
+Core features: garment intake, AI design studio, checked options, controlled customisation, calibrated static cut overlay (planned; see 2.3) and a dimensioned diagram, DIY steps with manual checkpoints, and an in-app tailor request and quote flow with no payments [S2 §05, §08, §09, §11]. Live camera AR, photo try-on, progress-photo feedback and 3D drape are stretch or future [S2 §07, §08].
 
 **Non-claims.** A design passes only the checks actually implemented. SewSure does not promise perfect fit or construction success, and a line on a phone screen is not necessarily centimetre-accurate on fabric [S2 §03, §08].
 
@@ -133,14 +133,14 @@ The blueprint defines the system and its checks. These are **designs** [S3 cover
 - **Design record.** A versioned record used by preview, cut plan, instructions and tailor brief. An approved revision is immutable; edits create a new revision that is rechecked before downstream use [S3 §1.1, §3].
 - **AI boundary.** The model may select recipe IDs and parameters from an allow-list, validated against a JSON schema; hard failures cannot be out-scored by style ranking [S3 §4.1, §4.3; S1 slide 7].
 - **Hard gates and failure codes** for geometry, material, fit and construction, with unit tests written before the app UI [S3 §5.4, §5.5].
-- **Cut guidance.** Calibrated static overlay with a dimensioned-diagram fallback, and a rule that a line on a screen is not proof of a centimetre on fabric [S3 §6; S2 §08].
+- **Cut guidance.** Calibrated static overlay with a dimensioned-diagram fallback, and a rule that a line on a screen is not proof of a centimetre on fabric [S3 §6; S2 §08]. **Status:** planned, and not working. `main` has no cut screen. In the open PR #24 every plan uses the dimensioned diagram, because the API does not yet return per-photo, per-piece `points_px`. No overlay accuracy exists to report [S16].
 - **Worked example.** A cut-line calculation is shown in the deck for illustration only (a 76 cm shirt, 52 cm finished length, 2 cm hem allowance, cut mark at 54 cm). **Illustrative numbers, not measured results** [S1 slide 8]. The blueprint's own example uses different numbers [S3 §5.3]; this report and the video script use the deck's.
 
 ### 2.4 Engineering method: human-governed, agent-assisted delivery
 
 A three-person team has to cover backend, AI, geometry, mobile, research and reporting inside a few weeks. The team therefore uses AI coding agents (Claude Code) under explicit human control. This is part of the method and is declared in Appendix A.
 
-**Roles.** Each human lead owns an area and approves changes to it [S6 `CLAUDE.md`]:
+**Roles.** Each human lead owns an area and is its first reviewer; GitHub does not require their approval [S6 `CLAUDE.md`; S12]:
 
 | Lead | Area | Paths |
 |---|---|---|
@@ -170,14 +170,14 @@ A three-person team has to cover backend, AI, geometry, mobile, research and rep
 
 **Non-negotiable rules** that agents and humans both follow include millimetres internally, no invented numeric geometry by the model, no secrets or real photos or body measurements in the repo, no guarantee language ("perfect fit", "precision AR", "100% accurate"), and contract-first changes to API shapes [S6 `CLAUDE.md`].
 
-**Limits of this method, stated honestly.** These controls are written down and the hooks exist. CI workflows reached `main` on 1 Nov (PR #6), but CI Benchmarks failed there until PR #19, which was still open [S10]. The `needs-human` label did not exist in the repository on 28 Oct [S8 audit] and L0 still listed it as open on 1 Nov [S10]. The "agents never merge or approve" rule is a hook that blocks specific commands (PR merge and approve commands, pushes to `main`), not a GitHub permission [S6 `guard-shell.mjs`; S11], so it does not stop a person or another tool. On 1 Nov all 14 merges were made from one founder account with no approving review [S10]. The review layer is therefore the X1 and X2 agent reviews plus founder judgement, and `[FOUNDER INPUT NEEDED: why approvals were removed and how review is now done]`. Agent output is a draft until a human has checked it.
+**Limits of this method, stated honestly.** These controls are written down and the hooks exist. CI workflows reached `main` on 1 Nov (PR #6), but CI Benchmarks is failing on `main`, and the fix, PR #19, was still open on 2 Nov `[AS-OF DATE]` [S10; S13]. The `needs-human` label did not exist in the repository on 28 Oct [S8 audit] and L0 still listed it as open on 1 Nov [S10]. The "agents never merge or approve" rule is a hook that blocks specific commands (PR merge and approve commands, pushes to `main`), not a GitHub permission [S6 `guard-shell.mjs`; S11], so it does not stop a person or another tool. On 1 Nov all 14 merges were made from one founder account with no approving review [S10]. The review layer is therefore the X1 and X2 agent reviews plus founder judgement, and `[FOUNDER INPUT NEEDED: why approvals were removed and how review is now done]`. Agent output is a draft until a human has checked it.
 
 ### 2.5 Wave 1 of agent work
 
 On 28 Oct 2026 the lead agent (L0) reported 14 agents running in parallel, each in its own worktree and branch [S8 digest]. By 1 Nov, 14 PRs had been merged to `main` (list in Section 2.1) and 13 were open at L0's snapshot (15 on 2 Nov) [S10; S13]. L0's 1 Nov digest records, for the merged work [S10]:
 
 - The K1 contract is `1.0.0-draft.2`, a draft that is not frozen.
-- The N5 recipe `woven_shirt_crop_v1` is `status: draft`; no sewist or supervisor has been named as reviewer.
+- The N5 recipe `woven_shirt_crop_v1` is `status: draft`; no sewist or supervisor reviewer is recorded in the repository.
 - N3's ease ranges (PR #20, open) are unverified placeholders.
 - X1 reviewed several merged PRs and agents replied with fixes; L0 saw no X1 re-review after the fixes.
 - X2 rated D9's site and outreach drafts (#7) Blocked, with 7 blocking issues, after they had merged; this report (#8) and the video script (#13) were also rated Blocked.
@@ -226,17 +226,17 @@ No measurement, make or participant data is reported in this draft because none 
 
 ### 3.1 In progress
 
-As of 1 Nov 2026, wave-2 work is open as PRs: CI fix (#19), fit and ease module (#20), calibration and overlay (#21), API connected to the contract and engine (#22, draft), AI pipeline connected to the contract and engine (#23), cut guide and DIY steps (#24), Design Studio screens (#25), P0 make kit and record template (#17), security documents (#18) and mobile QA (#32) [S10; S13]. They map to the P0 exit evidence as follows [S8 audit; S10]:
+As of 1 Nov 2026 (the PRs named here were still open on 2 Nov `[AS-OF DATE]`), wave-2 work is open as PRs: CI fix (#19), fit and ease module (#20), calibration and overlay (#21), API connected to the contract and engine (#22, draft), AI pipeline connected to the contract and engine (#23), cut guide and DIY steps (#24), Design Studio screens (#25), P0 make kit and record template (#17), security documents (#18) and mobile QA (#32) [S10; S13]. These connect each part to the engine separately. The AI pipeline is not connected to the API, on `main` or in these PRs, so nothing runs end to end with a model [S15]. They map to the P0 exit evidence as follows [S8 audit; S10]:
 
 | P0 exit evidence | State on `main`, 1 Nov 2026 |
 |---|---|
 | Approved JSON/OpenAPI fixture | Contract `1.0.0-draft.2` merged, **draft, not frozen** (#15) |
-| Real structured response, logs, failure handling | API scaffold and AI pipeline skeleton merged (#5, #10); connected versions open (#22, #23); no live Azure trace (access and cap unconfirmed, H-11); `deploy-staging` has 0 runs |
+| Real structured response, logs, failure handling | API scaffold and AI pipeline skeleton merged (#5, #10); separate connected versions open (#22 API with a rule-based proposer, #23 AI code); no live Azure trace (access and cap unconfirmed, H-11); `deploy-staging` has 0 runs |
 | Unit tests and a dimensioned cut plan | Feasibility engine and constraint suite merged (#12, #9); the suite has not run on `main` because CI Benchmarks is failing, and the fix #19 was open on 2 Nov |
 | Installable build / end-to-end mock path | Expo scaffold with intake screens 1–4 on fixtures merged (#14); no `eas.json`, device and EAS account unconfirmed (H-06) |
 | Photo and measurements of the outcome | No record in the repo; make kit and template in open PR #17 |
 
-X1's review of the open PR #22 (API connected to the contract and engine) reports 3 critical and further major issues, for example a superseded revision still returning its cut plan, so that work is not complete or merged. X1 also reported major issues on #24 (cut guide and DIY steps) `[X1 comment on #22 read 2 Nov; #24 findings per the project lead, not re-read here]`.
+X1 reviewed the open PR #22 (API connected to the contract and engine) and reported 3 critical findings at `b18d57f`, among them a superseded revision still returning its cut plan [S15]. The author reported fixes in `cbffff4`. X1's recheck of 2 Nov found the three critical findings closed or nearly closed, but not safe to merge: a lengthen request can still reach a plan that shortens the garment, and the `REVISION_STALE` response is not in the contract. X1 reviewed the open PR #24 (cut guide and DIY steps) and, after the author's fixes in `36bcda7`, rated it safe to merge only as demo-only code on mock data and not as a real cut guide, with 3 new major findings to fix before real use [S16]. Neither PR is merged, and the fixes are in progress as of 2 Nov `[AS-OF DATE]`; re-read both PRs at the status date. This work is not complete.
 
 `[UPDATE AS OF the status date: replace this table with the actual state of each item.]`
 
@@ -247,7 +247,7 @@ The following are **planned**, not done. Order follows the blueprint's critical 
 1. **Finish P0 (planned; the proposed window ended 1 Nov 2026):** agree the first recipe (D01), name the sewist reviewer, measure a real shirt, mark and trial a cut, record the deviation in mm, and complete the five exit-evidence items. L0 proposes 4 Nov for the first make (H-04), up from 1 Nov [S3 §12; S10 `human-tasks.md`, H-01 to H-04].
 2. **P1 connected alpha (planned, 2–15 Nov):** structured candidate parser, a three-case trace, one controlled fit adjustment, an APK demonstration on a real device, auth and versioned revisions [S3 §12].
 3. **P2 MVP integration (planned, 16 Nov – 6 Dec):** up to three distinct checked results, immutable recheck on edit, calibration and the measured overlay error report, saved body profile, a user-to-tailor test request [S3 §12].
-4. **P3 validation (planned, 7–15 Dec):** run the 24 constraint cases including false-pass cases, four physical makes, 8–12 participant sessions and 2–3 maker sessions if consent and recruitment allow, then freeze the build [S3 §12, §17.2].
+4. **P3 validation (planned, 7–15 Dec):** run the constraint suite (24 cases proposed; the run on open PR #19 had 27 cases and 29 checks, synthetic data) including false-pass cases, four physical makes, 8–12 participant sessions and 2–3 maker sessions if consent and recruitment allow, then freeze the build [S3 §12, §17.2].
 5. **P4 evidence and submission (planned, 16 Dec – 7 Jan):** analysis with confidence caveats, recorded and rehearsed demo, release runbook, and verification of Imagine Cup rules before any submission [S3 §12].
 6. **Final-year deliverables (planned):** draft final report, final report, demonstration and oral presentation on the NTU dates in Section 1.5 [S5].
 7. **Gates before claims.** No presentation claim goes out without source, denominator, method and recorded outcome [S3 §18.3, gate G4].
@@ -294,7 +294,7 @@ Work agents may only prepare, and that is listed for L0 [S10 `human-tasks.md`]. 
 
 ## References
 
-Internal documents are listed in `SOURCES.md` under tags S1–S14. External references quoted from those documents:
+Internal documents are listed in `SOURCES.md` under tags S1–S16. External references quoted from those documents:
 
 1. School of Electrical and Electronic Engineering, NTU. *Final Year Project* (EEE intranet page, submission deadlines table), printed 22 Oct 2026.
 2. School of Electrical and Electronic Engineering, NTU. *Suggested Format of FYP Interim Report.*

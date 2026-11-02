@@ -1,6 +1,6 @@
 # Sources for the interim report draft
 
-Maps each factual claim in `interim-report.md` to its source. Revised 1 Nov 2026 (v0.2). Sources were first read 28 Oct 2026; GitHub facts were re-checked on 1 Nov 2026. Source PDFs are in the founders' parent folder (outside this repo) and are not copied here.
+Maps each factual claim in `interim-report.md` to its source. Revised 2 Nov 2026 (v0.4, matching the report). Sources were first read 28 Oct 2026; GitHub facts were re-checked on 1 and 2 Nov 2026. Source PDFs are in the founders' parent folder (outside this repo) and are not copied here.
 
 ## Source list
 
@@ -21,6 +21,8 @@ Maps each factual claim in `interim-report.md` to its source. Revised 1 Nov 2026
 | S12 | GitHub branch-protection API for `main`, read 1 Nov 2026: PR required, `required_approving_review_count` 0, `require_code_owner_reviews` false, `enforce_admins` true | `gh api repos/KIREETI001/sewsure/branches/main/protection` |
 | S13 | `gh pr list --state all`: on 1 Nov 14 merged (#1–#7, #9–#12, #14–#16), 13 open (#8, #13, #17–#26, #32); on 2 Nov 15 open (adds #33, #34) | GitHub |
 | S14 | GitHub collaborators and invitations API for the repo, 2 Nov 2026: collaborators KIREETI001, vanilaa23, delfinee; 0 pending invitations | `gh api repos/KIREETI001/sewsure/collaborators` and `/invitations` |
+| S15 | PR #22 (API connected to contract and engine, **open**, head `cbffff4`): X1 review at `b18d57f`; K2 reply 1 Nov (`cbffff4`); X1 recheck 2 Nov, comment 6568815203. Also PR #23 (AI code, open) | `gh pr view 22`, issue comments |
+| S16 | PR #24 (cut guide and DIY steps, **open**, head `36bcda7`): X1 review at `ce545ab`; D4 reply 1 Nov (`36bcda7`); X1 recheck 2 Nov, comment 6568846312; `apps/mobile/src/make/gate.ts` at `36bcda7` always returns the diagram | `gh pr view 24`, issue comments |
 
 S8, S10 are L0's own reports. S10 is unmerged and unreviewed by a founder.
 
@@ -76,6 +78,8 @@ S8, S10 are L0's own reports. S10 is unmerged and unreviewed by a founder.
 | 2.4 | Four hooks and their effects | S6 `.claude/hooks/guard-paths.mjs`, `guard-shell.mjs`, `guard-outbound.mjs`, `format-on-edit.mjs` |
 | 2.4 | Non-negotiable rules | S6 `CLAUDE.md` |
 | 2.4 | `needs-human` label missing on 28 Oct and still open on 1 Nov | S8 audit; S10 (`human-tasks.md` H-07b) |
+| 2.1, 2.4 | Leads are first reviewers; GitHub does not require their approval | S6 `CLAUDE.md`; S12 |
+| 2.3 | Cut overlay planned and not working; #24 uses the diagram because `points_px` is not returned; no overlay accuracy exists | S16; S10 |
 | 2.5 | 14 agents running on 28 Oct (queued figure dropped) | S8 daily digest |
 | 2.5 | Contract draft.2 not frozen; recipe `draft`, no reviewer; ease ranges unverified; X1/X2 outcomes; CI Benchmarks failure; PR #19 synthetic counts (27 cases, 29 checks, 0/21, 21/21, 8/8, 0/8, 0/29) | S10 |
 | 2.6 | Questions Q1–Q4 on physical work | S8 audit |
@@ -87,6 +91,9 @@ S8, S10 are L0's own reports. S10 is unmerged and unreviewed by a founder.
 | 2.8 | Ethics/consent route open (H-05, formerly H-08; D12) | S10 `human-tasks.md`; S3 §20 D12 |
 | 2.8 | Founders' physical-progress answers outstanding | S10 |
 | 3.1 | Open wave-2 PRs and P0 evidence state on `main` | S10; S13; S8 audit table |
+| 3.1 | #22 and #23 connect separately; the AI pipeline is not connected to the API; #22's proposer is rule-based | S15 |
+| 3.1 | X1 findings and rechecks on #22 (3 critical at `b18d57f`; not safe to merge at `cbffff4`) and #24 (safe only as demo-only on mock data at `36bcda7`; 3 new major); neither merged; fixes in progress. Re-read both at the status date. Not verified here: whether the fixes work (read from X1's comments only) | S15; S16 |
+| 3.2 | Constraint suite: 24 cases proposed; 27 cases and 29 checks on PR #19's run (synthetic) | S3 §17.2; S10 |
 | 3.2 | Planned phases, critical path, fallback order, gate G4 | S3 §12, §13.1, §17.2, §18.3, §19.1 |
 | 3.2 | H-04 first make proposed for 4 Nov (was 1 Nov, missed) | S10 `human-tasks.md` |
 | 3.3 | V0.1 to V0.2 changes | S2 §13 |
