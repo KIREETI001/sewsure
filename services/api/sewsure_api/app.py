@@ -93,7 +93,7 @@ def revision_out(r: models.DesignRevision, stale: bool = False) -> RevisionOut:
             "parameters": r.parameters,
             "units": "mm",
             "geometry_mm": r.geometry_mm,
-            "checks": r.checks,
+            "checks": engine.user_checks(r.checks),
             "status": r.status,
             "diy_suitability": None,
             "pending_checks": pending,
@@ -285,7 +285,7 @@ def list_designs(
     project = services.get_project(db, user.id, project_id)
     binding = None
     if pairs and not any(r.status == "PASS_SUPPORTED_CHECKS" for _, r in pairs):
-        binding = pairs[0][1].checks
+        binding = engine.user_checks(pairs[0][1].checks)
     return DesignList.model_validate(
         {
             "project_id": project_id,

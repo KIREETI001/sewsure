@@ -74,6 +74,8 @@ class Design(Base):
     job_id: Mapped[str | None] = mapped_column(String(80), default=None)
     rank: Mapped[int] = mapped_column(Integer)
     title: Mapped[str] = mapped_column(String(80))
+    # What the user asked for ("crop", "lengthen", ...). Display and routing only; never a verdict.
+    transformation: Mapped[str | None] = mapped_column(String(40), default=None)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
 
 

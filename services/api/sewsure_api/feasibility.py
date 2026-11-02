@@ -37,7 +37,17 @@ SIDE_SEAM_NOTE = "Side seams are not verified by these checks; measure with a ru
 # Provisional (pending N1/Narthananilaa): the zone from the placket end to the hem must be at
 # least this deep, otherwise the placket value is not usable and the engine is told nothing.
 MIN_ZONE_MM = 50.0
+# Recipes whose only effect is to remove length. A lengthen request must never be re-checked
+# against one of these.
+SHORTENING_RECIPES = frozenset({"woven_shirt_crop_v1"})
 PLACKET = "placket_end_from_shoulder"
+
+
+def matches_crop_recipe(category: str, fabric_family: str) -> bool:
+    """Whether the crop recipe applies to this garment; only then are its dimensions asked for."""
+    return (category, fabric_family) == ("woven_shirt", "woven")
+
+
 STALE_CHECK = "Measurements changed since this check; recheck this design before cutting."
 PENDING_RULER_CHECK = (
     "Verify the shoulder-to-hem reference with a ruler on the garment before cutting."
@@ -86,7 +96,7 @@ def build_garment(
     category: str,
     fabric_family: str,
     dims: Mapping[str, Measurement],
-    clearance_mm: float = 0.0,
+    clearance_mm: float,
 ) -> Garment:
     """Engine input: flat panels as rectangles from the user's measurements.
 
@@ -214,6 +224,14 @@ def user_missing(names: Iterable[str]) -> list[str]:
     """The engine names the absent zone `prohibited_regions`; the user supplies the placket
     measurement, which is a contract dimension the app can ask for."""
     return list(dict.fromkeys(PLACKET if n == "prohibited_regions" else n for n in names))
+
+
+def user_checks(checks: Mapping[str, Any]) -> dict[str, Any]:
+    """The stored ConstraintResult for a response: identical except that the engine's absent-zone
+    name in `missing_dimensions` is shown as the measurement the user can supply. Not stored."""
+    out = dict(checks)
+    out["missing_dimensions"] = user_missing(checks["missing_dimensions"])
+    return out
 
 
 def explanation(status: str, checks: Mapping[str, Any], params: Mapping[str, Any]) -> str:

@@ -116,8 +116,24 @@ def test_edit_creates_new_revision_and_supersedes_passed_parent(client: TestClie
 
 
 def test_edit_keeps_failed_parent_verdict(client: TestClient) -> None:
-    ctx = scenario(client, "lengthening_impossible")
-    d = _designs(client, ctx["project_id"])["designs"][0]
+    # A failed crop (target longer than the garment) is fixed by a shorter target: the new
+    # revision passes, the old one keeps its FAILED_CHECKS verdict.
+    ctx = scenario(client, "woven_shirt_crop_pass")
+    pid = ctx["project_id"]
+    client.post(
+        f"/v1/projects/{pid}/generate",
+        json={
+            "inspiration": {
+                "text": "x",
+                "skill_level": "beginner",
+                "tools": ["ruler"],
+                "requested_features": {"transformation": "crop", "target_finished_length_mm": 900},
+            }
+        },
+        headers={**ALICE, **idem("fail-first")},
+    )
+    d = _designs(client, pid)["designs"][0]
+    assert d["status"] == "FAILED_CHECKS"
     parent = d["current_revision_id"]
     r = client.post(
         f"/v1/designs/{d['design_id']}/revisions",
@@ -128,6 +144,22 @@ def test_edit_keeps_failed_parent_verdict(client: TestClient) -> None:
     old = _revision(client, parent)
     assert old["status"] == "FAILED_CHECKS"
     assert old["superseded_by_revision_id"] == r.json()["revision_id"]
+
+
+def test_failed_lengthen_cannot_be_edited_into_a_shortening_plan(client: TestClient) -> None:
+    ctx = scenario(client, "lengthening_impossible")
+    d = _designs(client, ctx["project_id"])["designs"][0]
+    r = client.post(
+        f"/v1/designs/{d['design_id']}/revisions",
+        json={
+            "parent_revision_id": d["current_revision_id"],
+            "parameters": {"finished_length_mm": 500},
+        },
+        headers={**ALICE, **idem("fix")},
+    )
+    assert r.status_code == 422
+    assert r.json()["code"] == "LENGTHEN_NOT_SUPPORTED"
+    assert _revision(client, d["current_revision_id"])["superseded_by_revision_id"] is None
 
 
 def test_geometry_and_unknown_parameters_rejected(client: TestClient) -> None:

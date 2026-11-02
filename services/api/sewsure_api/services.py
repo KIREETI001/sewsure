@@ -198,7 +198,12 @@ def put_measurements(
 
     issues: list[dict[str, str]] = []
     missing: list[str] = []
-    needed = (*engine.required_dimensions("woven_shirt_crop_v1"), engine.PLACKET)
+    garment_row = project_garment(db, project)
+    needed = (
+        (*engine.required_dimensions("woven_shirt_crop_v1"), engine.PLACKET)
+        if engine.matches_crop_recipe(garment_row.category, garment_row.fabric_family)
+        else ()
+    )
     for name in needed:
         if name not in dims:
             missing.append(name)
@@ -346,6 +351,7 @@ def create_design(
     recipe_id: str | None,
     params: dict[str, Any],
     ruler_tolerance_mm: float,
+    transformation: str | None = None,
 ) -> DesignRevision:
     design = Design(
         id=new_id("des"),
@@ -354,6 +360,7 @@ def create_design(
         job_id=job_id,
         rank=rank,
         title=title[:80],
+        transformation=transformation,
     )
     db.add(design)
     db.flush()
@@ -420,6 +427,19 @@ def create_revision(
         )
     if parent.recipe_id is None:
         raise Unprocessable("this design has no reviewed recipe to customise")
+    design_row = db.get(Design, design_id)
+    if (
+        design_row is not None
+        and design_row.transformation == "lengthen"
+        and parent.recipe_id in engine.SHORTENING_RECIPES
+    ):
+        # The only recipe behind this design removes fabric. Re-checking a lengthen request with
+        # it could hand out a plan that shortens the garment, so the user starts a new request.
+        raise Unprocessable(
+            "This design was a lengthen request and the available recipe only shortens. "
+            "Start a new request instead of re-checking it.",
+            code="LENGTHEN_NOT_SUPPORTED",
+        )
     allowed = engine.allowed_parameter_keys(parent.recipe_id)
     changes = body.parameters.model_dump(mode="json", exclude_none=True)
     if allowed is None or set(changes) - allowed:

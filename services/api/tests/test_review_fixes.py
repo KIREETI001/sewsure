@@ -192,3 +192,93 @@ def test_cut_plan_lists_the_prohibited_region(client: TestClient) -> None:  # fi
     fronts = [p for p in plan["pieces"] if p["source_panel"].startswith("front")]
     assert fronts
     assert all(p["prohibited_regions"] == ["placket_end"] for p in fronts)
+
+
+# ---- X1 recheck of PR #22 -------------------------------------------------------------
+
+
+def _lengthen_then_recover(client: TestClient, key: str, first: dict[str, Any]) -> None:
+    pid = project(client, key)
+    put(client, pid, first)
+    generate(client, pid, "lengthen", 500, key)
+    parent = first_rev(client, pid)
+    assert parent["status"] == "NEEDS_INPUT"
+    put(client, pid, dims(length=780, placket=700))  # the true, confirmed length
+    r = edit(client, parent, f"{key}-e", hem_finish="double_fold")
+    assert r.status_code == 422, r.text
+    assert r.json()["code"] == "LENGTHEN_NOT_SUPPORTED"
+    r = edit(client, parent, f"{key}-r")  # a plain recheck is refused too
+    assert r.status_code == 422
+    assert cut_plan(client, parent["revision_id"]).status_code == 409
+
+
+def first_rev(client: TestClient, pid: str) -> dict[str, Any]:
+    return first(client, pid)
+
+
+def test_lengthen_with_length_unmeasured_never_reaches_a_plan(client: TestClient) -> None:  # 6a
+    unmeasured = dims() | {}
+    del unmeasured["shoulder_to_hem"]
+    _lengthen_then_recover(client, "len-a", unmeasured)
+
+
+def test_lengthen_with_length_unconfirmed_never_reaches_a_plan(client: TestClient) -> None:  # 6b
+    _lengthen_then_recover(client, "len-b", dims() | {"shoulder_to_hem": val(400, confirmed=False)})
+
+
+def test_lengthen_to_longer_then_shortened_by_edit_is_refused(client: TestClient) -> None:  # 6c
+    pid = project(client)
+    put(client, pid, dims())
+    generate(client, pid, "lengthen", 800)
+    parent = first(client, pid)
+    assert parent["status"] == "FAILED_CHECKS"
+    r = edit(client, parent, "len-c", finished_length_mm=500)
+    assert r.status_code == 422
+    assert r.json()["code"] == "LENGTHEN_NOT_SUPPORTED"
+
+
+def test_lengthen_equal_to_length_is_an_idea(client: TestClient) -> None:  # N4
+    pid = project(client)
+    put(client, pid, dims())
+    generate(client, pid, "lengthen", 780)
+    assert designs(client, pid)["designs"][0]["status"] == "IDEA_ONLY"
+    assert first(client, pid)["cut_plan_id"] is None
+
+
+def test_placket_boundary_at_length_minus_minimum(client: TestClient) -> None:  # N4
+    for i, (placket, expected) in enumerate(
+        [(730, "PASS_SUPPORTED_CHECKS"), (730.1, "NEEDS_INPUT")]
+    ):
+        pid = project(client, f"bound{i}")
+        put(client, pid, dims(length=780, placket=placket))
+        generate(client, pid, "crop", 500)
+        assert designs(client, pid)["designs"][0]["status"] == expected, placket
+
+
+def test_list_explanation_leads_with_the_recheck_when_stale(client: TestClient) -> None:  # N4
+    pid = project(client)
+    put(client, pid, dims())
+    generate(client, pid, "crop", 500)
+    put(client, pid, dims())  # measurements replaced
+    text = designs(client, pid)["designs"][0]["explanation"].lower()
+    assert "recheck" in text
+
+
+def test_idea_only_garment_is_not_asked_for_a_placket(client: TestClient) -> None:  # N2
+    r = client.post(
+        "/v1/projects",
+        json={"garment": {"category": "jersey_tee", "fabric_family": "knit"}},
+        headers={**ALICE, **idem("tee")},
+    )
+    result = put(client, r.json()["project_id"], {"shoulder_to_hem": val(600)})
+    assert "placket_end_from_shoulder" not in result["missing_dimensions"]
+
+
+def test_revision_and_binding_constraint_name_the_placket(client: TestClient) -> None:  # 7
+    pid = project(client)
+    put(client, pid, dims(placket=None))
+    generate(client, pid, "crop", 500)
+    rev = first(client, pid)
+    assert rev["checks"]["missing_dimensions"] == ["placket_end_from_shoulder"]
+    listing = designs(client, pid)
+    assert listing["binding_constraint"]["missing_dimensions"] == ["placket_end_from_shoulder"]

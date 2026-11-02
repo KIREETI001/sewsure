@@ -24,6 +24,7 @@ class Proposal:
     recipe_id: str | None  # None = no reviewed recipe fits (the design stays IDEA_ONLY)
     parameters: dict[str, Any]
     title: str
+    transformation: str | None = None  # what the user asked for; kept on the design
 
 
 class Proposer(Protocol):
@@ -62,7 +63,7 @@ class RuleProposer:
         if lengthens_nothing:
             # Contradictory: a "lengthen" that is not longer than the garment must never reach
             # the crop recipe, which would shorten it. It stays an idea.
-            return [Proposal(None, {}, "Idea only: request does not lengthen")]
+            return [Proposal(None, {}, "Idea only: request does not lengthen", transformation)]
         if transformation in ("crop", "lengthen") and target is not None:
             verb = "Cropped" if transformation == "crop" else "Lengthened"
             return [
@@ -74,9 +75,10 @@ class RuleProposer:
                         "hem_finish": "double_fold",
                     },
                     f"{verb} shirt, {target:g} mm",
+                    transformation,
                 )
             ]
-        return [Proposal(None, {}, "Idea only: no reviewed recipe yet")]
+        return [Proposal(None, {}, "Idea only: no reviewed recipe yet", transformation)]
 
 
 def _outcome(statuses: list[str]) -> str:
@@ -123,6 +125,7 @@ def run_generate_job(
                     recipe_id=proposal.recipe_id,
                     params=proposal.parameters,
                     ruler_tolerance_mm=ruler_tolerance_mm,
+                    transformation=proposal.transformation,
                 )
                 statuses.append(revision.status)
                 ids.append(revision.design_id)
