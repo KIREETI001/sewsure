@@ -223,6 +223,27 @@ def test_x1_2_no_zone_data_cannot_pass() -> None:
         assert r.cut_mark_mm is None
 
 
+def test_zones_on_only_some_panels_cannot_pass() -> None:
+    """A cut through the placket must not pass because the front zones were never supplied."""
+    zone = (Zone("yoke", "seam", rect(0, 0, 10, 10)),)
+    placket = (Zone("placket_end", "placket_end", rect(230, 500, 260, 600)),)
+    panel = {
+        side: FabricPanel("g", side, rect(0, 0, 260, 780))
+        for side in (Side.BACK, Side.FRONT_LEFT, Side.FRONT_RIGHT)
+    }
+    back = FabricPanel("g", Side.BACK, rect(0, 0, 520, 780), prohibited_regions=zone)
+    left = FabricPanel("g", Side.FRONT_LEFT, rect(0, 0, 260, 780), prohibited_regions=placket)
+    for panels in (
+        (back,),
+        (back, panel[Side.FRONT_LEFT], panel[Side.FRONT_RIGHT]),
+        (back, left, panel[Side.FRONT_RIGHT]),
+    ):
+        r = evaluate(Garment("g", "woven_shirt", "woven", panels), meas(), p=params(530, 20))
+        assert r.status is DesignState.NEEDS_INPUT and not r.hard_pass
+        assert r.failure_codes == (FailureCode.MISSING_PROHIBITED_ZONES,)
+        assert r.cut_mark_mm is None
+
+
 def test_x1_3_string_and_bool_params_do_not_crash(good_shirt: Garment) -> None:
     """Major: K1's PASS fixture carries ``hem_finish: "double_fold"``."""
     r = evaluate(

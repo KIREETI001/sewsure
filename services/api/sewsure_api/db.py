@@ -2,11 +2,16 @@ from collections.abc import Iterator
 from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import DateTime, Engine, create_engine
+from azure.identity import ManagedIdentityCredential
+from sqlalchemy import URL, DateTime, Engine, create_engine, event
 from sqlalchemy.engine import Dialect
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 from sqlalchemy.types import TypeDecorator
+
+from sewsure_api.settings import Settings
+
+POSTGRES_TOKEN_SCOPE = "https://ossrdbms-aad.database.windows.net/.default"
 
 
 class Base(DeclarativeBase):
@@ -40,6 +45,28 @@ def make_engine(url: str) -> Engine:
     if url.startswith("sqlite"):
         return create_engine(url, connect_args={"check_same_thread": False})
     return create_engine(url, pool_pre_ping=True)
+
+
+def engine_from_settings(settings: Settings, credential: Any = None) -> Engine:
+    """Local URL by default; on Azure, connect with a fresh Entra token as the password."""
+    if not settings.postgres_host:
+        return make_engine(settings.database_url)
+    url = URL.create(
+        "postgresql+psycopg",
+        username=settings.postgres_user,
+        host=settings.postgres_host,
+        database=settings.postgres_db,
+    )
+    engine = create_engine(url, pool_pre_ping=True, connect_args={"sslmode": "require"})
+    credential = credential or ManagedIdentityCredential(
+        client_id=settings.managed_identity_client_id
+    )
+
+    @event.listens_for(engine, "do_connect")
+    def _use_token(dialect: Dialect, record: Any, cargs: Any, cparams: dict[str, Any]) -> None:
+        cparams["password"] = credential.get_token(POSTGRES_TOKEN_SCOPE).token
+
+    return engine
 
 
 def make_session_factory(engine: Engine) -> sessionmaker[Session]:

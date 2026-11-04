@@ -110,6 +110,7 @@ Cost expectations (verify in the Azure pricing calculator before running; do not
 1. **Database access.** Password auth is off. The managed identity `id-sewsure-staging` is the Entra administrator, so it is only usable from Azure (the API and Job). A managed identity cannot be used from a laptop: to connect yourself, add your own Entra user as a temporary second administrator on the server (portal > PostgreSQL > Authentication) and remove it afterwards. Do not enable password auth. Follow-up (K2/K6): create a least-privilege database role for the app identity so an API compromise does not hold admin rights.
 2. **Secrets in Key Vault.** Add model endpoints/keys (K3) in the portal or with `az keyvault secret set` under *your own* identity. Grant yourself `Key Vault Secrets Officer` on the vault first. Never paste values into chat, issues or the repo.
 3. **API port.** Once the API Dockerfile exists, set `API_TARGET_PORT` to its port (GitHub variable and `azd env set`), and run a provision again.
+   **API sign-in.** The API rejects every request until the sign-in provider is set. Once the founders choose one, set `AUTH_ISSUER`, `AUTH_AUDIENCE` and `AUTH_JWKS_URL` (`azd env set`) and run a provision again. These are identifiers, not secrets.
 4. **Foundry/OpenAI.** Model deployments are not in this Bicep (region and quota are per-subscription decisions). Create the deployments by hand and give the managed identity `Cognitive Services OpenAI User` (K3 documents the exact names).
 5. Check Application Insights receives a request from the API.
 

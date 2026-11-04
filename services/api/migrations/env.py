@@ -1,8 +1,7 @@
 from alembic import context
-from sqlalchemy import engine_from_config, pool
 
 from sewsure_api import models  # noqa: F401  (register tables)
-from sewsure_api.db import Base
+from sewsure_api.db import Base, engine_from_settings, make_engine
 from sewsure_api.settings import get_settings
 
 config = context.config
@@ -20,9 +19,8 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    section = config.get_section(config.config_ini_section, {})
-    section["sqlalchemy.url"] = _url()
-    connectable = engine_from_config(section, prefix="sqlalchemy.", poolclass=pool.NullPool)
+    url = config.get_main_option("sqlalchemy.url")
+    connectable = make_engine(url) if url else engine_from_settings(get_settings())
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
         with context.begin_transaction():

@@ -19,6 +19,15 @@
     },
     "apiTargetPort": {
       "value": "${API_TARGET_PORT=80}"
+    },
+    "authIssuer": {
+      "value": "${AUTH_ISSUER=}"
+    },
+    "authAudience": {
+      "value": "${AUTH_AUDIENCE=}"
+    },
+    "authJwksUrl": {
+      "value": "${AUTH_JWKS_URL=}"
     }
   }
 }

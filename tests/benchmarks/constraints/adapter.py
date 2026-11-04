@@ -129,8 +129,11 @@ def build_engine_args(inputs: dict, models) -> tuple:
     zones = tuple(
         models.Zone(r["name"], r["name"], rect(r["from_shoulder_mm"] - margin, r["to_shoulder_mm"] + margin))
         for r in g.get("prohibited_regions", []))
-    panel = models.FabricPanel("case", models.Side.BACK, rect(0.0, h), prohibited_regions=zones)
-    garment = models.Garment("case", g["category"], g["fabric_family"], (panel,))
+    panels = tuple(
+        models.FabricPanel("case", side, rect(0.0, h), prohibited_regions=zones)
+        for side in (models.Side.FRONT_LEFT, models.Side.FRONT_RIGHT)
+    )
+    garment = models.Garment("case", g["category"], g["fabric_family"], panels)
     return garment, meas, inputs["recipe_id"], dict(inputs["params"])
 
 

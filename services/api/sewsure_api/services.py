@@ -558,7 +558,7 @@ def is_stale(db: Session, revision: DesignRevision) -> bool:
 # ---- jobs -----------------------------------------------------------------------------
 
 _TRANSITIONS: dict[str, set[str]] = {
-    JOB_QUEUED: {JOB_RUNNING},
+    JOB_QUEUED: {JOB_RUNNING, JOB_FAILED},
     JOB_RUNNING: {JOB_COMPLETE, JOB_FAILED},
     JOB_FAILED: {JOB_QUEUED},  # retry, only when recoverable
     JOB_COMPLETE: set(),
@@ -578,6 +578,15 @@ def get_job(db: Session, owner_id: str, job_id: str) -> Job:
     if job is None:
         raise NotFound("job")
     return job
+
+
+def fail_if_abandoned(job: Job, after_seconds: int) -> None:
+    """Jobs run in the API process, so one can die with it. Nothing else would ever finish it."""
+    if (
+        job.status in (JOB_QUEUED, JOB_RUNNING)
+        and (utcnow() - job.updated_at).total_seconds() > after_seconds
+    ):
+        fail_job(job, "GENERATION_FAILED", "Generation was interrupted. Try again.", True)
 
 
 def enqueue_job(
