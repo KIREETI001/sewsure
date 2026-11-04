@@ -44,17 +44,16 @@ def shirt(
     material: str | None = "woven",
     zones: str = "full",  # full | minimal (harmless zone near the neckline) | none
 ) -> Garment:
-    front = FabricPanel(
-        "g1",
-        Side.FRONT_LEFT,
-        rect(0, 0, 260, 780),
-        prohibited_regions=(
-            {
-                "full": (Zone("placket_end", "placket_end", rect(230, 600, 260, 780)),),
-                "minimal": (Zone("collar_button", "placket_end", rect(230, 0, 260, 50)),),
-                "none": (),
-            }[zones]
-        ),
+    front_zones = {
+        "full": (Zone("placket_end", "placket_end", rect(230, 600, 260, 780)),),
+        "minimal": (Zone("collar_button", "placket_end", rect(230, 0, 260, 50)),),
+        "none": (),
+    }[zones]
+    front_left = FabricPanel(
+        "g1", Side.FRONT_LEFT, rect(0, 0, 260, 780), prohibited_regions=front_zones
+    )
+    front_right = FabricPanel(
+        "g1", Side.FRONT_RIGHT, rect(0, 0, 260, 780), prohibited_regions=front_zones
     )
     back = FabricPanel(
         "g1",
@@ -66,7 +65,7 @@ def shirt(
             else ()
         ),
     )
-    return Garment("g1", category, material, (front, back))
+    return Garment("g1", category, material, (front_left, front_right, back))
 
 
 @pytest.fixture

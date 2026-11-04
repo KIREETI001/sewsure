@@ -25,6 +25,15 @@ param apiTargetPort string = '80'
 @description('Image for the API and Job. azd replaces it on deploy.')
 param apiImage string = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
 
+@description('Sign-in provider token issuer. The API rejects every request until all three auth values are set.')
+param authIssuer string = ''
+
+@description('Audience the API expects in sign-in tokens.')
+param authAudience string = ''
+
+@description('URL of the sign-in provider public keys (JWKS).')
+param authJwksUrl string = ''
+
 var tags = {
   project: 'sewsure'
   environment: environmentName
@@ -112,13 +121,16 @@ module containerApps '../modules/containerapps.bicep' = {
     apiTargetPort: int(apiTargetPort)
     // Non-secret settings only. Model keys are read from Key Vault by the app.
     env: [
-      { name: 'SEWSURE_ENV', value: environmentName }
       { name: 'AZURE_CLIENT_ID', value: identity.outputs.clientId }
       { name: 'KEY_VAULT_URI', value: keyVault.outputs.uri }
       { name: 'BLOB_ENDPOINT', value: storage.outputs.blobEndpoint }
-      { name: 'POSTGRES_HOST', value: postgres.outputs.fqdn }
-      { name: 'POSTGRES_DB', value: postgres.outputs.databaseName }
-      { name: 'POSTGRES_USER', value: identity.outputs.name }
+      { name: 'SEWSURE_POSTGRES_HOST', value: postgres.outputs.fqdn }
+      { name: 'SEWSURE_POSTGRES_DB', value: postgres.outputs.databaseName }
+      { name: 'SEWSURE_POSTGRES_USER', value: identity.outputs.name }
+      { name: 'SEWSURE_MANAGED_IDENTITY_CLIENT_ID', value: identity.outputs.clientId }
+      { name: 'SEWSURE_AUTH_ISSUER', value: authIssuer }
+      { name: 'SEWSURE_AUTH_AUDIENCE', value: authAudience }
+      { name: 'SEWSURE_AUTH_JWKS_URL', value: authJwksUrl }
       { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: monitoring.outputs.appInsightsConnectionString }
     ]
   }

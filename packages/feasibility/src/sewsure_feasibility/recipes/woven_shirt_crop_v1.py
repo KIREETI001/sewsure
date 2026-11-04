@@ -31,6 +31,7 @@ RECIPE_VERSION = "1.0.0"
 EPS_MM = 1e-9  # float noise only; not a fit tolerance
 
 _CHECKED_SIDES = {Side.BACK, Side.FRONT_LEFT, Side.FRONT_RIGHT}
+_ZONE_REQUIRED_SIDES = {Side.FRONT_LEFT, Side.FRONT_RIGHT}
 
 
 def _slug(text: str) -> str:
@@ -38,8 +39,9 @@ def _slug(text: str) -> str:
 
 
 def _missing_garment_inputs(garment: Garment) -> tuple[str, ...]:
-    has_zones = any(p.prohibited_regions for p in garment.panels if p.side in _CHECKED_SIDES)
-    return () if has_zones else ("prohibited_regions",)
+    # The placket runs down both fronts, so zones elsewhere cannot stand in for them.
+    sides_with_zones = {p.side for p in garment.panels if p.prohibited_regions}
+    return () if sides_with_zones >= _ZONE_REQUIRED_SIDES else ("prohibited_regions",)
 
 
 def _check(

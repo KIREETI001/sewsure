@@ -21,8 +21,8 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from sewsure_api import feasibility as engine
 from sewsure_api import models, services
-from sewsure_api.auth import AuthProvider, CurrentUser, RejectAllAuth, get_current_user
-from sewsure_api.db import make_engine, make_session_factory, session_scope
+from sewsure_api.auth import AuthProvider, CurrentUser, auth_from_settings, get_current_user
+from sewsure_api.db import engine_from_settings, make_session_factory, session_scope
 from sewsure_api.errors import ApiProblem
 from sewsure_api.generation import Proposer, RuleProposer, run_generate_job
 from sewsure_api.settings import Settings, get_settings
@@ -32,6 +32,10 @@ IdemKey = Header(min_length=8, max_length=128)
 
 def get_db(request: Request) -> Iterator[Session]:
     yield from session_scope(request.app.state.session_factory)
+
+
+# scope="function" commits before the response is sent, so a failed commit is never a 2xx.
+Db = Depends(get_db, scope="function")
 
 
 def _settings(request: Request) -> Settings:
@@ -190,7 +194,7 @@ def create_project(
     response: Response,
     idempotency_key: str = IdemKey,
     user: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Db,
 ):
     project, created = services.create_project_idempotent(db, user.id, idempotency_key, body)
     if not created:
@@ -200,16 +204,12 @@ def create_project(
 
 
 @router.get("/projects/{project_id}", response_model=ProjectOut)
-def read_project(
-    project_id: str, user: CurrentUser = Depends(get_current_user), db: Session = Depends(get_db)
-):
+def read_project(project_id: str, user: CurrentUser = Depends(get_current_user), db: Session = Db):
     return project_out(services.get_project(db, user.id, project_id))
 
 
 @router.get("/garments/{garment_id}", response_model=GarmentOut)
-def read_garment(
-    garment_id: str, user: CurrentUser = Depends(get_current_user), db: Session = Depends(get_db)
-):
+def read_garment(garment_id: str, user: CurrentUser = Depends(get_current_user), db: Session = Db):
     return garment_out(services.get_garment(db, user.id, garment_id))
 
 
@@ -218,7 +218,7 @@ def put_measurements(
     project_id: str,
     body: MeasurementsInput,
     user: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Db,
 ):
     record, issues, missing = services.put_measurements(db, user.id, project_id, body)
     return MeasurementsResult.model_validate(
@@ -250,7 +250,7 @@ def generate(
     background: BackgroundTasks,
     idempotency_key: str = IdemKey,
     user: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Db,
 ):
     settings = _settings(request)
     job, created = services.enqueue_generate_idempotent(
@@ -263,7 +263,7 @@ def generate(
     )
     snapshot = job_out(job)
     if created:
-        db.commit()  # the runner opens its own session and must see the queued job
+        # Background tasks start after the response, so the runner sees the committed job.
         background.add_task(
             run_generate_job,
             request.app.state.session_factory,
@@ -279,15 +279,18 @@ def generate(
 
 @router.get("/jobs/{job_id}", response_model=JobOut)
 def read_job(
-    job_id: str, user: CurrentUser = Depends(get_current_user), db: Session = Depends(get_db)
+    job_id: str,
+    request: Request,
+    user: CurrentUser = Depends(get_current_user),
+    db: Session = Db,
 ):
-    return job_out(services.get_job(db, user.id, job_id))
+    job = services.get_job(db, user.id, job_id)
+    services.fail_if_abandoned(job, _settings(request).job_abandoned_after_seconds)
+    return job_out(job)
 
 
 @router.get("/projects/{project_id}/designs", response_model=DesignList)
-def list_designs(
-    project_id: str, user: CurrentUser = Depends(get_current_user), db: Session = Depends(get_db)
-):
+def list_designs(project_id: str, user: CurrentUser = Depends(get_current_user), db: Session = Db):
     pairs = services.list_designs(db, user.id, project_id)
     project = services.get_project(db, user.id, project_id)
     binding = None
@@ -318,7 +321,7 @@ def create_revision(
     response: Response,
     idempotency_key: str = IdemKey,
     user: CurrentUser = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Db,
 ):
     revision, created = services.revision_idempotent(
         db, user.id, design_id, idempotency_key, body, _settings(request).ruler_tolerance_mm
@@ -332,7 +335,7 @@ def create_revision(
 
 @router.get("/revisions/{revision_id}", response_model=RevisionOut)
 def read_revision(
-    revision_id: str, user: CurrentUser = Depends(get_current_user), db: Session = Depends(get_db)
+    revision_id: str, user: CurrentUser = Depends(get_current_user), db: Session = Db
 ):
     revision = services.get_revision(db, user.id, revision_id)
     return revision_out(
@@ -342,7 +345,7 @@ def read_revision(
 
 @router.get("/revisions/{revision_id}/cut-plan", response_model=CutPlan)
 def read_cut_plan(
-    revision_id: str, user: CurrentUser = Depends(get_current_user), db: Session = Depends(get_db)
+    revision_id: str, user: CurrentUser = Depends(get_current_user), db: Session = Db
 ):
     return CutPlan.model_validate(services.get_cut_plan(db, user.id, revision_id))
 
@@ -397,9 +400,9 @@ def create_app(
     app = FastAPI(title="SewSure API", version="0.2.0")
     app.state.settings = settings
     app.state.session_factory = session_factory or make_session_factory(
-        make_engine(settings.database_url)
+        engine_from_settings(settings)
     )
-    app.state.auth_provider = auth_provider or RejectAllAuth()
+    app.state.auth_provider = auth_provider or auth_from_settings(settings)
     app.state.proposer = proposer or RuleProposer()
 
     @app.get("/healthz")
