@@ -207,6 +207,9 @@ export default function InspirationScreen() {
         onChangeText={(extraMaterials) => patch({ extraMaterials })}
       />
 
+      {fit === null && <Body>{t("inspiration.fit.needed")}</Body>}
+      {skill === null && <Body>{t("inspiration.skill.needed")}</Body>}
+
       <Button
         label={t("common.continue")}
         disabled={!canContinue}
