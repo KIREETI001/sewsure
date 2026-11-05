@@ -33,7 +33,10 @@ __all__ = [
     "CheckOutcome",
     "ConstraintResult",
     "DesignState",
+    "FabricComposition",
     "FabricPanel",
+    "FabricProperties",
+    "FabricStructure",
     "FailureCode",
     "Garment",
     "GarmentProfile",
@@ -42,12 +45,19 @@ __all__ = [
     "Placement",
     "Residual",
     "Side",
+    "StretchLevel",
     "Zone",
     "cm_to_mm",
     "evaluate",
     "supersede",
 ]
 
+from sewsure_feasibility.fabric import (
+    FabricComposition,
+    FabricProperties,
+    FabricStructure,
+    StretchLevel,
+)
 from sewsure_feasibility.garment_profile import (
     GARMENT_MEASUREMENT_KEYS,
     GarmentProfile,
