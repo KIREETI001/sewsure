@@ -1,10 +1,10 @@
-
 from datetime import UTC, datetime
+from operator import setitem
+from typing import Any, cast
 
 import pytest
 
 from sewsure_feasibility import BodyProfile, Measurement
-
 
 CONFIRMED_AT = datetime(2026, 11, 5, tzinfo=UTC)
 
@@ -28,9 +28,7 @@ def test_create_body_profile() -> None:
     )
 
     assert profile.profile_id == "user_001"
-    assert profile.get_confirmed_value_mm(
-        "bust_circumference"
-    ) == 900
+    assert profile.get_confirmed_value_mm("bust_circumference") == 900
 
 
 def test_missing_measurements_are_detected() -> None:
@@ -64,13 +62,9 @@ def test_unconfirmed_measurement_is_not_accepted() -> None:
         },
     )
 
-    assert profile.get_confirmed_value_mm(
-        "bust_circumference"
-    ) is None
+    assert profile.get_confirmed_value_mm("bust_circumference") is None
 
-    assert profile.missing_or_unconfirmed(
-        ("bust_circumference",)
-    ) == ("bust_circumference",)
+    assert profile.missing_or_unconfirmed(("bust_circumference",)) == ("bust_circumference",)
 
 
 def test_unknown_measurement_is_rejected() -> None:
@@ -110,6 +104,8 @@ def test_profile_measurements_cannot_be_modified() -> None:
     )
 
     with pytest.raises(TypeError):
-        profile.measurements["waist_circumference"] = (
-            make_measurement(760)
+        setitem(
+            cast(Any, profile.measurements),
+            "waist_circumference",
+            make_measurement(760),
         )
