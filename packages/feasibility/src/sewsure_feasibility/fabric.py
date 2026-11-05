@@ -7,6 +7,15 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 
+def _is_invalid_positive_number(value: object) -> bool:
+    return (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+        or value <= 0
+    )
+
+
 class FabricComposition(StrEnum):
     COTTON = "cotton"
     POLYESTER = "polyester"
@@ -65,19 +74,9 @@ class FabricProperties:
             raise ValueError("Only non-stretch fabrics are supported.")
 
         # Validate optional thickness.
-        if self.thickness_mm is not None and (
-            isinstance(self.thickness_mm, bool)
-            or not isinstance(self.thickness_mm, (int, float))
-            or not math.isfinite(self.thickness_mm)
-            or self.thickness_mm <= 0
-        ):
+        if self.thickness_mm is not None and _is_invalid_positive_number(self.thickness_mm):
             raise ValueError("thickness_mm must be finite and greater than zero.")
 
         # Validate optional fabric weight.
-        if self.weight_gsm is not None and (
-            isinstance(self.weight_gsm, bool)
-            or not isinstance(self.weight_gsm, (int, float))
-            or not math.isfinite(self.weight_gsm)
-            or self.weight_gsm <= 0
-        ):
+        if self.weight_gsm is not None and _is_invalid_positive_number(self.weight_gsm):
             raise ValueError("weight_gsm must be finite and greater than zero.")
