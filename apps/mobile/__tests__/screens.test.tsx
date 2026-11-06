@@ -25,7 +25,8 @@ const renderScreen = (ui: ReactElement) =>
       client={
         new QueryClient({
           defaultOptions: {
-            mutations: { retry: false },
+            // Avoid five-minute mutation GC timers in this isolated test client.
+            mutations: { retry: false, gcTime: Infinity },
             queries: { retry: false, gcTime: Infinity },
           },
         })
