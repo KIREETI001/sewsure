@@ -29,3 +29,23 @@ There is no seed route, UI, deep-link handler or production import. Part B must 
 and verify build-time release exclusion before exposing `sewsure://dev/seed/<name>`.
 A runtime `__DEV__` check alone is not proof of exclusion. These helpers do not unblock
 Maestro deep-link flows yet.
+
+## Mock upload failure simulation (Part B1)
+
+`installMockUploadFailure()` installs a test-only wrapper using `getApi` / `setApi`.
+It starts with predictable upload rejection (`MOCK_UPLOAD_FAILURE_MESSAGE`). Call
+`controller.setFailure(false)` to recover using the existing mock upload response
+and provenance, or `setFailure(true)` to fail again. Other mock methods are unchanged.
+No network is used. Installation refuses any client other than the default `mockApi`,
+including nested installations, so it cannot wrap a live backend.
+
+Always call `controller.dispose()` in `finally` or test teardown after pending
+mutations settle. Disposal clears failure and restores the original client if the
+wrapper still owns the API slot; it never overwrites a subsequently installed client.
+Disposal is idempotent, and a disposed controller cannot be enabled again. Each new
+installation starts fresh. Importing the module alone does not install anything.
+
+The controller does not edit intake state, authentication, consent or validation.
+Tests exercise the existing measurements screen to verify persisted draft retention
+and retry with identical input, including measurement confirmations. No production
+entry point imports the controller; there is no toggle, UI or deep-link route.
