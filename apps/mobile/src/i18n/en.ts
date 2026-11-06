@@ -9,19 +9,19 @@ export const en = {
 
   "entry.title": "Remake a garment you already own",
   "entry.subtitle":
-    "Photograph a garment, say what you want, and get redesigns that passed the checks we run.",
+    "Photograph a garment, say what you want and confirm its measurements. This early build stops there. Checking redesigns is still being built.",
   "entry.roleHeading": "I am a",
   "entry.roleUser": "Maker or owner",
   "entry.roleTailor": "Tailor",
   "entry.roleTailorNote":
-    "Tailor tools arrive in a later release. You can look around in demo mode meanwhile.",
+    "Tailor tools are planned, not built. To look around, choose Maker or owner, then demo mode.",
   "entry.signIn": "Sign in",
   "entry.signingIn": "Signing in…",
   "entry.signedIn": "Signed in as {name}",
   "entry.signInFailed": "Sign-in did not work. Your input is safe. Try again or use demo mode.",
   "entry.guest": "Try demo mode",
   "entry.guestNote":
-    "Demo mode uses sample data and keeps everything on this device. Nothing is uploaded.",
+    "Demo mode does not sign you in or upload anything. What you enter is saved only on this device.",
   "entry.start": "Start",
 
   "capture.title": "Garment photos",
@@ -49,6 +49,9 @@ export const en = {
   "capture.category.suggested": "Suggested: {category}",
   "capture.category.use": "Use suggestion",
   "capture.category.confirmed": "Confirmed: {category}",
+  "capture.category.ideaOnly":
+    "We can only suggest ideas for this garment. There are no checks or cut guide for it.",
+  "capture.category.teeNote": "Limited support is planned for jersey tees.",
   "capture.category.needed": "Pick the garment type to continue.",
   "capture.category.shirt": "Shirt",
   "capture.category.tee": "T-shirt",
@@ -119,6 +122,7 @@ export const en = {
   "measure.outOfRange": "{value} cm is outside any sensible range for this measurement. Check it.",
   "measure.maybeMissingZero": "{value} cm looks small. Did you mean {suggested} cm?",
   "measure.maybeExtraZero": "{value} cm looks large. Did you mean {suggested} cm?",
+  "measure.doubleCheck": "Please double-check this value.",
   "measure.unusual": "{value} cm is unusual for this measurement.",
   "measure.useSuggested": "Use {suggested} cm",
   "measure.keep": "Keep {value} cm",
@@ -127,6 +131,7 @@ export const en = {
   "measure.draft.notUploaded": "Not uploaded. Saved as a draft on this device.",
   "measure.draft.uploading": "Uploading…",
   "measure.draft.uploaded": "Uploaded",
+  "measure.draft.mockUploaded": "Test upload only. Nothing left this device.",
   "measure.draft.failed": "Upload failed. Your draft is still saved on this device.",
   "measure.draft.guest": "Demo mode: stays on this device, not uploaded.",
   "measure.upload": "Upload",
