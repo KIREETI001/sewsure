@@ -42,8 +42,23 @@ export function Heading({ children }: { children: string }) {
   );
 }
 
-export function Body({ children, muted }: { children: ReactNode; muted?: boolean }) {
-  return <Text style={[styles.body, muted && { color: colors.muted }]}>{children}</Text>;
+export function Body({
+  children,
+  muted,
+  accessibilityLabel,
+}: {
+  children: ReactNode;
+  muted?: boolean;
+  accessibilityLabel?: string;
+}) {
+  return (
+    <Text
+      accessibilityLabel={accessibilityLabel}
+      style={[styles.body, muted && { color: colors.muted }]}
+    >
+      {children}
+    </Text>
+  );
 }
 
 export function Button({
@@ -128,7 +143,14 @@ export function Notice({
   const symbol = tone === "error" ? "✗" : tone === "warn" ? "!" : "i";
   return (
     <View accessibilityRole="alert" style={[styles.notice, { backgroundColor: bg }]}>
-      <Text style={styles.body}>{`${symbol}  `}</Text>
+      <Text
+        accessible={false}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        style={styles.body}
+      >
+        {`${symbol}  `}
+      </Text>
       <View style={{ flex: 1 }}>{children}</View>
     </View>
   );
