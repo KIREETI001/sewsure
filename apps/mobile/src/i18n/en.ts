@@ -23,6 +23,8 @@ export const en = {
   "entry.guestNote":
     "Demo mode does not sign you in or upload anything. What you enter is saved only on this device.",
   "entry.start": "Start",
+  "entry.startNeedsMaker": "Choose Maker or owner to start. Tailor tools are unavailable.",
+  "entry.startNeedsSession": "To start as Maker or owner, sign in or try demo mode.",
 
   "capture.title": "Garment photos",
   "capture.guide.heading": "For a usable photo",
@@ -75,11 +77,13 @@ export const en = {
   "inspiration.surpriseFailed": "No idea came back. Try again.",
   "inspiration.surpriseResult": "Idea: {prompt}",
   "inspiration.fit.heading": "How should it fit?",
+  "inspiration.fit.needed": "Choose a fit preference to continue.",
   "inspiration.fit.fitted": "Fitted",
   "inspiration.fit.relaxed": "Relaxed",
   "inspiration.fit.oversized": "Oversized",
   "inspiration.fit.no_preference": "No preference",
   "inspiration.skill.heading": "Your sewing skill",
+  "inspiration.skill.needed": "Choose your sewing skill to continue.",
   "inspiration.skill.beginner": "Beginner",
   "inspiration.skill.intermediate": "Intermediate",
   "inspiration.skill.advanced": "Advanced",

@@ -66,6 +66,9 @@ export default function EntryScreen() {
       />
       <Body muted>{t("entry.guestNote")}</Body>
 
+      {role !== "user" && <Body>{t("entry.startNeedsMaker")}</Body>}
+      {!guest && signedInAs === null && <Body>{t("entry.startNeedsSession")}</Body>}
+
       <Button
         label={t("entry.start")}
         disabled={!canStart}
