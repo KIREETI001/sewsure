@@ -108,6 +108,7 @@ export function TextField({
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
+      {hint ? <Body muted>{hint}</Body> : null}
       <TextInput
         accessibilityLabel={label}
         accessibilityHint={hint}
