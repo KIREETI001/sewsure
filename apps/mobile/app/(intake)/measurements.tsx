@@ -101,7 +101,9 @@ function MeasureField({ spec }: { spec: MeasurementSpec }) {
         </Notice>
       )}
       {status.state === "confirmed" && (
-        <Body muted>✓ {t("measure.confirmed", { value: valueCm })}</Body>
+        <Body muted accessibilityLabel={t("measure.confirmed", { value: valueCm })}>
+          ✓ {t("measure.confirmed", { value: valueCm })}
+        </Body>
       )}
     </>
   );
@@ -172,7 +174,9 @@ export default function MeasurementsScreen() {
     <Screen>
       <Body muted>{t("measure.intro")}</Body>
       <Row>
-        <Body>{`${uploadStatus === "uploaded" && !guest && !mockUpload ? "✓" : "○"} ${t(statusKey)}`}</Body>
+        <Body accessibilityLabel={t(statusKey)}>
+          {`${uploadStatus === "uploaded" && !guest && !mockUpload ? "✓" : "○"} ${t(statusKey)}`}
+        </Body>
         {uploadStatus === "uploaded" && !guest && draft.uploadProvenance === "mock" && (
           <MockBadge />
         )}
