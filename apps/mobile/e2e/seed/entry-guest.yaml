@@ -1,0 +1,9 @@
+# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
+# Seed: demo mode on, role chosen, at the Start button. UI-driven, needs no app changes.
+appId: com.sewsure.mobile
+---
+- launchApp:
+    clearState: true
+- tapOn: "Maker or owner"
+- tapOn: "Try demo mode"
+- assertVisible: "Start"

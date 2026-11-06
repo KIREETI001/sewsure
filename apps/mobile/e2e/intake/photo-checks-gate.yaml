@@ -1,0 +1,19 @@
+# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
+# §9.1 row 2 / §18.2 #1 (blurry or badly lit photo): Continue stays off until both photos are ticked as sharp and lit.
+# Needs both photos present: seed capture-ready with the checks UNticked is not offered yet, so this uses the library picker.
+# The system photo picker UI varies by device; the synthetic image is e2e/fixtures/synthetic-garment.png (addMedia).
+appId: com.sewsure.mobile
+---
+- launchApp:
+    clearState: true
+- addMedia:
+    - ../fixtures/synthetic-garment.png
+- tapOn: "Maker or owner"
+- tapOn: "Try demo mode"
+- tapOn: "Start"
+- tapOn: "Choose from library: Front"
+- tapOn:
+    text: "synthetic-garment.*"
+    optional: true
+- assertVisible: "Check this photo"
+- assertVisible: "Tick the checks for both photos.*|Pick the garment type.*"
