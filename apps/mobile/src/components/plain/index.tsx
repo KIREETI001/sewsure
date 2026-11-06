@@ -79,16 +79,18 @@ export function Chip({
   selected,
   onPress,
   role = "radio",
+  accessibilityLabel,
 }: {
   label: string;
   selected: boolean;
   onPress: () => void;
   role?: "radio" | "checkbox";
+  accessibilityLabel?: string;
 }) {
   return (
     <Pressable
       accessibilityRole={role}
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ checked: selected }}
       onPress={onPress}
       style={[styles.chip, selected && styles.chipSelected]}
