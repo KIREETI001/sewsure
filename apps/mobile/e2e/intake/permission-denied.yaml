@@ -1,16 +1,34 @@
-# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
-# §9.1 row 2 and §18.2 #1: camera permission denied -> the screen explains and the library route stays.
-# Permission is denied at launch so no system dialog (whose button text differs by Android version) is involved.
+# STATUS: UNVERIFIED ON ANDROID. Reconciled in Milestone 2; never executed on a device/emulator.
+# Camera permission denied at launch; accessible Front library control and Settings remain available.
 appId: com.sewsure.mobile
 ---
 - launchApp:
     clearState: true
     permissions:
       camera: deny
-- tapOn: "Maker or owner"
-- tapOn: "Try demo mode"
-- tapOn: "Start"
+- scrollUntilVisible:
+    element:
+      text: Maker or owner
+    direction: DOWN
+- tapOn: Maker or owner
+- scrollUntilVisible:
+    element:
+      text: Try demo mode
+    direction: DOWN
+- tapOn: Try demo mode
+- scrollUntilVisible:
+    element:
+      text: Start
+    direction: DOWN
+- tapOn: Start
+- scrollUntilVisible:
+    element:
+      text: "Take photo: Front"
+    direction: DOWN
 - tapOn: "Take photo: Front"
-- assertVisible: "Camera access is off.*"
-- assertVisible: "Open settings"
-- assertVisible: "Choose from library: Front"
+- assertVisible:
+    text: Camera access is off.*
+- assertVisible:
+    text: Open settings
+- assertVisible:
+    text: "Choose from library: Front"

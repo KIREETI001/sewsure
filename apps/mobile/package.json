@@ -12,7 +12,8 @@
     "test": "jest",
     "qa:prepare": "node scripts/qa-routes.cjs prepare",
     "qa:start": "node scripts/qa-routes.cjs start",
-    "qa:remove": "node scripts/qa-routes.cjs remove"
+    "qa:remove": "node scripts/qa-routes.cjs remove",
+    "test:a11y": "jest --ci --runInBand --testPathIgnorePatterns /node_modules/ --testMatch \"**/e2e/audit/*.test.tsx\""
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

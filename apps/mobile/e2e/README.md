@@ -1,38 +1,85 @@
-# Mobile end-to-end flows (Maestro) and audits
+# D6 mobile QA: integration workflow
 
-Owner: D6 Mobile QA. Nothing here has been run on a device yet. See `docs/qa/test-run-log.md` for what actually ran.
+All Maestro flows are **unverified on Android**. YAML parsing and Jest are not device execution.
+See docs/qa/test-run-log.md for dated results and limitations. PR #32's history is preserved;
+Milestone 2 reconciles its expectations with PRs #33, #37, #38, #39, #42 and #43.
 
-## Layout
+## Automated JavaScript tests
 
-| Path | What |
-|---|---|
-| `intake/*.yaml` | One flow per edge state in blueprint §9.1 rows 1-4 and §18.2 #1-#3 |
-| `seed/` | Starting states. `entry-guest.yaml` is UI-driven. `apply.yaml` uses a dev deep link that does not exist yet |
-| `fixtures/synthetic-garment.png` | Synthetic 800x800 image (no real person or garment) for `addMedia` |
-| `audit/a11y.audit.test.tsx` | Jest accessibility audit of the four intake screens. Runs today, no device needed |
+From apps/mobile (PowerShell uses npm.cmd):
 
-## Run the flows (needs a device or emulator)
-
-```bash
-# one-off: Java 17+, Android SDK platform-tools, Maestro CLI, an APK or dev build of com.sewsure.mobile
-maestro test apps/mobile/e2e/intake/permission-denied.yaml
-maestro test apps/mobile/e2e/intake/
+```powershell
+npm.cmd test -- --ci --runInBand
+npm.cmd run test:a11y
+npm.cmd run typecheck
+npm.cmd run lint
 ```
 
-## Seeding approach
+The normal Jest configuration excludes /e2e/. test:a11y explicitly overrides that exclusion:
 
-Flows must start from a known state, and the app persists its draft in AsyncStorage (`sewsure.intake.draft.v1`), so there are two ways in:
-
-1. **UI-driven** (works with no app change): `launchApp: clearState: true`, then tap through. Fine for entry and permission flows. Too slow and too picker-dependent for measurement flows, because the Android photo picker UI differs per device.
-2. **Dev seed link** (needs a change in `apps/mobile/app`, owned by D2): a development-build-only route `sewsure://dev/seed/<name>` that patches `useIntakeStore` with synthetic data, then shows the text `Seeded: <name>`. Names: `capture-ready` (both photos ticked, shirt), `inspiration-ready` (+ text, fit, skill), `measurements-signed-in` (ready, signed in not guest, no measurements), `measurements-confirmed` (all four shirt values confirmed, chest 52 cm). It must be compiled out of release builds. Flows call it through `seed/apply.yaml`. Until it exists, every flow that uses `apply.yaml` is blocked.
-
-Never seed real photos or body measurements. Fixtures are synthetic.
-
-## Audit test
-
-```bash
-cd apps/mobile
-npx jest --testPathIgnorePatterns /node_modules/ --testMatch "**/e2e/audit/*.test.tsx" --silent
+```powershell
+node node_modules/jest/bin/jest.js --ci --runInBand --testPathIgnorePatterns /node_modules/ --testMatch "**/e2e/audit/*.test.tsx"
 ```
 
-`it.failing` cases are confirmed bugs with an issue. When the owner fixes one the test goes red, so change it to `it`.
+All five former expected failures are normal regression tests: unique photo-control names,
+Entry guidance, Inspiration guidance, visible measurement hints, and decorative-symbol hiding.
+Precise queries avoid matching multiple messages/hints. The original ../../app imports are correct
+from e2e/audit; the earlier integration audit's claim that they needed another parent was mistaken.
+These tests check rendered text, accessibility props and declared styles, not actual speech or layout.
+
+## Android execution (planned, not run)
+
+Use an installed Android development build of com.sewsure.mobile that registers the sewsure scheme,
+an available emulator/device, platform tools and Maestro. Expo Go alone does not prove custom links.
+From apps/mobile, run npm.cmd run qa:start in one terminal and leave Metro running. In another:
+
+```powershell
+adb devices
+maestro test e2e/intake/permission-denied.yaml
+maestro test e2e/intake/
+```
+
+Stop QA Metro afterward, run npm.cmd run qa:remove, and confirm app/dev is absent before any
+normal or production build. Use fresh output directories for the export gate workflow documented
+in src/dev/README.md. JavaScript export exclusion is narrower than actual APK exclusion.
+
+## Seeds and isolation
+
+seed/apply.yaml clears app storage, opens sewsure://dev/seed/${SEED}, and waits for the exact
+Seeded: <name> confirmation after hydration. It must run against the QA development workflow.
+Never seed over an in-flight upload. Reopening a still-mounted seed route is not a reset command.
+
+- capture-ready: shirt with checked synthetic Front and Back, demo mode.
+- inspiration-ready: synthetic text, fit and skill added.
+- measurements-signed-in: synthetic mock identity, no real authentication, no measurements.
+- measurements-confirmed: 52, 70, 45 and 60 cm confirmed with synthetic timestamps.
+
+No participant photos or body measurements are used. Checkmarks do not prove real image quality.
+
+## Scenario changes and device checkpoints
+
+| Flow | Intended evidence; Android execution still pending |
+| --- | --- |
+| entry-guest-demo | Current #33 wording and normal demo navigation |
+| permission-denied | Denied camera, Settings and accessible Front library action |
+| photo-checks-gate | Seeded Front/Back checks toggle independently; Continue disabled until both checked |
+| blank-inspiration-surprise | Blank prompt produces a mock-marked idea; verify index 1 selects the action, not the radio |
+| missing-values | Upload lists missing fields and keeps Not uploaded status |
+| implausible-units | Explicit correction from 6 to 60 cm |
+| edit-reconfirm | Replace 52 with valid 53; old confirmation disappears and exact new confirmation follows blur |
+| draft-survives-restart | Restart without reseeding; navigate to persisted values |
+| offline-draft | Local mock rejection/retry using Enable/Disable mock upload failure; NOT a network test |
+
+Selectors use intended symbol-free accessible status labels, escaped literal punctuation/parentheses,
+checked/enabled state selectors and scrolling. Actual Android hierarchy, keyboard blur, scroll reachability,
+custom-scheme routing and native button casing must be verified on a device. Do not broaden selectors
+merely to hide failures. MockBadge is selected through Sample data, not a real result.
+
+future/live-network-failure.md preserves the blocked live-network case separately from mock testing.
+future/photo-picker.md preserves manual image-picker/replace/cancel coverage; its native hierarchy varies
+by Android version. The synthetic PNG fixture remains available. The deterministic checkbox flow does
+not claim to test the picker, real photo quality, server persistence or real authentication.
+
+Syntax references used during reconciliation: [state selectors](https://docs.maestro.dev/reference/selectors/state-selectors),
+[scrollUntilVisible](https://docs.maestro.dev/reference/commands-available/scrolluntilvisible),
+[eraseText](https://docs.maestro.dev/reference/commands-available/erasetext).

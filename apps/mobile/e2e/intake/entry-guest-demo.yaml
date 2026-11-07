@@ -1,12 +1,31 @@
-# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
-# §9.1 row 1: guest/demo decision. Start stays disabled until a path is chosen; demo mode keeps data on device.
+# STATUS: UNVERIFIED ON ANDROID. Reconciled in Milestone 2; never executed on a device/emulator.
+# Current #33 demo wording; normal UI entry, no synthetic sign-in.
 appId: com.sewsure.mobile
 ---
 - launchApp:
     clearState: true
-- assertVisible: "Remake a garment you already own"
-- tapOn: "Maker or owner"
-- tapOn: "Try demo mode"
-- assertVisible: "Demo mode uses sample data.*"
-- tapOn: "Start"
-- assertVisible: "For a usable photo"
+- assertVisible:
+    text: Remake a garment you already own
+- scrollUntilVisible:
+    element:
+      text: Maker or owner
+    direction: DOWN
+- tapOn: Maker or owner
+- scrollUntilVisible:
+    element:
+      text: Try demo mode
+    direction: DOWN
+- tapOn: Try demo mode
+- scrollUntilVisible:
+    element:
+      text: Demo mode does not sign you in or upload anything\. What you enter is saved only on this device\.
+    direction: DOWN
+- assertVisible:
+    text: Demo mode does not sign you in or upload anything\. What you enter is saved only on this device\.
+- scrollUntilVisible:
+    element:
+      text: Start
+    direction: DOWN
+- tapOn: Start
+- assertVisible:
+    text: For a usable photo

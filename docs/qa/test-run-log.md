@@ -1,5 +1,37 @@
 # QA run log
 
+## 2026-11-07: Milestone 2 integration (local, unpublished)
+
+PR #32 head 560d68268c2b86c83c3d149e7b0e853856fe8d54 merged without conflicts in
+c4284b577d5753a8b4da59f411d1b083d731edeb. Five expected-failure cases became positive
+regressions with precise queries; Capture now awaits the mock category result. Original
+../../app imports were correct: an attempted ../../../app change failed and was reverted.
+
+Normal Jest: 140/140 passed (9 suites). Separate D6 audit: 27/27 passed (1 suite).
+TypeScript, ESLint and whitespace checks exited 0. Formatting was finished on resume;
+the affected D6 audit and static checks passed again, with no act/open-handle warnings.
+The earlier import-resolution failures and five Capture act warnings remain in evidence.
+No forceExit option or assertion removal was used.
+
+From apps/mobile: npm.cmd test -- --ci --runInBand; npm.cmd run test:a11y;
+npm.cmd run typecheck; npm.cmd run lint. The explicit audit command is documented in
+apps/mobile/e2e/README.md and package.json; ordinary Jest still excludes e2e.
+
+All 11 Maestro YAML files were statically parsed with subflow/seed-reference checks.
+They have NOT run on Android. Mock failure uses QA controls, not airplane mode; a
+separate planned live-network case and manual picker case remain unexecuted.
+
+Fresh Android JS exports: QA contained 1,363 mapped sources including 5 test-only sources;
+production with generated route failed with the expected QA-gate error (exit 1);
+clean production contained 1,223 mapped sources, 0 test-only sources, no prohibited markers.
+Positive exports/inspectors exited 0; the generated route was removed. No APK was tested.
+
+Full commands, exit codes, failures, artifact hashes, final commit and file inventory:
+local .integration-evidence/milestone2/REPORT.md. Prior evidence and exports are retained.
+Device/TalkBack/large-text, native selector hierarchy, picker, live network and release APK
+validation remain outstanding. D6/D2 review is required before claiming Android coverage.
+
+
 Newest first. A flow is only "passed" if it ran. Every flow so far has **not run**.
 
 ## 2026-11-01: baseline audit of `main` at c46c5d8 (D6)

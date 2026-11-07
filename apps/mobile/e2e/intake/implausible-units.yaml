@@ -1,15 +1,28 @@
-# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
-# §9.1 row 4: 6 cm where 60 cm is likely -> warn, offer the fix, confirm in cm.
-# Maestro matches the WHOLE string as a regex: the confirmation line is "✓ Confirmed: 60 cm",
-# so the earlier flow's "Confirmed: 60 cm" would not have matched.
+# STATUS: UNVERIFIED ON ANDROID. Reconciled in Milestone 2; never executed on a device/emulator.
+# Correct 6 cm to 60 cm. Status selectors target symbol-free accessibility labels.
 appId: com.sewsure.mobile
 ---
 - runFlow:
     file: ../seed/apply.yaml
     env:
       SEED: measurements-signed-in
-- tapOn: "Chest, flat across (cm)"
+- scrollUntilVisible:
+    element:
+      text: Chest, flat across \(cm\)
+    direction: DOWN
+- tapOn: Chest, flat across \(cm\)
 - inputText: "6"
-- assertVisible: "6 cm looks small. Did you mean 60 cm."
-- tapOn: "Use 60 cm"
-- assertVisible: "✓ Confirmed: 60 cm"
+- scrollUntilVisible:
+    element:
+      text: 6 cm looks small\. Did you mean 60 cm\?
+    direction: DOWN
+- assertVisible:
+    text: 6 cm looks small\. Did you mean 60 cm\?
+- tapOn: Use 60 cm
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      text: "Confirmed: 60 cm"
+    direction: DOWN
+- assertVisible:
+    text: "Confirmed: 60 cm"

@@ -1,10 +1,12 @@
-# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
-# Seed by deep link. BLOCKED until the dev seed route exists (issue filed for D2, see docs/qa/test-run-log.md).
-# Usage:  - runFlow: { file: ../seed/apply.yaml, env: { SEED: measurements-signed-in } }
-# Seeds: capture-ready | inspiration-ready | measurements-signed-in | measurements-confirmed
+# STATUS: UNVERIFIED ON ANDROID. Reconciled in Milestone 2; never executed on a device/emulator.
+# Requires QA Metro (npm run qa:start) and a development build registering sewsure. Clear storage before each seeded scenario; never seed over an in-flight upload.
 appId: com.sewsure.mobile
 ---
 - launchApp:
     clearState: true
-- openLink: "sewsure://dev/seed/${SEED}"
-- assertVisible: "Seeded: ${SEED}"
+- openLink: sewsure://dev/seed/${SEED}
+- extendedWaitUntil:
+    visible: "Seeded: ${SEED}"
+    timeout: 15000
+- assertVisible:
+    text: "Seeded: ${SEED}"

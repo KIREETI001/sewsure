@@ -1,62 +1,57 @@
-# 15-minute real-device check (Android)
+# Android intake acceptance plan ? unverified
 
-For a founder with one Android phone. First real-device check of the intake flow. Nothing here has been done yet.
+Record phone/emulator model, Android and TalkBack versions, build/commit, font_scale and display
+settings, test timestamp, expected/observed behavior and screenshot/video filenames. Use synthetic
+photos and numbers only. Mark Pass only after execution. All rows below are currently Not run.
 
-**Before you start (`needs-human`):** install a build of the app (`com.sewsure.mobile`, a dev build or APK). Use test photos of a garment you own, not of a person. Do not type real body measurements: use made-up numbers. Do not photograph anyone's face.
+## Normal entry and camera
 
-Mark "Pass" in the table only for what you actually saw.
+Start with a clean development build. Confirm Start is disabled with separate Maker/session reasons.
+Select Maker, confirm only the session reason remains, choose demo mode and verify the current
+wording says no sign-in/upload and local storage. Start becomes enabled. Tailor remains unavailable.
+Deny camera permission; confirm the message, Settings link and Front/Back library controls work.
+Run future/photo-picker.md for native picker selection, cancellation, replacement and removal.
 
-## 0. Setup (2 min)
-1. Note phone model, Android version, app build or commit.
-2. In Settings, set Font size and Display size to the **largest**. This is the 200% check. Leave TalkBack off for now.
-3. Uninstall and reinstall the app, or clear its storage, so you start clean.
+## QA seeds and deterministic scenarios
 
-## 1. Entry (2 min)
-1. Open the app. Is the title readable with no text cut off?
-2. Is **Start** greyed out? Can you tell what you must do to enable it without guessing? (known issue)
-3. Tap **Tailor**: a note says tailor tools come later. Tap **Maker or owner**.
-4. Tap **Try demo mode**, then **Start**.
+Use npm run qa:start and the custom-scheme development build, not Expo Go as a substitute.
+Run each intake YAML individually before the whole directory. Require Seeded: <name> after hydration.
+The photo-check scenario must demonstrate each side remains independent and Continue cannot be
+used with either side unchecked. Confirm draft-survives-restart never reapplies a seed after restart.
 
-## 2. Camera permission denied (2 min)
-1. On Capture, tap **Take photo: Front**. Choose the deny option on the system prompt.
-2. Expect "Camera access is off..." and **Choose from library** still works. Tap **Open settings**: it should open the app's settings. Come back.
+For measurement checks, use the synthetic 52/70/45/60 cm shirt values. Show the 6-to-60 correction;
+replace confirmed 52 with valid 53 and verify confirmation clears until a different field is focused.
+Check missing values and retained draft state. Demo mode must never offer Upload.
 
-## 3. Photos and category (2 min)
-1. Tap **Choose from library** for Front and Back and pick a garment photo (a tiny one shows the "photo is small" notice).
-2. **Continue** must stay off until both photos are ticked "Sharp, evenly lit..." and a garment type is chosen.
-3. Tick both, choose the type, tap **Continue**.
+For mock failure, enable the QA failure control, Upload, verify failure and retained confirmations,
+disable the control and retry. Require Test upload only. Nothing left this device. and the Mock badge.
+This uses no network. Actual weak-network behavior remains blocked by future/live-network-failure.md.
 
-## 4. Inspiration (1 min)
-1. Leave it blank: expect "Nothing entered yet" and **Surprise Me**. Tap it: an idea appears with a **Mock** marker.
-2. Pick a fit and a skill, then **Continue**.
+## Accessibility and release checks
 
-## 5. Measurements (3 min)
-1. Type **6** in Chest. Expect "looks small. Did you mean 60 cm?". Tap **Use 60 cm**: "✓ Confirmed: 60 cm".
-2. Type **52** in the other fields; tap the next field after each. Each should show ✓ Confirmed.
-3. Type **500** in a field: only a suggestion, no "Keep" button.
-4. Close the app (swipe it away), reopen, tap **Start** and **Continue** twice. Are your values still there? Does the status say "Not uploaded"?
-5. In demo mode there must be no **Upload** button.
+Repeat intake at normal font scale and a measured 2.0 scale when the device supports it; also record
+maximum available font/display settings separately. Inspect wrapping, clipping, scrolling and controls.
+With TalkBack, verify distinct Front/Back controls, checked state, focus order, visible hints, symbol-free
+confirmation/status speech and announcement of new warnings. Capture an observation; props alone
+cannot prove speech. Check whether visible hints and accessibilityHint cause unwanted repetition.
 
-## 6. Screen reader (3 min)
-1. Turn on TalkBack. Swipe through Capture with both photos: can you tell the Front and Back **Retake** buttons apart? (known issue)
-2. On Measurements trigger the warning again. Is it read out when it appears? Is a symbol read before it?
-3. Can every control be reached and activated with swipe and double-tap?
+Stop QA Metro, run npm run qa:remove, and verify app/dev is absent. JS export gate evidence is
+separate from release APK inspection and attempts to open all four seed links in the actual release.
+No seeded state or success marker should appear in release. Record the APK hash and build settings.
 
-## Results
+| Area | Status | Observation/artifact |
+| --- | --- | --- |
+| Entry guidance, demo and Tailor | Not run | |
+| Denied camera and native picker | Not run | |
+| Front/Back independent checks and gating | Not run | |
+| Blank inspiration and mock provenance | Not run | |
+| Missing, implausible and edited measurements | Not run | |
+| Restart persistence and demo upload absence | Not run | |
+| Mock rejection and retry | Not run | |
+| TalkBack labels, focus and announcements | Not run | |
+| Measured large-text layout and touch targets | Not run | |
+| Real-network failure | Blocked; live client required | |
+| Release APK seed exclusion | Not run | |
 
-| Step | Pass / Fail / Not tried | What you saw (screenshot name) |
-|---|---|---|
-| 1.1 title readable at largest font | | |
-| 1.2 Start disabled, reason clear | | |
-| 2.2 denied-camera message, library still works | | |
-| 3.2 Continue gated | | |
-| 4.1 Surprise Me with Mock marker | | |
-| 5.1 6 cm to 60 cm fix | | |
-| 5.3 500 cm has no Keep | | |
-| 5.4 draft survives restart | | |
-| 5.5 no Upload in demo | | |
-| 6.1 Front/Back distinguishable | | |
-| 6.2 warning announced, no stray symbol | | |
-| Anything cut off, overlapping or hard to tap | | |
-
-Send results and screenshots to D6 / L0. Screenshots must not show a real person or personal data.
+D6 reviews actual Android results; D1/D2 review accessibility findings; release owner verifies the
+artifact. X2 reviews claims used outside the team. Record failures and limitations alongside passes.

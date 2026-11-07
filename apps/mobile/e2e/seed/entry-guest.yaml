@@ -1,9 +1,23 @@
-# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
-# Seed: demo mode on, role chosen, at the Start button. UI-driven, needs no app changes.
+# STATUS: UNVERIFIED ON ANDROID. Reconciled in Milestone 2; never executed on a device/emulator.
+# UI-only guest setup; no upload or authentication.
 appId: com.sewsure.mobile
 ---
 - launchApp:
     clearState: true
-- tapOn: "Maker or owner"
-- tapOn: "Try demo mode"
-- assertVisible: "Start"
+- scrollUntilVisible:
+    element:
+      text: Maker or owner
+    direction: DOWN
+- tapOn: Maker or owner
+- scrollUntilVisible:
+    element:
+      text: Try demo mode
+    direction: DOWN
+- tapOn: Try demo mode
+- scrollUntilVisible:
+    element:
+      text: Start
+    direction: DOWN
+- assertVisible:
+    text: Start
+    enabled: true

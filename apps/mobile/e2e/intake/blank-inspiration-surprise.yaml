@@ -1,15 +1,26 @@
-# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
-# §9.1 row 3: blank inspiration offers Surprise Me; the idea shows a Mock marker.
+# STATUS: UNVERIFIED ON ANDROID. Reconciled in Milestone 2; never executed on a device/emulator.
+# Blank inspiration offers an action with Mock provenance; index 1 distinguishes action from Surprise Me radio (verify hierarchy on Android).
 appId: com.sewsure.mobile
 ---
 - runFlow:
     file: ../seed/apply.yaml
     env:
       SEED: capture-ready
-- tapOn: "Continue"
-- assertVisible: "Nothing entered yet.*"
+- scrollUntilVisible:
+    element:
+      text: Continue
+    direction: DOWN
+- tapOn: Continue
+- scrollUntilVisible:
+    element:
+      text: Nothing entered yet.*
+    direction: DOWN
+- assertVisible:
+    text: Nothing entered yet.*
 - tapOn:
-    text: "Surprise Me"
+    text: Surprise Me
     index: 1
-- assertVisible: "Idea: .*"
-- assertVisible: "Mock"
+- assertVisible:
+    text: "Idea: .*"
+- assertVisible:
+    text: Sample data, not a real result

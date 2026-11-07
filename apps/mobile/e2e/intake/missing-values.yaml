@@ -1,11 +1,26 @@
-# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
-# §9.1 row 4: missing values. Upload lists what is still needed and does not upload.
+# STATUS: UNVERIFIED ON ANDROID. Reconciled in Milestone 2; never executed on a device/emulator.
+# Missing shirt measurements prevent upload and retain draft status.
 appId: com.sewsure.mobile
 ---
 - runFlow:
     file: ../seed/apply.yaml
     env:
       SEED: measurements-signed-in
-- tapOn: "Upload"
-- assertVisible: "Still needed: .*Chest.*"
-- assertVisible: "○ Not uploaded.*"
+- scrollUntilVisible:
+    element:
+      text: Upload
+    direction: DOWN
+- tapOn: Upload
+- scrollUntilVisible:
+    element:
+      text: "Still needed: .*Chest.*"
+    direction: UP
+- assertVisible:
+    text: "Still needed: .*Chest.*"
+- scrollUntilVisible:
+    element:
+      text: Not uploaded\. Saved as a draft on this device\.
+    direction: UP
+- assertVisible:
+    text: Not uploaded\. Saved as a draft on this device\.
+- assertNotVisible: Test upload only\. Nothing left this device\.

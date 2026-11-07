@@ -1,3 +1,25 @@
+# Accessibility integration update ? 7 November 2026
+
+Milestone 2 converts all five D6 expected failures into positive regressions. Current results are
+recorded in test-run-log.md and the local .integration-evidence/milestone2/REPORT.md.
+
+| Finding | Current implemented behavior | Verification boundary |
+| --- | --- | --- |
+| Duplicate Front/Back names | Side-specific Retake and checkbox names | Jest; device speech pending |
+| Disabled Start | Separate Maker/session guidance, removed as satisfied | Jest; large-text layout pending |
+| Disabled Inspiration Continue | Separate fit/skill guidance, removed independently | Jest; focus order pending |
+| Measurement hints | One visible hint per shirt field plus accessibilityHint | Jest; real layout/duplicate speech pending |
+| Decorative symbols | Platform hiding props for Notice; symbol-free measurement/status labels | Jest props; actual announcements pending |
+| Mock status | Circle + Test upload only wording, symbol-free label, Mock badge | Milestone 1 regression tests; device pending |
+
+No claim of TalkBack speech, 200% layout, actual touch-target dimensions, palette contrast or APK
+validation follows from these tests. Measure the actual font scale; maximum system setting is not
+necessarily 200%. The historical section below is preserved as the original baseline, superseded
+for the five fixed defects. Its predictions about spoken symbols or duplicated labels were not
+observed on hardware and must not be quoted as device results.
+
+---
+
 # Accessibility checklist: intake screens (release 0.1.0, `main` at c46c5d8)
 
 Auditor: D6. Date: 2026-11-01. Blueprint §9.2 and `apps/mobile/CLAUDE.md`.

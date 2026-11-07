@@ -6,17 +6,19 @@
  * error states. What it cannot show: real layout at 200% font scale, TalkBack behaviour, or
  * actual touch-target pixels. See docs/qa/accessibility-checklist.md for what is verified how.
  *
- * Run from apps/mobile (no npm script: package.json is outside D6 paths):
+ * Run from apps/mobile: npm run test:a11y
  * (`npx jest --testPathIgnorePatterns /node_modules/ --testMatch "**\/e2e/audit/*.test.tsx"`)
  *
- * `it.failing` marks a known bug that has an issue. It turns red when the bug is fixed, which
- * is the cue to change it to `it`.
+ * All five former expected failures are ordinary regression tests after D2 integration.
+ * Platform hiding props do not prove actual screen-reader speech.
  */
 import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import { StyleSheet, type StyleProp, type ViewStyle } from "react-native";
 import { mockApi, setApi } from "@/api/client";
+import { t, type MessageKey } from "@/i18n";
+import { garmentSpecsFor } from "@/intake/measurements";
 import { useIntakeStore } from "@/state/intakeStore";
 import CaptureScreen from "../../app/(intake)/capture";
 import EntryScreen from "../../app/(intake)/index";
@@ -32,14 +34,27 @@ jest.mock("expo-image-picker", () => ({
 
 const SYNTHETIC_PHOTO = { uri: "file:///synthetic.jpg", width: 2000, height: 2000, checked: true };
 
-const renderScreen = (ui: ReactElement) =>
-  render(
+const renderScreen = async (ui: ReactElement) => {
+  const view = await render(
     <QueryClientProvider
-      client={new QueryClient({ defaultOptions: { mutations: { retry: false } } })}
+      client={
+        new QueryClient({
+          defaultOptions: {
+            mutations: { retry: false, gcTime: Infinity },
+            queries: { retry: false, gcTime: Infinity },
+          },
+        })
+      }
     >
       {ui}
     </QueryClientProvider>,
   );
+  // Wait for the real mock-query result so Capture updates settle inside async act.
+  if (ui.type === CaptureScreen && useIntakeStore.getState().front !== null) {
+    await screen.findByRole("button", { name: t("capture.category.use") });
+  }
+  return view;
+};
 
 beforeEach(() => {
   useIntakeStore.getState().reset();
@@ -84,7 +99,9 @@ const sizeOf = (n: Host) => {
   };
 };
 
-const duplicates = (names: string[]) => [...new Set(names.filter((x, i) => names.indexOf(x) !== i))];
+const duplicates = (names: string[]) => [
+  ...new Set(names.filter((x, i) => names.indexOf(x) !== i)),
+];
 
 const seedReady = () =>
   act(() =>
@@ -149,23 +166,37 @@ describe.each(screens)("%s", (_name, prepare, element) => {
 });
 
 describe("duplicate accessible names (a screen-reader user cannot tell them apart)", () => {
-  it.failing("capture with both photos: Retake and the photo check repeat for front and back", async () => {
+  it("capture with both photos: Retake and photo checks have distinct side-specific names", async () => {
     await act(() =>
       useIntakeStore.getState().patch({ front: SYNTHETIC_PHOTO, back: SYNTHETIC_PHOTO }),
     );
     await renderScreen(<CaptureScreen />);
     expect(duplicates(interactive().map(nameOf))).toEqual([]);
+    for (const side of ["Front", "Back"]) {
+      expect(screen.getByRole("button", { name: `Retake: ${side}` })).toBeVisible();
+      expect(
+        screen.getByRole("checkbox", { name: `${t("capture.check.all")}: ${side}` }),
+      ).toBeChecked();
+    }
   });
 });
 
 describe("disabled and blocked states say why, in text", () => {
-  it.failing("entry: Start is disabled and the screen explains what is needed", async () => {
+  it("entry: Start is disabled and the screen explains what is needed", async () => {
     await renderScreen(<EntryScreen />);
     expect(screen.getByRole("button", { name: "Start" })).toBeDisabled();
-    expect(screen.queryByText(/sign in or|to continue|to start|before you start/i)).not.toBeNull();
+    expect(screen.getByText(t("entry.startNeedsMaker"))).toBeVisible();
+    expect(screen.getByText(t("entry.startNeedsSession"))).toBeVisible();
+    await fireEvent.press(screen.getByRole("radio", { name: "Maker or owner" }));
+    expect(screen.queryByText(t("entry.startNeedsMaker"))).toBeNull();
+    expect(screen.getByText(t("entry.startNeedsSession"))).toBeVisible();
+    expect(screen.getByRole("button", { name: "Start" })).toBeDisabled();
+    await fireEvent.press(screen.getByRole("button", { name: "Try demo mode" }));
+    expect(screen.queryByText(t("entry.startNeedsSession"))).toBeNull();
+    expect(screen.getByRole("button", { name: "Start" })).toBeEnabled();
   });
 
-  it.failing("inspiration: Continue is disabled with only fit and skill missing; screen explains", async () => {
+  it("inspiration: Continue is disabled with only fit and skill missing; screen explains", async () => {
     await act(() =>
       useIntakeStore.getState().patch({
         inspirationMode: "text",
@@ -174,15 +205,30 @@ describe("disabled and blocked states say why, in text", () => {
     );
     await renderScreen(<InspirationScreen />);
     expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
-    expect(screen.queryByText(/pick|choose|select|to continue/i)).not.toBeNull();
+    expect(screen.getByText(t("inspiration.fit.needed"))).toBeVisible();
+    expect(screen.getByText(t("inspiration.skill.needed"))).toBeVisible();
+    await fireEvent.press(screen.getByRole("radio", { name: "Relaxed" }));
+    expect(screen.queryByText(t("inspiration.fit.needed"))).toBeNull();
+    expect(screen.getByText(t("inspiration.skill.needed"))).toBeVisible();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    await fireEvent.press(screen.getByRole("radio", { name: "Beginner" }));
+    expect(screen.queryByText(t("inspiration.skill.needed"))).toBeNull();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
   });
 });
 
 describe("input format hint", () => {
-  it.failing("measurements: the cm format hint is visible text, not only a screen-reader hint", async () => {
+  it("measurements: the cm format hint is visible text, not only a screen-reader hint", async () => {
     await seedReady();
     await renderScreen(<MeasurementsScreen />);
-    expect(screen.queryByText(/for example 52\.5/)).not.toBeNull();
+    const specs = garmentSpecsFor("shirt");
+    const hints = screen.getAllByText(t("measure.hint"));
+    expect(hints).toHaveLength(specs.length);
+    for (const hint of hints) expect(hint).toBeVisible();
+    for (const spec of specs) {
+      const label = `${t(`measure.field.${spec.key}` as MessageKey)} (cm)`;
+      expect(screen.getByLabelText(label)).toHaveProp("accessibilityHint", t("measure.hint"));
+    }
   });
 });
 
@@ -207,16 +253,17 @@ describe("states do not rely on colour alone", () => {
 });
 
 describe("decorative symbols are hidden from the screen reader", () => {
-  it.failing("notice symbols (!, ✗, i) are not spoken before the message", async () => {
+  it("notice symbols (!, ✗, i) expose platform hiding props while message stays visible", async () => {
     await seedReady();
     await renderScreen(<MeasurementsScreen />);
     await fireEvent.changeText(screen.getByLabelText("Chest, flat across (cm)"), "6");
+    expect(screen.getByText("6 cm looks small. Did you mean 60 cm?")).toBeVisible();
     const symbols = hosts().filter((n) => n.type === "Text" && /^[!✗i]\s*$/.test(textOf(n)));
     expect(symbols.length).toBeGreaterThan(0);
     for (const s of symbols) {
-      expect(
-        s.props.accessibilityElementsHidden === true || s.props.importantForAccessibility === "no",
-      ).toBe(true);
+      expect(s.props.accessible).toBe(false);
+      expect(s.props.accessibilityElementsHidden).toBe(true);
+      expect(s.props.importantForAccessibility).toBe("no-hide-descendants");
     }
   });
 });
