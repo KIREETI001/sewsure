@@ -1,0 +1,31 @@
+# STATUS: UNVERIFIED ON ANDROID. Reconciled in Milestone 2; never executed on a device/emulator.
+# Current #33 demo wording; normal UI entry, no synthetic sign-in.
+appId: com.sewsure.mobile
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    text: Remake a garment you already own
+- scrollUntilVisible:
+    element:
+      text: Maker or owner
+    direction: DOWN
+- tapOn: Maker or owner
+- scrollUntilVisible:
+    element:
+      text: Try demo mode
+    direction: DOWN
+- tapOn: Try demo mode
+- scrollUntilVisible:
+    element:
+      text: Demo mode does not sign you in or upload anything\. What you enter is saved only on this device\.
+    direction: DOWN
+- assertVisible:
+    text: Demo mode does not sign you in or upload anything\. What you enter is saved only on this device\.
+- scrollUntilVisible:
+    element:
+      text: Start
+    direction: DOWN
+- tapOn: Start
+- assertVisible:
+    text: For a usable photo

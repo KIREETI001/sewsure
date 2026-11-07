@@ -1,0 +1,28 @@
+# STATUS: UNVERIFIED ON ANDROID. Reconciled in Milestone 2; never executed on a device/emulator.
+# Replace 52 with valid 53; require old confirmation cleared, then exact new confirmation on blur.
+appId: com.sewsure.mobile
+---
+- runFlow:
+    file: ../seed/apply.yaml
+    env:
+      SEED: measurements-confirmed
+- scrollUntilVisible:
+    element:
+      text: "Confirmed: 52 cm"
+    direction: DOWN
+- assertVisible:
+    text: "Confirmed: 52 cm"
+- tapOn: Chest, flat across \(cm\)
+- eraseText: 10
+- inputText: "53"
+- assertNotVisible: "Confirmed: 52 cm"
+- assertNotVisible: "Confirmed: 53 cm"
+- tapOn: Length, shoulder to hem \(cm\)
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      text: "Confirmed: 53 cm"
+    direction: UP
+- assertVisible:
+    text: "Confirmed: 53 cm"
+- assertNotVisible: "Confirmed: 52 cm"

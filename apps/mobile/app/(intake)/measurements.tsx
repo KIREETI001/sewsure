@@ -14,7 +14,12 @@ import {
   TextField,
 } from "@/components/plain";
 import { t, type MessageKey } from "@/i18n";
-import { BODY_SPECS, garmentSpecsFor, type MeasurementSpec } from "@/intake/measurements";
+import {
+  BODY_SPECS,
+  garmentSpecsFor,
+  INSPIRATION_ONLY,
+  type MeasurementSpec,
+} from "@/intake/measurements";
 import {
   buildMeasurementRecords,
   evaluateEntry,
@@ -53,6 +58,7 @@ function MeasureField({ spec }: { spec: MeasurementSpec }) {
       status.state === "blocked" || status.state === "needs_review" ? status.plausibility : null;
     if (!p || p.code === "ok") return null;
     const vars = { value: valueCm, suggested: p.suggestedCm ?? "" };
+    if (spec.group === "body") return t("measure.doubleCheck");
     if (p.code === "out_of_range") return t("measure.outOfRange", vars);
     if (p.code === "maybe_missing_zero") return t("measure.maybeMissingZero", vars);
     if (p.code === "maybe_extra_zero") return t("measure.maybeExtraZero", vars);
@@ -95,7 +101,9 @@ function MeasureField({ spec }: { spec: MeasurementSpec }) {
         </Notice>
       )}
       {status.state === "confirmed" && (
-        <Body muted>✓ {t("measure.confirmed", { value: valueCm })}</Body>
+        <Body muted accessibilityLabel={t("measure.confirmed", { value: valueCm })}>
+          ✓ {t("measure.confirmed", { value: valueCm })}
+        </Body>
       )}
     </>
   );
@@ -109,7 +117,8 @@ export default function MeasurementsScreen() {
   const bodySpecs = bodyShared ? BODY_SPECS : [];
   const unconfirmedBody = unconfirmedSpecs(bodySpecs, measurements);
 
-  const garmentSpecs = category ? garmentSpecsFor(category) : [];
+  const ideaOnly = category !== null && INSPIRATION_ONLY.includes(category);
+  const garmentSpecs = category && !ideaOnly ? garmentSpecsFor(category) : [];
   const missing = missingSpecs(garmentSpecs, measurements);
   const [attempted, setAttempted] = useState(false);
 
@@ -148,10 +157,13 @@ export default function MeasurementsScreen() {
     if (missing.length === 0 && unconfirmedBody.length === 0 && prerequisitesMet) upload.mutate();
   };
 
+  const mockUpload = uploadStatus === "uploaded" && draft.uploadProvenance === "mock";
   const statusKey: MessageKey = guest
     ? "measure.draft.guest"
     : uploadStatus === "uploaded"
-      ? "measure.draft.uploaded"
+      ? mockUpload
+        ? "measure.draft.mockUploaded"
+        : "measure.draft.uploaded"
       : uploadStatus === "uploading"
         ? "measure.draft.uploading"
         : uploadStatus === "failed"
@@ -162,7 +174,9 @@ export default function MeasurementsScreen() {
     <Screen>
       <Body muted>{t("measure.intro")}</Body>
       <Row>
-        <Body>{`${uploadStatus === "uploaded" && !guest ? "✓" : "○"} ${t(statusKey)}`}</Body>
+        <Body accessibilityLabel={t(statusKey)}>
+          {`${uploadStatus === "uploaded" && !guest && !mockUpload ? "✓" : "○"} ${t(statusKey)}`}
+        </Body>
         {uploadStatus === "uploaded" && !guest && draft.uploadProvenance === "mock" && (
           <MockBadge />
         )}
@@ -177,6 +191,11 @@ export default function MeasurementsScreen() {
       )}
 
       <Heading>{t("measure.garmentHeading")}</Heading>
+      {ideaOnly && (
+        <Notice tone="info">
+          <Body>{t("capture.category.ideaOnly")}</Body>
+        </Notice>
+      )}
       {garmentSpecs.map((spec) => (
         <MeasureField key={spec.key} spec={spec} />
       ))}

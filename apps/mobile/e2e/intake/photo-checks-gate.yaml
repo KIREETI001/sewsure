@@ -1,0 +1,102 @@
+# STATUS: UNVERIFIED ON ANDROID. Reconciled in Milestone 2; never executed on a device/emulator.
+# Seed checked photos, toggle each side independently, assert checked states and disabled/enabled Continue. Picker coverage remains in ../future/photo-picker.md.
+appId: com.sewsure.mobile
+---
+- runFlow:
+    file: ../seed/apply.yaml
+    env:
+      SEED: capture-ready
+- scrollUntilVisible:
+    element:
+      text: "Sharp, evenly lit, and the whole garment is in frame: Front"
+    direction: DOWN
+- assertVisible:
+    text: "Sharp, evenly lit, and the whole garment is in frame: Front"
+    checked: true
+- scrollUntilVisible:
+    element:
+      text: "Sharp, evenly lit, and the whole garment is in frame: Back"
+    direction: DOWN
+- assertVisible:
+    text: "Sharp, evenly lit, and the whole garment is in frame: Back"
+    checked: true
+- scrollUntilVisible:
+    element:
+      text: Continue
+    direction: DOWN
+- assertVisible:
+    text: Continue
+    enabled: true
+- scrollUntilVisible:
+    element:
+      text: "Sharp, evenly lit, and the whole garment is in frame: Front"
+    direction: UP
+- tapOn: "Sharp, evenly lit, and the whole garment is in frame: Front"
+- assertVisible:
+    text: "Sharp, evenly lit, and the whole garment is in frame: Front"
+    checked: false
+- scrollUntilVisible:
+    element:
+      text: "Sharp, evenly lit, and the whole garment is in frame: Back"
+    direction: DOWN
+- assertVisible:
+    text: "Sharp, evenly lit, and the whole garment is in frame: Back"
+    checked: true
+- scrollUntilVisible:
+    element:
+      text: Continue
+    direction: DOWN
+- assertVisible:
+    text: Continue
+    enabled: false
+- scrollUntilVisible:
+    element:
+      text: "Sharp, evenly lit, and the whole garment is in frame: Back"
+    direction: UP
+- tapOn: "Sharp, evenly lit, and the whole garment is in frame: Back"
+- assertVisible:
+    text: "Sharp, evenly lit, and the whole garment is in frame: Back"
+    checked: false
+- scrollUntilVisible:
+    element:
+      text: "Sharp, evenly lit, and the whole garment is in frame: Front"
+    direction: UP
+- assertVisible:
+    text: "Sharp, evenly lit, and the whole garment is in frame: Front"
+    checked: false
+- tapOn: "Sharp, evenly lit, and the whole garment is in frame: Front"
+- assertVisible:
+    text: "Sharp, evenly lit, and the whole garment is in frame: Front"
+    checked: true
+- scrollUntilVisible:
+    element:
+      text: "Sharp, evenly lit, and the whole garment is in frame: Back"
+    direction: DOWN
+- assertVisible:
+    text: "Sharp, evenly lit, and the whole garment is in frame: Back"
+    checked: false
+- scrollUntilVisible:
+    element:
+      text: Continue
+    direction: DOWN
+- assertVisible:
+    text: Continue
+    enabled: false
+- scrollUntilVisible:
+    element:
+      text: "Sharp, evenly lit, and the whole garment is in frame: Back"
+    direction: UP
+- tapOn: "Sharp, evenly lit, and the whole garment is in frame: Back"
+- assertVisible:
+    text: "Sharp, evenly lit, and the whole garment is in frame: Back"
+    checked: true
+- scrollUntilVisible:
+    element:
+      text: Continue
+    direction: DOWN
+- assertVisible:
+    text: Continue
+    enabled: true
+- tapOn: Continue
+- assertVisible:
+    text: What do you want it to become\?

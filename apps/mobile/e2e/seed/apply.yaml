@@ -1,0 +1,12 @@
+# STATUS: UNVERIFIED ON ANDROID. Reconciled in Milestone 2; never executed on a device/emulator.
+# Requires QA Metro (npm run qa:start) and a development build registering sewsure. Clear storage before each seeded scenario; never seed over an in-flight upload.
+appId: com.sewsure.mobile
+---
+- launchApp:
+    clearState: true
+- openLink: sewsure://dev/seed/${SEED}
+- extendedWaitUntil:
+    visible: "Seeded: ${SEED}"
+    timeout: 15000
+- assertVisible:
+    text: "Seeded: ${SEED}"

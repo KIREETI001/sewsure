@@ -1,0 +1,26 @@
+# STATUS: UNVERIFIED ON ANDROID. Reconciled in Milestone 2; never executed on a device/emulator.
+# Missing shirt measurements prevent upload and retain draft status.
+appId: com.sewsure.mobile
+---
+- runFlow:
+    file: ../seed/apply.yaml
+    env:
+      SEED: measurements-signed-in
+- scrollUntilVisible:
+    element:
+      text: Upload
+    direction: DOWN
+- tapOn: Upload
+- scrollUntilVisible:
+    element:
+      text: "Still needed: .*Chest.*"
+    direction: UP
+- assertVisible:
+    text: "Still needed: .*Chest.*"
+- scrollUntilVisible:
+    element:
+      text: Not uploaded\. Saved as a draft on this device\.
+    direction: UP
+- assertVisible:
+    text: Not uploaded\. Saved as a draft on this device\.
+- assertNotVisible: Test upload only\. Nothing left this device\.

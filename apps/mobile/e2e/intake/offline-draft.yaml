@@ -1,16 +1,51 @@
-# Offline upload: the draft survives, the status says not uploaded, and retry works online.
-# NOTE: the fixture client never fails, so this flow only becomes meaningful once the live API client replaces it.
-# Precondition: all garment measurements confirmed (demo seed build), signed in (not demo mode).
+# STATUS: UNVERIFIED ON ANDROID. Reconciled in Milestone 2; never executed on a device/emulator.
+# MOCK FAILURE ONLY. No network request or airplane mode. Live-network case: ../future/live-network-failure.md.
 appId: com.sewsure.mobile
 ---
-- launchApp
-- setAirplaneMode: enabled
-- tapOn: "Upload"
-- assertVisible: "Upload failed.*"
-- stopApp
-- launchApp
-- assertVisible: "Not uploaded.*|Upload failed.*"
-- assertVisible: "52"
-- setAirplaneMode: disabled
-- tapOn: "Try upload again"
-- assertVisible: ".*Uploaded"
+- runFlow:
+    file: ../seed/apply.yaml
+    env:
+      SEED: measurements-confirmed
+- tapOn: (?i)Enable mock upload failure
+- assertVisible:
+    text: "Mock upload failure: enabled"
+- scrollUntilVisible:
+    element:
+      text: Upload
+    direction: DOWN
+- tapOn: Upload
+- scrollUntilVisible:
+    element:
+      text: Upload failed\. Your draft is still saved on this device\.
+    direction: UP
+- assertVisible:
+    text: Upload failed\. Your draft is still saved on this device\.
+- scrollUntilVisible:
+    element:
+      text: "Confirmed: 52 cm"
+    direction: DOWN
+- assertVisible:
+    text: "Confirmed: 52 cm"
+- tapOn: (?i)Disable mock upload failure
+- assertVisible:
+    text: "Mock upload failure: disabled"
+- scrollUntilVisible:
+    element:
+      text: Try upload again
+    direction: DOWN
+- tapOn: Try upload again
+- scrollUntilVisible:
+    element:
+      text: Test upload only\. Nothing left this device\.
+    direction: UP
+- assertVisible:
+    text: Test upload only\. Nothing left this device\.
+- assertVisible:
+    text: Sample data, not a real result
+- assertNotVisible: Uploaded
+- scrollUntilVisible:
+    element:
+      text: "Confirmed: 52 cm"
+    direction: DOWN
+- assertVisible:
+    text: "Confirmed: 52 cm"
