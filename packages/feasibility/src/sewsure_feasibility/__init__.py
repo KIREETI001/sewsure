@@ -4,6 +4,12 @@ from sewsure_feasibility.body import (
     BODY_MEASUREMENT_KEYS,
     BodyProfile,
 )
+from sewsure_feasibility.components import (
+    ComponentKind,
+    ComponentStatus,
+    GarmentComponent,
+    GarmentConstruction,
+)
 from sewsure_feasibility.engine import ENGINE_VERSION, evaluate, supersede
 from sewsure_feasibility.models import (
     Alternative,
@@ -31,6 +37,8 @@ __all__ = [
     "Alternative",
     "BodyProfile",
     "CheckOutcome",
+    "ComponentKind",
+    "ComponentStatus",
     "ConstraintResult",
     "DesignState",
     "FabricComposition",
@@ -39,6 +47,8 @@ __all__ = [
     "FabricStructure",
     "FailureCode",
     "Garment",
+    "GarmentComponent",
+    "GarmentConstruction",
     "GarmentProfile",
     "Measurement",
     "PatternPiece",
