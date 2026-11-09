@@ -45,7 +45,7 @@ Due **10 Nov 2026**, submitted to the supervisor and examiner with the interim r
 2. Is the shirt for the P0 trial chosen? Whose is it, and do they consent to appear?
 3. Who speaks which section: draft follows the ownership table in `CLAUDE.md`; swap if preferred.
 4. Do you want a live demo clip? Draft uses the merged intake screens on sample data (tagged `PROTOTYPE, SAMPLE DATA`) and labelled mock-ups, because no connected build is evidenced.
-5. Evidence-freeze and filming dates conflict (#8 has no date set; H-10(a) in #2 has 3 Nov approval and 4-7 Nov filming). D8 does not choose; founders and X3 must.
+5. Status date is 9 Nov 2026 in both this script and #8; the founders can change it.
 6. Peplum example: the deck lists a peplum as "later, needs proof", so a real rejection of a peplum by the engine may not be possible by 10 Nov. See rejection scene variants in `storyboard.md` and ask Narthananilaa whether N1/N2 will have a material-check rejection test by then (the blueprint's mandatory smoke test already includes an impossible lengthening request, which is the safer real alternative).
 
 ## needs-human

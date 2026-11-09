@@ -70,15 +70,15 @@ Format follows the NTU suggested interim report: 1 Introduction, 2 Work done so 
 ### S2b Feasibility engine and the honest rejection (4:50 to 6:15) | Narthananilaa
 
 > "My part is the rules: what can physically be cut from a shirt, and when the answer is no.
-> For a shirt crop, the engine takes the original length, the finished length wanted, and a hem allowance, and works out where to mark the cut. The numbers on screen are the illustrative ones from our advisor deck, not measurements: an original length of 76 centimetres, a finished length of 52, a 2 centimetre hem, and a cut mark at 54 [C-13]. What the engine does is described from the merged code in `packages/feasibility` [C-39].
+> For a shirt crop, the engine takes the original length, the finished length wanted, and a hem allowance, and works out where to mark the cut. The numbers on screen are the illustrative ones from our advisor deck, not measurements: an original length of 76 centimetres, a finished length of 52, a 2 centimetre hem, and a cut mark at 54 [C-13].
 > Next is the part we care about most. When a request is impossible, the engine must say so and say why. In our plan's example, a peplum needs a strip about 140 centimetres by 18, but the leftover fabric yields about 112, so it is rejected and a shorter, less full option is suggested [C-14]. That is an illustrative example. A peplum is a later transformation that still needs proof.
-> [SLOT-2] Default: 'A first engine for one shirt crop recipe and a constraint test suite are merged. The suite uses synthetic cases, not a measured shirt. Its automated check on main passes as of 9 Nov 2026: 27 cases and 29 checks.' [C-08, C-17] Re-check main is green on recording day; if it is not, say so instead. Evidenced extra: run the suite on recording day and read out the real passed and total counts; the CI Benchmarks run on main at 8b6faa5 reported 27 synthetic cases and 29 checks, not the 24 proposed."
+> [SLOT-2] Default: 'A first engine for one shirt crop recipe and a constraint test suite are merged. The suite uses synthetic cases, not a measured shirt. Its automated check on main passes as of 9 Nov 2026: 27 cases, and all 29 checks matched.' [C-08, C-17] Re-check main is green on recording day; if it is not, say so instead. Evidenced extra: run the suite on recording day and read out the real passed and total counts; the CI Benchmarks run on main at 8b6faa5 reported 27 synthetic cases and 29 checks, not the 24 proposed."
 
 (~86 s of speech; see Totals)
 
 ### S2c App screens and research (6:15 to 7:05) | Delfine
 
-> "On the app side, four intake screens are merged: entry, garment capture, inspiration and measurements. Result cards and a cut guide with DIY steps are merged too, as demo screens on mock data. They are not connected to the engine, and no run on a phone is recorded [C-20]. The cut guide is a dimensioned diagram; the on-garment overlay is planned and switched off. The intake screens do not yet lead into the result screens, and in the demo an edit does not carry through to a new cut guide. [SLOT-6] Show a screen only if it is merged on recording day; tag it as sample data.
+> "On the app side, four intake screens are merged: entry, garment capture, inspiration and measurements. Result cards and a cut guide with DIY steps are merged too, as demo screens on mock data. The word "Verified" on those cards is sample text, because nothing has been verified. They are not connected to the engine, and no run on a phone is recorded [C-20]. The cut guide is a dimensioned diagram; the on-garment overlay is planned and switched off. The intake screens do not yet lead into the result screens, and in the demo an edit does not carry through to a new cut guide. [SLOT-6] Show a screen only if it is merged on recording day; tag it as sample data.
 > One rule shapes the design: an unverified design must never reach a 'safe to cut' screen. Previews will be labelled approximate [C-25], and the result list will not assume there are three options.
 > For research, we have the survey I described. [SLOT-3] Default: 'Interviews and usability sessions with real users and tailors are planned, with consent forms, and have not started.'"
 
@@ -86,7 +86,7 @@ Format follows the NTU suggested interim report: 1 Introduction, 2 Work done so 
 
 ### S2d Problems encountered (7:05 to 7:35) | Narthananilaa
 
-> "Our first phase, proving one measured transformation, was rated red in our lead agent's digest of 1 November, the latest on main. None of its five evidence items was fully met, and no physical make is recorded in the repository, as of 9 Nov 2026. Its planned window ended on 1 November [C-16]. [SLOT-4] Founders only: if a physical make has happened off the repository, say so here with its date and what was measured, and give the record to X2 first. Default: 'No physical make is recorded in our repository.' We also still need to confirm which competition rules apply [C-22]."
+> "Our first phase, proving one measured transformation, was rated red in our lead agent's digest of 1 November, the latest on main. At that date none of its five evidence items was fully met, and no physical make is recorded in the repository, as of 9 Nov 2026. Its planned window ended on 1 November [C-16]. [SLOT-4] Founders only: if a physical make has happened off the repository, say so here with its date and what was measured, and give the record to X2 first. Default: 'No physical make is recorded in our repository.' We also still need to confirm which competition rules apply [C-22]."
 
 (~28 s of speech; see Totals)
 
@@ -96,7 +96,7 @@ Format follows the NTU suggested interim report: 1 Introduction, 2 Work done so 
 
 ### S3a Platform and AI | Kireeti (7:35 to 8:00)
 
-> "Next for me: connecting the structured model pipeline to the API. The API already calls the engine; the pipeline connection is in an open pull request and is not merged. The model stays constrained to approved recipe parameters. Live access to the cloud AI service is still to be verified, and cost per design is still to be measured [C-21, C-37]. All of this is planned."
+> "Next for me: connecting the structured model pipeline to the API. The API already calls the engine. An open pull request connects the pipeline to the engine, and connecting it to the API is still to do. The model stays constrained to approved recipe parameters. Live access to the cloud AI service is still to be verified, and cost per design is still to be measured [C-21, C-37]. All of this is planned."
 
 (~27 s of speech; see Totals)
 
@@ -127,7 +127,7 @@ Format follows the NTU suggested interim report: 1 Introduction, 2 Work done so 
 
 ## Totals (re-timed 9 Nov 2026)
 
-Spoken defaults (SLOT directions, claim tags and bracketed notes removed) count about 1,340 words (1,270 at 2 Nov plus about 70) including the cold open, which is about 9:25 at 140 words per minute. Per segment: S0 21 s, S1a 54, S1b 79, S1c 27, S2a 103, S2b 86, S2c 62, S2d 28, S3a 27, S3b 13, S3c 19, S4 57 (seconds of speech). With holds for b-roll and screen reads the running time is about **9:50**, inside the assumed 8:00 to 10:00 but with almost no slack. To reach 9:00 or less: cut S3a and the second S2a paragraph, and drop the second sentence of the S2c demo caveats. The earlier "about 1,100 words" figure was out of date; the raw `wc -w` of the quoted lines (1,412 before trimming) includes markers and slot directions and is not the running time.
+Spoken defaults (SLOT directions, claim tags and bracketed notes removed) count about 1,340 words (1,270 at 2 Nov plus about 70) including the cold open, which is about 9:35 at 140 words per minute. Per segment: S0 21 s, S1a 54, S1b 79, S1c 27, S2a 103, S2b 86, S2c 62, S2d 28, S3a 27, S3b 13, S3c 19, S4 57 (seconds of speech). With holds for b-roll and screen reads the running time is about **10:00**, at the assumed 10:00 limit. If the read-through runs over, cut the peplum example in S2b (from "In our plan's example" to "still needs proof") and storyboard scene 2b-ii. Do not cut S3a, the S2a merge disclosure or the S2c caveats. The earlier "about 1,100 words" figure was out of date; the raw `wc -w` of the quoted lines (1,412 before trimming) includes markers and slot directions and is not the running time.
 
 The 9 Nov update added about 70 spoken words net (S2a merge sentence, S2c demo caveats, S2b pass line, S3a rewrite), which is the estimate above; I did not recount with a script. 140 words per minute is an assumption, not a measurement; re-time with a stopwatch before filming and cut if the read-through exceeds 10:00.
 

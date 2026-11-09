@@ -2,7 +2,7 @@
 
 Status: all shots are **PLANNED**. Nothing has been filmed or recorded. Owner column names the founder who captures it; the agent only prepares this list.
 
-Schedule: **not agreed.** Three dates conflict and D8 has not chosen between them: L0 human-tasks H-10(a) has script approval by Tue 3 Nov and filming 4 to 7 Nov; X3's report (#8) has no date set after its v0.2; D8's earlier draft proposed a 6 Nov freeze. Founders and X3 must set one evidence-freeze date for the video and report (see needs-human).
+Schedule: status date is 9 Nov 2026, shared with the report (#8). Script approval, filming and editing must all finish before submission on 10 Nov.
 
 ## A. Real-world footage (needs a human with a camera)
 
@@ -61,6 +61,5 @@ Schedule: **not agreed.** Three dates conflict and D8 has not chosen between the
 2. Operate the camera, ruler and chalk, and record real measurements (A1, A2, A5). The agent cannot do this.
 3. Record narration and decide who is on camera (A3).
 4. Confirm the NTU video length limit and file format with the supervisor.
-4a. Agree one evidence-freeze date and the filming dates with X3 and L0 (conflict listed at the top).
 5. Put raw footage in a shared drive outside the repo; record the licence of any music or font.
 6. Sign off captions.
