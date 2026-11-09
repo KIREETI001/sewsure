@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Garment",
+  "description": "The source garment the user already owns. Category and fabric family come from the user or are AI-suggested and then user-confirmed; an unconfirmed suggestion is not trusted by the feasibility engine.",
+  "type": "object",
+  "required": ["garment_id", "project_id", "owner_id", "category", "fabric_family", "attribute_origin", "photos", "created_at", "updated_at"],
+  "properties": {
+    "garment_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "project_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "owner_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "category": { "$ref": "#/$defs/GarmentCategory" },
+    "fabric_family": { "$ref": "#/$defs/FabricFamily" },
+    "attribute_origin": {
+      "type": "string",
+      "enum": ["user_entered", "ai_suggested", "ai_suggested_user_confirmed"],
+      "description": "Origin of category and fabric_family. ai_suggested values must be confirmed before checks treat them as known."
+    },
+    "attributes_confirmed_at": {
+      "oneOf": [{ "$ref": "common.schema.json#/$defs/Timestamp" }, { "type": "null" }]
+    },
+    "visible_features": {
+      "type": "array",
+      "description": "Visible features (Stage A), e.g. button_placket, chest_pocket, curved_hem. Hidden construction is never assumed.",
+      "items": { "$ref": "common.schema.json#/$defs/Slug" },
+      "uniqueItems": true
+    },
+    "condition_notes": { "type": ["string", "null"], "maxLength": 500 },
+    "photos": {
+      "type": "array",
+      "items": { "$ref": "photo-ref.schema.json" }
+    },
+    "created_at": { "$ref": "common.schema.json#/$defs/Timestamp" },
+    "updated_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "GarmentCategory": {
+      "type": "string",
+      "enum": ["woven_shirt", "jersey_tee", "other", "unknown"],
+      "description": "P0 supports woven_shirt recipes. jersey_tee is limited to relaxed transformations. other/unknown can only reach IDEA_ONLY or NEEDS_INPUT."
+    },
+    "FabricFamily": {
+      "type": "string",
+      "enum": ["woven", "knit", "unknown"]
+    },
+    "GarmentUpdate": {
+      "type": "object",
+      "description": "User correction of garment attributes (Stage A low-confidence path). Creates no design revision on its own, but invalidates designs that depend on the changed attributes.",
+      "properties": {
+        "category": { "$ref": "#/$defs/GarmentCategory" },
+        "fabric_family": { "$ref": "#/$defs/FabricFamily" },
+        "visible_features": {
+          "type": "array",
+          "items": { "$ref": "common.schema.json#/$defs/Slug" },
+          "uniqueItems": true
+        },
+        "condition_notes": { "type": ["string", "null"], "maxLength": 500 }
+      },
+      "additionalProperties": false,
+      "minProperties": 1
+    }
+  }
+}

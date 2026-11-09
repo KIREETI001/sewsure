@@ -18,7 +18,7 @@ if (SECRET_NAMES.some((re) => re.test(base)) && !ALLOWED_TEMPLATES.some((re) => 
 }
 
 if (rel && rel.startsWith("infrastructure/prod/")) {
-  block("infrastructure/prod/ needs all three founders (A3). Change staging or a shared module and propose the prod change in the PR description.");
+  block("infrastructure/prod/ is changed by founders only (A3). Change staging or a shared module and propose the prod change in the PR description.");
 }
 
 process.exit(0);

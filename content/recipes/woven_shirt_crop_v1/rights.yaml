@@ -1,0 +1,13 @@
+# Rights record for woven_shirt_crop_v1. No entry, no media (see ../CLAUDE.md).
+recipe_id: woven_shirt_crop_v1
+recipe_version: "1.0"
+text_origin: >-
+  Written from scratch by the N5 recipe-author agent from general sewing knowledge,
+  not copied or closely paraphrased from any single source. Still to be checked by
+  the human sewist reviewer (see REVIEW_PACKET.md).
+media: []
+third_party_media_used: false
+notes: >-
+  No photos, videos or diagrams are used for now. Any media added later must be listed
+  in the media list above with its owner, licence and permission evidence before it is
+  referenced from recipe.yaml or a lesson.

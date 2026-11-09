@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DesignCandidate",
+  "description": "A design shown on a result card. The AI may only propose recipe_id and parameters from the allow-list; all numbers in the current revision come from the feasibility engine, and status mirrors the current revision's engine-set state.",
+  "type": "object",
+  "required": ["design_id", "project_id", "rank", "title", "current_revision_id", "status", "stale", "recipe_id", "parameters", "required_panels", "explanation", "provenance", "created_at"],
+  "properties": {
+    "design_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "project_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "rank": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3,
+      "description": "Display order from the documented soft ranking. Not a probability of success."
+    },
+    "title": { "type": "string", "maxLength": 80 },
+    "current_revision_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "status": { "$ref": "design-state.schema.json" },
+    "stale": {
+      "type": "boolean",
+      "description": "Mirrors stale on the current revision. true means the measurements changed after the check: not a design state, and status is unchanged. Lead the card with the recheck; do not present the result as current."
+    },
+    "recipe_id": {
+      "oneOf": [{ "$ref": "common.schema.json#/$defs/RecipeId" }, { "type": "null" }]
+    },
+    "parameters": { "$ref": "common.schema.json#/$defs/Parameters" },
+    "required_panels": {
+      "type": "array",
+      "description": "Usable source regions the recipe needs, e.g. back_panel, front_left, front_right, sleeve_left.",
+      "items": { "$ref": "common.schema.json#/$defs/Slug" },
+      "uniqueItems": true
+    },
+    "explanation": {
+      "type": "string",
+      "maxLength": 600,
+      "description": "User-facing text written from the actual ConstraintResult. No guarantee language."
+    },
+    "failure_codes": {
+      "type": "array",
+      "items": { "$ref": "constraint-result.schema.json#/$defs/FailureCode" },
+      "uniqueItems": true
+    },
+    "missing_dimensions": {
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/Slug" },
+      "uniqueItems": true
+    },
+    "preview": {
+      "oneOf": [{ "$ref": "design-revision.schema.json#/$defs/PreviewRef" }, { "type": "null" }]
+    },
+    "provenance": { "$ref": "common.schema.json#/$defs/Provenance" },
+    "created_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "DesignList": {
+      "type": "object",
+      "description": "Response of GET /v1/projects/{project_id}/designs. 0 to 3 designs; clients must handle an empty list and must not assume three.",
+      "required": ["project_id", "designs"],
+      "properties": {
+        "project_id": { "$ref": "common.schema.json#/$defs/Id" },
+        "job_id": { "oneOf": [{ "$ref": "common.schema.json#/$defs/Id" }, { "type": "null" }] },
+        "designs": {
+          "type": "array",
+          "items": { "$ref": "#" },
+          "minItems": 0,
+          "maxItems": 3
+        },
+        "binding_constraint": {
+          "oneOf": [{ "$ref": "constraint-result.schema.json" }, { "type": "null" }],
+          "description": "When no design passes: the constraint that blocked the user's original request, with alternatives."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ConstraintResult",
+  "description": "Output of the deterministic feasibility check (blueprint §5.2, §5.4). Never a bare yes/no: always codes, residuals, missing inputs and the engine version.",
+  "type": "object",
+  "required": [
+    "hard_pass",
+    "failure_codes",
+    "residuals",
+    "missing_dimensions",
+    "uncertainty_flags",
+    "checks",
+    "engine_version",
+    "checked_at"
+  ],
+  "properties": {
+    "hard_pass": {
+      "type": "boolean",
+      "description": "true only if every hard gate ran and passed. Enforced here: at least one check passed, no check failed, needed input or was not run, and no residual is negative. Missing inputs make this false."
+    },
+    "failure_codes": { "type": "array", "items": { "$ref": "#/$defs/FailureCode" }, "uniqueItems": true },
+    "residuals": {
+      "type": "array",
+      "description": "Numeric margins per check. residual_mm = available_mm - required_mm; negative means the design overshoots.",
+      "items": { "$ref": "#/$defs/Residual" }
+    },
+    "missing_dimensions": {
+      "type": "array",
+      "description": "Dimension names (Measurements keys) that block a decision because they are absent, unconfirmed (confirmed_at = null), implausible or in conflict with another value. The app re-asks exactly these.",
+      "items": { "$ref": "common.schema.json#/$defs/Slug" },
+      "uniqueItems": true
+    },
+    "uncertainty_flags": {
+      "type": "array",
+      "description": "Non-blocking cautions shown with the result.",
+      "items": { "$ref": "#/$defs/UncertaintyFlag" },
+      "uniqueItems": true
+    },
+    "checks": {
+      "type": "array",
+      "description": "Every gate that was evaluated, in order.",
+      "items": { "$ref": "#/$defs/CheckOutcome" }
+    },
+    "alternatives": {
+      "type": "array",
+      "description": "Supported changes the engine verified would pass (or would need less input). Shown when the request fails.",
+      "items": { "$ref": "#/$defs/Alternative" },
+      "maxItems": 5
+    },
+    "engine_version": { "$ref": "common.schema.json#/$defs/Version" },
+    "checked_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "hard_pass": { "const": true } } },
+      "then": {
+        "properties": {
+          "failure_codes": { "maxItems": 0 },
+          "missing_dimensions": { "maxItems": 0 },
+          "checks": {
+            "minItems": 1,
+            "items": { "properties": { "result": { "enum": ["pass", "not_applicable"] } } },
+            "contains": { "properties": { "result": { "const": "pass" } } }
+          },
+          "residuals": { "items": { "properties": { "residual_mm": { "minimum": 0 } } } }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "FailureCode": {
+      "type": "string",
+      "description": "Hard-gate failure codes (§5.4). Owned by N1; new codes are added here by PR before the engine emits them. Input problems (MISSING_*, UNCONFIRMED_DIMENSION, IMPLAUSIBLE_DIMENSION, CONFLICTING_DIMENSIONS, POSSIBLE_UNIT_ERROR, *_UNKNOWN, INVALID_PARAMETER, NON_FINITE_VALUE) lead to NEEDS_INPUT; the rest lead to FAILED_CHECKS or IDEA_ONLY.",
+      "enum": [
+        "UNSUPPORTED_RECIPE",
+        "UNSUPPORTED_GARMENT_CATEGORY",
+        "UNSUPPORTED_MATERIAL",
+        "MATERIAL_UNKNOWN",
+        "MISSING_DIMENSION",
+        "CONFLICTING_DIMENSIONS",
+        "IMPLAUSIBLE_DIMENSION",
+        "INSUFFICIENT_LENGTH",
+        "EXCEEDS_USABLE_AREA",
+        "CUT_INTERSECTS_PROHIBITED_REGION",
+        "INSUFFICIENT_EASE",
+        "MISSING_CONSTRUCTION_TECHNIQUE",
+        "UNPROVEN_PIECE_JOIN",
+        "CALIBRATION_UNSTABLE",
+        "CATEGORY_UNKNOWN",
+        "UNCONFIRMED_DIMENSION",
+        "POSSIBLE_UNIT_ERROR",
+        "NON_FINITE_VALUE",
+        "MISSING_PARAMETER",
+        "INVALID_PARAMETER",
+        "NO_POSITIVE_REMAINDER",
+        "MISSING_PROHIBITED_ZONES"
+      ]
+    },
+    "CheckOutcome": {
+      "type": "object",
+      "required": ["check_id", "result"],
+      "properties": {
+        "check_id": {
+          "$ref": "common.schema.json#/$defs/Slug",
+          "examples": [
+            "supported_material",
+            "required_dimensions",
+            "length_gate",
+            "usable_area",
+            "structure",
+            "fit_ease",
+            "construction"
+          ]
+        },
+        "result": { "type": "string", "enum": ["pass", "fail", "needs_input", "not_applicable", "not_run"] },
+        "failure_code": { "oneOf": [{ "$ref": "#/$defs/FailureCode" }, { "type": "null" }] },
+        "detail": { "type": ["string", "null"], "maxLength": 300 }
+      },
+      "additionalProperties": false
+    },
+    "Residual": {
+      "type": "object",
+      "required": ["check_id", "quantity", "required_mm", "available_mm", "residual_mm"],
+      "properties": {
+        "check_id": { "$ref": "common.schema.json#/$defs/Slug" },
+        "quantity": { "$ref": "common.schema.json#/$defs/Slug", "examples": ["garment_length", "panel_width", "chest_ease"] },
+        "required_mm": { "$ref": "common.schema.json#/$defs/SignedLengthMm" },
+        "available_mm": { "$ref": "common.schema.json#/$defs/SignedLengthMm" },
+        "residual_mm": { "$ref": "common.schema.json#/$defs/SignedLengthMm" },
+        "tolerance_mm": { "oneOf": [{ "$ref": "common.schema.json#/$defs/LengthMm" }, { "type": "null" }] }
+      },
+      "additionalProperties": false
+    },
+    "Alternative": {
+      "type": "object",
+      "required": ["recipe_id", "parameters", "reason"],
+      "properties": {
+        "recipe_id": { "$ref": "common.schema.json#/$defs/RecipeId" },
+        "parameters": { "$ref": "common.schema.json#/$defs/Parameters" },
+        "reason": { "type": "string", "maxLength": 300 }
+      },
+      "additionalProperties": false
+    },
+    "UncertaintyFlag": {
+      "type": "string",
+      "description": "Upper snake case, like FailureCode. Open set; the examples are ones N1 emits today.",
+      "pattern": "^[A-Z][A-Z0-9_]*$",
+      "maxLength": 64,
+      "examples": ["SIDE_SEAMS_NOT_VERIFIED", "SELF_REPORTED_MEASUREMENTS"]
+    }
+  }
+}

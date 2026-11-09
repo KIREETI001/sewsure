@@ -1,0 +1,48 @@
+{
+  "id": "MU-03",
+  "class": "missing_unit_implausible",
+  "synthetic": true,
+  "description": "Shoulder-to-hem entered as 78 with no unit",
+  "reason": "A bare number has no unit; it must not be read as mm or cm. The adapter hands the engine a non-finite value, so it must ask again.",
+  "destructive_cut": true,
+  "inputs": {
+    "garment": {
+      "category": "woven_shirt",
+      "fabric_family": "woven",
+      "closure": "button_placket",
+      "prohibited_regions": [
+        {
+          "name": "armhole",
+          "from_shoulder_mm": 0,
+          "to_shoulder_mm": 150
+        }
+      ],
+      "seam_margin_mm": 0
+    },
+    "measurements": {
+      "shoulder_to_hem": {
+        "value_mm": null,
+        "raw_value": 78,
+        "unit": null,
+        "origin": "user_tape_measured",
+        "confirmed_at": "2026-01-01T00:00:00Z"
+      },
+      "chest_flat_width": {
+        "value_mm": 520,
+        "origin": "user_tape_measured",
+        "confirmed_at": "2026-01-01T00:00:00Z"
+      }
+    },
+    "recipe_id": "woven_shirt_crop_v1",
+    "params": {
+      "finished_length_mm": 500,
+      "hem_allowance_mm": 30
+    }
+  },
+  "expected": {
+    "status": "NEEDS_INPUT",
+    "failure_codes": [
+      "NON_FINITE_VALUE"
+    ]
+  }
+}

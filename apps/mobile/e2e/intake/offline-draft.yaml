@@ -1,0 +1,16 @@
+# Offline upload: the draft survives, the status says not uploaded, and retry works online.
+# NOTE: the fixture client never fails, so this flow only becomes meaningful once the live API client replaces it.
+# Precondition: all garment measurements confirmed (demo seed build), signed in (not demo mode).
+appId: com.sewsure.mobile
+---
+- launchApp
+- setAirplaneMode: enabled
+- tapOn: "Upload"
+- assertVisible: "Upload failed.*"
+- stopApp
+- launchApp
+- assertVisible: "Not uploaded.*|Upload failed.*"
+- assertVisible: "52"
+- setAirplaneMode: disabled
+- tapOn: "Try upload again"
+- assertVisible: ".*Uploaded"

@@ -1,0 +1,14 @@
+# Example job for K5 to adopt in .github/workflows/ (N2 may not edit workflows).
+# Required check: a false acceptance on a destructive cut makes `report.py` exit 1.
+constraint-suite:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - run: pip install -r tests/benchmarks/constraints/requirements.txt -e packages/feasibility
+    - working-directory: tests/benchmarks/constraints
+      run: python -m pytest
+    - working-directory: tests/benchmarks/constraints
+      run: python report.py --strict   # no --allow-skip in CI: a missing engine must fail

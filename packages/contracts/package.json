@@ -1,0 +1,15 @@
+{
+  "name": "@sewsure/contracts",
+  "version": "1.0.0-draft.3",
+  "private": true,
+  "description": "SewSure API contract v1 (DRAFT): OpenAPI, JSON schemas, fixtures and generated TypeScript types.",
+  "types": "generated/ts/sewsure.v1.ts",
+  "scripts": {
+    "gen:ts": "openapi-typescript openapi/sewsure.v1.yaml -o generated/ts/sewsure.v1.ts",
+    "check:ts": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "openapi-typescript": "7.4.4",
+    "typescript": "5.6.3"
+  }
+}

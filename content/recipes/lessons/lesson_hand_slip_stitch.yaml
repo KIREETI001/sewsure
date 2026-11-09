@@ -1,0 +1,28 @@
+# DRAFT micro-lesson. Not reviewed by a sewist.
+lesson_id: lesson_hand_slip_stitch
+version: "1.0"
+status: draft
+title: Hand slip stitch for a hem
+summary: Learn a small stitch that holds a hem down and barely shows on the outside.
+skippable: true
+suggested_for_beginners: true
+used_by_recipes: [woven_shirt_crop_v1]
+tools: [hand_needle, pins]
+steps:
+  - id: s1
+    text: Thread a needle with a length of thread about as long as your forearm. Knot one end.
+  - id: s2
+    text: Hide the knot inside the fold of the hem.
+  - id: s3
+    text: Pick up one or two threads of the main fabric, right next to the hem.
+  - id: s4
+    text: Slide the needle through the inside of the fold for about 6 mm, then pick up the main fabric again. Pull the thread gently, not tight.
+  - id: s5
+    text: Finish with two small stitches in the same spot and cut the thread.
+practice:
+  task: On spare fabric with a pressed double-fold hem, slip stitch along 15 cm of the hem.
+  materials: Spare woven fabric with a pressed hem, needle, matching thread, scissors
+  done_when: Stitches are evenly spaced, the outside shows only tiny dots, and the hem lies flat without puckering.
+progress_note: Ticking this off is your own record. It is not a certificate.
+reviewed_by: null
+reviewed_on: null

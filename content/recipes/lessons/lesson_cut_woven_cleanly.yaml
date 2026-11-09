@@ -1,0 +1,28 @@
+# DRAFT micro-lesson. Not reviewed by a sewist.
+lesson_id: lesson_cut_woven_cleanly
+version: "1.0"
+status: draft
+title: Cut woven fabric cleanly
+summary: Learn to make long, steady cuts that stay on the line.
+skippable: true
+suggested_for_beginners: true
+used_by_recipes: [woven_shirt_crop_v1]
+tools: [scissors]
+steps:
+  - id: s1
+    text: Use sharp fabric scissors. Dull or paper scissors chew the fabric.
+  - id: s2
+    text: Keep the fabric flat on the table. Keep the lower blade resting on the table as you cut.
+  - id: s3
+    text: Use the whole length of the blades in long cuts. Short snips make a jagged edge.
+  - id: s4
+    text: Look a little ahead of the blades, along the line, not at the tips.
+  - id: s5
+    text: Move your body around the table as you go, not the fabric, so the fabric stays flat.
+practice:
+  task: Cut along a straight chalk line 30 cm long on spare fabric, then along a second line, trying to keep the edge smooth.
+  materials: Spare woven fabric, chalk, ruler, fabric scissors
+  done_when: Your cut edge follows the chalk line and has no big steps or jagged bits.
+progress_note: Ticking this off is your own record. It is not a certificate.
+reviewed_by: null
+reviewed_on: null

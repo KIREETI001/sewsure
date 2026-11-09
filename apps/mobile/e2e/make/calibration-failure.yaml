@@ -1,0 +1,10 @@
+# No photo overlay is offered yet: the dimensioned diagram shows. Needs a development or demo build. Not yet run on a device.
+
+appId: com.sewsure.mobile
+---
+- openLink: sewsure:///cut?revisionId=rev-crop-a-2
+- assertVisible: "Measure from this diagram"
+- assertVisible: "Dimensioned diagram"
+- assertVisible: "Not yet reviewed.*"
+- assertVisible: "MOCK DATA"
+- assertNotVisible: "Photo overlay"

@@ -1,0 +1,512 @@
+openapi: 3.1.0
+info:
+  title: SewSure API
+  version: 1.0.0-draft.3
+  summary: DRAFT contract v1. Not frozen; consumers may build against it but expect changes until the freeze.
+  description: |
+    Routes from blueprint §3.4. Record shapes live in `../schemas/*.schema.json` (JSON Schema 2020-12)
+    and are the single source of truth; this file only wires them to routes.
+
+    Rules every consumer relies on:
+    - Lengths are millimetres. Field names that hold a length end in `_mm`.
+    - Design state is set only by the feasibility engine. No route lets a client set it.
+    - Revisions are immutable. Editing creates a new revision; downstream artefacts belong to one revision.
+    - A design list holds 0 to 3 designs.
+    - Errors use `ApiError` with a `recoverable` flag.
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+servers:
+  - url: http://localhost:8000
+    description: Local development
+security:
+  - bearerAuth: []
+tags:
+  - name: projects
+  - name: garments
+  - name: generation
+  - name: designs
+  - name: making
+  - name: marketplace
+  - name: account
+
+paths:
+  /v1/me:
+    get:
+      tags: [account]
+      operationId: getMe
+      summary: Current user, role and consent version
+      responses:
+        "200":
+          description: The authenticated user.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/user.schema.json" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/projects:
+    post:
+      tags: [projects]
+      operationId: createProject
+      summary: Create a project and its garment record
+      description: Idempotent on the `Idempotency-Key` header. A replay returns the original project with 200.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "../schemas/project.schema.json#/$defs/ProjectCreate" }
+      responses:
+        "201":
+          description: Created.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/project.schema.json" }
+        "200":
+          description: Replay of an earlier request with the same key.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/project.schema.json" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "422": { $ref: "#/components/responses/ValidationFailed" }
+
+  /v1/projects/{project_id}:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      tags: [projects]
+      operationId: getProject
+      responses:
+        "200":
+          description: The project.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/project.schema.json" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/garments/{garment_id}:
+    parameters:
+      - $ref: "#/components/parameters/GarmentId"
+    get:
+      tags: [garments]
+      operationId: getGarment
+      responses:
+        "200":
+          description: The garment.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/garment.schema.json" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [garments]
+      operationId: updateGarment
+      summary: Correct garment category, fabric or visible features
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "../schemas/garment.schema.json#/$defs/GarmentUpdate" }
+      responses:
+        "200":
+          description: Updated garment. attribute_origin becomes user_entered or ai_suggested_user_confirmed.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/garment.schema.json" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/ValidationFailed" }
+
+  /v1/garments/{garment_id}/photos:
+    parameters:
+      - $ref: "#/components/parameters/GarmentId"
+    post:
+      tags: [garments]
+      operationId: createGarmentPhoto
+      summary: Issue a scoped upload for a garment photo
+      description: |
+        Returns a short-lived upload URL and a PhotoRef in `pending_upload`. After the client uploads,
+        the server verifies MIME type, size and content safety and moves the photo to `verified` or `rejected`.
+        Only verified photos may feed generation or overlays.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "../schemas/photo-ref.schema.json#/$defs/PhotoUploadRequest" }
+      responses:
+        "201":
+          description: Upload ticket issued.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/photo-ref.schema.json#/$defs/PhotoUploadTicket" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "413":
+          description: Photo too large.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/api-error.schema.json" }
+        "422": { $ref: "#/components/responses/ValidationFailed" }
+
+  /v1/projects/{project_id}/measurements:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    put:
+      tags: [projects]
+      operationId: putMeasurements
+      summary: Replace the project's measurements and validate them
+      description: |
+        Validates units, origin and required dimensions. Plausibility problems (e.g. a chest width
+        that looks like cm typed as mm) are returned as issues, not silently corrected.
+        Existing designs become stale until regenerated or rechecked.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "../schemas/measurements.schema.json#/$defs/MeasurementsInput" }
+      responses:
+        "200":
+          description: Stored measurements plus validation issues.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/measurements.schema.json#/$defs/MeasurementsResult" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/ValidationFailed" }
+
+  /v1/projects/{project_id}/generate:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    post:
+      tags: [generation]
+      operationId: generateDesigns
+      summary: Queue async candidate generation
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "../schemas/job.schema.json#/$defs/GenerateRequest" }
+      responses:
+        "202":
+          description: Job queued. Poll GET /v1/jobs/{job_id}.
+          headers:
+            Location:
+              schema: { type: string }
+          content:
+            application/json:
+              schema: { $ref: "../schemas/job.schema.json" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: The project has no garment photo or measurements yet.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/api-error.schema.json" }
+        "422": { $ref: "#/components/responses/ValidationFailed" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /v1/jobs/{job_id}:
+    parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema: { $ref: "../schemas/common.schema.json#/$defs/Id" }
+    get:
+      tags: [generation]
+      operationId: getJob
+      summary: Job state (queued|running|complete|failed) with recoverable error
+      responses:
+        "200":
+          description: The job.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/job.schema.json" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/projects/{project_id}/designs:
+    parameters:
+      - $ref: "#/components/parameters/ProjectId"
+    get:
+      tags: [designs]
+      operationId: listDesigns
+      summary: Up to 3 checked options with state and reasons
+      responses:
+        "200":
+          description: 0 to 3 designs. An empty list is a valid result.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/design-candidate.schema.json#/$defs/DesignList" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/designs/{design_id}/revisions:
+    parameters:
+      - name: design_id
+        in: path
+        required: true
+        schema: { $ref: "../schemas/common.schema.json#/$defs/Id" }
+    post:
+      tags: [designs]
+      operationId: createRevision
+      summary: Customise parameters and re-run the feasibility engine
+      description: |
+        Creates a new immutable revision from `parent_revision_id`. The engine sets its status.
+        If the parent had passed, it becomes SUPERSEDED and its downstream artefacts become read-only.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "../schemas/design-revision.schema.json#/$defs/RevisionCreate" }
+      responses:
+        "201":
+          description: New revision, already checked.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/design-revision.schema.json" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: parent_revision_id is not the design's current revision.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/api-error.schema.json" }
+        "422": { $ref: "#/components/responses/ValidationFailed" }
+
+  /v1/revisions/{revision_id}:
+    parameters:
+      - $ref: "#/components/parameters/RevisionId"
+    get:
+      tags: [designs]
+      operationId: getRevision
+      responses:
+        "200":
+          description: The revision.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/design-revision.schema.json" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/revisions/{revision_id}/cut-plan:
+    parameters:
+      - $ref: "#/components/parameters/RevisionId"
+    get:
+      tags: [making]
+      operationId: getCutPlan
+      summary: Dimensioned guide plus calibrated overlay metadata
+      responses:
+        "200":
+          description: Cut plan for a PASS_SUPPORTED_CHECKS revision that is not stale. A SUPERSEDED revision is read-only history and gets 409.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/cut-plan.schema.json" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/CutPlanUnavailable" }
+
+  /v1/revisions/{revision_id}/diy-steps:
+    parameters:
+      - $ref: "#/components/parameters/RevisionId"
+    get:
+      tags: [making]
+      operationId: getDiySteps
+      summary: Approved recipe content and practice steps
+      responses:
+        "200":
+          description: Reviewed steps for the revision's recipe version.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/diy-steps.schema.json" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/RevisionNotPassing" }
+
+  /v1/revisions/{revision_id}/diy-progress:
+    parameters:
+      - $ref: "#/components/parameters/RevisionId"
+    get:
+      tags: [making]
+      operationId: getDiyProgress
+      responses:
+        "200":
+          description: The user's progress on this revision.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/diy-progress.schema.json" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    put:
+      tags: [making]
+      operationId: putDiyProgress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "../schemas/diy-progress.schema.json" }
+      responses:
+        "200":
+          description: Stored progress.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/diy-progress.schema.json" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/RevisionNotPassing" }
+        "422": { $ref: "#/components/responses/ValidationFailed" }
+
+  /v1/maker-requests:
+    post:
+      tags: [marketplace]
+      operationId: createMakerRequest
+      summary: Create a consent-filtered tailor brief and request
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "../schemas/maker-request.schema.json#/$defs/MakerRequestCreate" }
+      responses:
+        "201":
+          description: Request created (DRAFT or SUBMITTED).
+          content:
+            application/json:
+              schema: { $ref: "../schemas/maker-request.schema.json" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/ValidationFailed" }
+
+  /v1/maker-requests/{request_id}/quotes:
+    parameters:
+      - name: request_id
+        in: path
+        required: true
+        schema: { $ref: "../schemas/common.schema.json#/$defs/Id" }
+    post:
+      tags: [marketplace]
+      operationId: createQuote
+      summary: Tailor-only quote, clarification or infeasibility flag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "../schemas/quote.schema.json#/$defs/QuoteCreate" }
+      responses:
+        "201":
+          description: Quote stored; the request status moves to QUOTED, NEEDS_CLARIFICATION or DECLINED.
+          content:
+            application/json:
+              schema: { $ref: "../schemas/quote.schema.json" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/ValidationFailed" }
+
+components:
+  # Named record types, so generated clients expose them (e.g. components["schemas"]["DesignRevision"]).
+  schemas:
+    DesignState: { $ref: "../schemas/design-state.schema.json" }
+    ApiError: { $ref: "../schemas/api-error.schema.json" }
+    User: { $ref: "../schemas/user.schema.json" }
+    Project: { $ref: "../schemas/project.schema.json" }
+    Garment: { $ref: "../schemas/garment.schema.json" }
+    PhotoRef: { $ref: "../schemas/photo-ref.schema.json" }
+    Measurements: { $ref: "../schemas/measurements.schema.json" }
+    MeasurementsResult: { $ref: "../schemas/measurements.schema.json#/$defs/MeasurementsResult" }
+    Inspiration: { $ref: "../schemas/inspiration.schema.json" }
+    Job: { $ref: "../schemas/job.schema.json" }
+    ConstraintResult: { $ref: "../schemas/constraint-result.schema.json" }
+    DesignCandidate: { $ref: "../schemas/design-candidate.schema.json" }
+    DesignList: { $ref: "../schemas/design-candidate.schema.json#/$defs/DesignList" }
+    DesignRevision: { $ref: "../schemas/design-revision.schema.json" }
+    FitAssessment: { $ref: "../schemas/fit-assessment.schema.json" }
+    CutPlan: { $ref: "../schemas/cut-plan.schema.json" }
+    DiySteps: { $ref: "../schemas/diy-steps.schema.json" }
+    DIYProgress: { $ref: "../schemas/diy-progress.schema.json" }
+    MakerRequest: { $ref: "../schemas/maker-request.schema.json" }
+    Quote: { $ref: "../schemas/quote.schema.json" }
+    EvidenceLog: { $ref: "../schemas/evidence-log.schema.json" }
+    AiCandidateProposal: { $ref: "../schemas/ai-candidate-proposal.schema.json" }
+    FixtureScenario: { $ref: "../schemas/fixture-scenario.schema.json" }
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Client-generated key (e.g. a UUID). Retries with the same key and body return the original result.
+      schema: { type: string, minLength: 8, maxLength: 128 }
+    ProjectId:
+      name: project_id
+      in: path
+      required: true
+      schema: { $ref: "../schemas/common.schema.json#/$defs/Id" }
+    GarmentId:
+      name: garment_id
+      in: path
+      required: true
+      schema: { $ref: "../schemas/common.schema.json#/$defs/Id" }
+    RevisionId:
+      name: revision_id
+      in: path
+      required: true
+      schema: { $ref: "../schemas/common.schema.json#/$defs/Id" }
+  responses:
+    Unauthorized:
+      description: Missing or invalid credentials.
+      content:
+        application/json:
+          schema: { $ref: "../schemas/api-error.schema.json" }
+    Forbidden:
+      description: Authenticated but not allowed (e.g. a non-tailor submitting a quote).
+      content:
+        application/json:
+          schema: { $ref: "../schemas/api-error.schema.json" }
+    NotFound:
+      description: Not found or not visible to this user.
+      content:
+        application/json:
+          schema: { $ref: "../schemas/api-error.schema.json" }
+    ValidationFailed:
+      description: Request body failed schema or rule validation. See field_errors.
+      content:
+        application/json:
+          schema: { $ref: "../schemas/api-error.schema.json" }
+    RateLimited:
+      description: Too many generation requests. Retry after retry_after_s.
+      content:
+        application/json:
+          schema: { $ref: "../schemas/api-error.schema.json" }
+    CutPlanUnavailable:
+      description: >-
+        No cut plan is served. The status is checked first. REVISION_NOT_PASSING (recoverable false): the revision is not
+        PASS_SUPPORTED_CHECKS. REVISION_STALE (recoverable true): the revision passed, but the project's measurements were
+        replaced after the check (stale is true on the revision and candidate). Recover by rechecking with
+        POST /v1/designs/{design_id}/revisions, body {parent_revision_id, parameters: {}} and a new Idempotency-Key.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "../schemas/api-error.schema.json"
+              - type: object
+                properties:
+                  code: { type: string, enum: [REVISION_NOT_PASSING, REVISION_STALE] }
+          examples:
+            not_passing:
+              value: { code: REVISION_NOT_PASSING, message: This revision did not pass the implemented checks, or has been replaced; it has no cut plan., recoverable: false }
+            stale:
+              value: { code: REVISION_STALE, message: Measurements changed since this check. Recheck the design before cutting., recoverable: true }
+    RevisionNotPassing:
+      description: The revision is not PASS_SUPPORTED_CHECKS (code REVISION_NOT_PASSING), so it has no cut plan or DIY steps.
+      content:
+        application/json:
+          schema: { $ref: "../schemas/api-error.schema.json" }

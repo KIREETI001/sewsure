@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Inspiration",
+  "description": "What the user wants (Stage B input). Free text is untrusted user content: the pipeline must treat it as data, never as instructions.",
+  "type": "object",
+  "required": ["inspiration_id", "project_id", "text", "photo_ids", "requested_features", "skill_level", "tools", "created_at"],
+  "properties": {
+    "inspiration_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "project_id": { "$ref": "common.schema.json#/$defs/Id" },
+    "text": { "type": "string", "maxLength": 1000 },
+    "photo_ids": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Id" }, "maxItems": 4 },
+    "requested_features": { "$ref": "#/$defs/RequestedFeatures" },
+    "surprise_me": { "type": "boolean", "default": false },
+    "skill_level": { "$ref": "#/$defs/SkillLevel" },
+    "tools": { "$ref": "#/$defs/Tools" },
+    "supplies": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Slug" }, "uniqueItems": true },
+    "recogniser_notes": {
+      "type": ["string", "null"],
+      "maxLength": 1000,
+      "description": "AI-generated summary of the inspiration. Not trusted as a measurement or construction fact."
+    },
+    "created_at": { "$ref": "common.schema.json#/$defs/Timestamp" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "SkillLevel": { "type": "string", "enum": ["beginner", "intermediate", "experienced"] },
+    "Tools": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["ruler", "tape_measure", "chalk", "fabric_scissors", "pins", "hand_needle", "sewing_machine", "iron", "overlocker"] },
+      "uniqueItems": true
+    },
+    "RequestedFeatures": {
+      "type": "object",
+      "description": "Structured attributes parsed from the request (Stage B). Lengths are mm.",
+      "properties": {
+        "transformation": { "type": "string", "enum": ["crop", "lengthen", "taper", "sleeve_change", "neckline_change", "other"] },
+        "target_finished_length_mm": { "oneOf": [{ "$ref": "common.schema.json#/$defs/LengthMm" }, { "type": "null" }] },
+        "waist_shaping": { "type": ["boolean", "null"] },
+        "sleeve_style": { "type": ["string", "null"], "enum": ["keep", "short", "sleeveless", "rolled", null] },
+        "closure_preservation": { "type": ["boolean", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "InspirationInput": {
+      "type": "object",
+      "required": ["text", "skill_level", "tools"],
+      "properties": {
+        "text": { "type": "string", "maxLength": 1000 },
+        "photo_ids": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Id" }, "maxItems": 4 },
+        "requested_features": { "$ref": "#/$defs/RequestedFeatures" },
+        "surprise_me": { "type": "boolean", "default": false },
+        "skill_level": { "$ref": "#/$defs/SkillLevel" },
+        "tools": { "$ref": "#/$defs/Tools" },
+        "supplies": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/Slug" }, "uniqueItems": true }
+      },
+      "additionalProperties": false
+    }
+  }
+}

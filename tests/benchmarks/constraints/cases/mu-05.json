@@ -1,0 +1,46 @@
+{
+  "id": "MU-05",
+  "class": "missing_unit_implausible",
+  "synthetic": true,
+  "description": "Shoulder-to-hem is a vision suggestion, never confirmed by the user (confirmed_at null)",
+  "reason": "An unconfirmed value counts as missing (contract v1); it must not reach a pass.",
+  "destructive_cut": true,
+  "inputs": {
+    "garment": {
+      "category": "woven_shirt",
+      "fabric_family": "woven",
+      "closure": "button_placket",
+      "prohibited_regions": [
+        {
+          "name": "armhole",
+          "from_shoulder_mm": 0,
+          "to_shoulder_mm": 150
+        }
+      ],
+      "seam_margin_mm": 0
+    },
+    "measurements": {
+      "shoulder_to_hem": {
+        "value_mm": 780,
+        "origin": "vision_suggested",
+        "confirmed_at": null
+      },
+      "chest_flat_width": {
+        "value_mm": 520,
+        "origin": "user_tape_measured",
+        "confirmed_at": "2026-01-01T00:00:00Z"
+      }
+    },
+    "recipe_id": "woven_shirt_crop_v1",
+    "params": {
+      "finished_length_mm": 500,
+      "hem_allowance_mm": 30
+    }
+  },
+  "expected": {
+    "status": "NEEDS_INPUT",
+    "failure_codes": [
+      "UNCONFIRMED_DIMENSION"
+    ]
+  }
+}

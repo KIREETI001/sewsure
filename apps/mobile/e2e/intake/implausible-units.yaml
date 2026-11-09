@@ -1,0 +1,10 @@
+# 6 cm where 60 cm is likely: warn, offer the fix, then confirm in cm.
+# Precondition: a draft with photos, category and inspiration (use the demo seed build).
+appId: com.sewsure.mobile
+---
+- launchApp
+- tapOn: "Chest, flat across (cm)"
+- inputText: "6"
+- assertVisible: ".*Did you mean 60 cm.*"
+- tapOn: "Use 60 cm"
+- assertVisible: "Confirmed: 60 cm"

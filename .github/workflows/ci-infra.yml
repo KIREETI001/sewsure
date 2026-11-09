@@ -1,0 +1,53 @@
+name: CI Infrastructure
+
+# Compiles the staging Bicep and lints the workflows. Needs no Azure login:
+# `az bicep build` is an offline compile and creates nothing.
+
+on:
+  pull_request:
+    paths:
+      - "infrastructure/**"
+      - "azure.yaml"
+      - ".github/workflows/**"
+  push:
+    branches: [main]
+    paths:
+      - "infrastructure/**"
+      - "azure.yaml"
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-infra-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bicep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build staging Bicep
+        run: |
+          if [ -f infrastructure/staging/main.bicep ]; then
+            az bicep build --file infrastructure/staging/main.bicep --stdout > /dev/null
+          else
+            echo "::notice::No staging Bicep yet; skipping."
+          fi
+
+  actionlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint workflows
+        run: |
+          # Release tarball verified against a pinned SHA-256 (v1.7.7, linux amd64).
+          curl -sSfLO https://github.com/rhysd/actionlint/releases/download/v1.7.7/actionlint_1.7.7_linux_amd64.tar.gz
+          echo "023070a287cd8cccd71515fedc843f1985bf96c436b7effaecce67290e7e0757  actionlint_1.7.7_linux_amd64.tar.gz" | sha256sum -c -
+          tar xzf actionlint_1.7.7_linux_amd64.tar.gz actionlint
+          ./actionlint -color
