@@ -1,6 +1,6 @@
 # Sources for the interim report draft
 
-Maps each factual claim in `interim-report.md` to its source. Revised 2 Nov 2026 (v0.4, matching the report). Sources were first read 28 Oct 2026; GitHub facts were re-checked on 1 and 2 Nov 2026. Source PDFs are in the founders' parent folder (outside this repo) and are not copied here.
+Maps each factual claim in `interim-report.md` to its source. Revised 9 Nov 2026 (v0.5, matching the report). Sources were first read 28 Oct 2026; GitHub facts were re-checked on 1, 2 and 9 Nov 2026. Source PDFs are in the founders' parent folder (outside this repo) and are not copied here.
 
 ## Source list
 
@@ -16,15 +16,20 @@ Maps each factual claim in `interim-report.md` to its source. Revised 2 Nov 2026
 | S8 | L0 baseline audit of 28 Oct 2026: `docs/digests/2026-10-28-baseline-audit.md`, `2026-10-28.md`, `docs/risk-register.md`, `docs/decisions.md` (PR #2, merged 1 Nov 2026, `c46c5d8`) | `main` |
 | S9 | `docs/CLAUDE.md` documentation rules | git, `main` |
 
-| S10 | L0 daily digest of 1 Nov 2026 and updated `human-tasks.md` (PR #26, **open, not merged**; snapshot ~20:35 SGT at `main@c46c5d8`) | branch `l0/digest-2026-11-01` |
+| S10 | L0 daily digest of 1 Nov 2026 and updated `human-tasks.md` (PR #26, merged 9 Nov 2026, `d656987`; written ~20:35 SGT on 1 Nov at `main@c46c5d8`, so its ratings are dated 1 Nov) | `docs/digests/2026-11-01.md` on `main` |
 | S11 | PR #16, "Make PR approvals optional in the agent rules" (merged 1 Nov 2026, 10:16 UTC, `4adc272`) | `gh pr view 16` |
 | S12 | GitHub branch-protection API for `main`, read 1 Nov 2026: PR required, `required_approving_review_count` 0, `require_code_owner_reviews` false, `enforce_admins` true | `gh api repos/KIREETI001/sewsure/branches/main/protection` |
 | S13 | `gh pr list --state all`: on 1 Nov 14 merged (#1–#7, #9–#12, #14–#16), 13 open (#8, #13, #17–#26, #32); on 2 Nov 15 open (adds #33, #34) | GitHub |
 | S14 | GitHub collaborators and invitations API for the repo, 2 Nov 2026: collaborators KIREETI001, vanilaa23, delfinee; 0 pending invitations | `gh api repos/KIREETI001/sewsure/collaborators` and `/invitations` |
-| S15 | PR #22 (API connected to contract and engine, **open**, head `cbffff4`): X1 review at `b18d57f`; K2 reply 1 Nov (`cbffff4`); X1 recheck 2 Nov, comment 6568815203. Also PR #23 (AI code, open) | `gh pr view 22`, issue comments |
-| S16 | PR #24 (cut guide and DIY steps, **open**, head `36bcda7`): X1 review at `ce545ab`; D4 reply 1 Nov (`36bcda7`); X1 recheck 2 Nov, comment 6568846312; `apps/mobile/src/make/gate.ts` at `36bcda7` always returns the diagram | `gh pr view 24`, issue comments |
+| S15 | PR #22 (API connected to contract and engine, **merged 9 Nov**, `4dd121f`; earlier head `cbffff4`): X1 review at `b18d57f`; K2 reply 1 Nov (`cbffff4`); X1 recheck 2 Nov, comment 6568815203. Also PR #23 (AI code, still open on 9 Nov) | `gh pr view 22`, issue comments |
+| S16 | PR #24 (cut guide and DIY steps, **merged 9 Nov**, `6c4630b`; earlier head `36bcda7`): X1 review at `ce545ab`; D4 reply 1 Nov (`36bcda7`); X1 recheck 2 Nov, comment 6568846312; `apps/mobile/src/make/gate.ts` at `36bcda7` always returns the diagram | `gh pr view 24`, issue comments |
 
-S8, S10 are L0's own reports. S10 is unmerged and unreviewed by a founder.
+| S17 | `gh pr list --state all` and `gh pr view` on 9 Nov 2026: merged 9 Nov (all by KIREETI001, 11:07–11:12 UTC): #19 `5490480`, #34 `a14203e`, #17 `d12c3e2`, #18 `e1dd074`, #26 `d656987`, #35 `34946dd`, #22 `4dd121f`, #24 `6c4630b`, #25 `1a3e11e`, #40 `128db02`, #41 `8b6faa5`; open: #8, #13, #20, #21, #23, #32, #33, #36 (draft), #37, #38, #39, #42, #43, #44 (draft). The statement that the merges followed Kireeti's explicit approval comes from the project lead's message, not from GitHub | GitHub; lead message of 9 Nov |
+| S18 | GitHub Actions runs on `main` read 9 Nov 2026: CI Benchmarks and CI Python succeeded on `8b6faa5` (11:12 UTC); earlier runs on the same morning were cancelled by newer pushes. Branch protection API: 0 approving reviews required, `enforce_admins` true | `gh run list --branch main`; `gh api .../branches/main/protection` |
+| S19 | X1 time-boxed rechecks on 9 Nov 2026: #22 at `7fb7198` (SQLite 73 passed, local PostgreSQL 16.2 41 passed, no merge blocker); #24 at `53076fd` (safe as demo-only code on mock data; D3/D4 mock mismatch); #25 at `6888b7f` (safe on mock data; "Verified" label shown with MOCK DATA; dead-end after edit). I read the comments, not the code, and ran nothing | PR issue comments |
+| S20 | This repo on `main@8b6faa5`, 9 Nov 2026: `packages/contracts` version `1.0.0-draft.3`; `woven_shirt_crop_v1` `status: draft`; `docs/evaluation/physical-make-record.md` says no make has been recorded; no `apps/mobile/eas.json`; `docs/decisions.md` P-02 (re-plan) `open`; latest digest `docs/digests/2026-11-01.md` | git |
+
+S8, S10 are L0's own reports. S10 is dated 1 Nov and was merged on 9 Nov; no later L0 rating is on `main`.
 
 ## Claim map
 
@@ -81,16 +86,20 @@ S8, S10 are L0's own reports. S10 is unmerged and unreviewed by a founder.
 | 2.1, 2.4 | Leads are first reviewers; GitHub does not require their approval | S6 `CLAUDE.md`; S12 |
 | 2.3 | Cut overlay planned and not working; #24 uses the diagram because `points_px` is not returned; no overlay accuracy exists | S16; S10 |
 | 2.5 | 14 agents running on 28 Oct (queued figure dropped) | S8 daily digest |
-| 2.5 | Contract draft.2 not frozen; recipe `draft`, no reviewer; ease ranges unverified; X1/X2 outcomes; CI Benchmarks failure; PR #19 synthetic counts (27 cases, 29 checks, 0/21, 21/21, 8/8, 0/8, 0/29) | S10 |
+| 2.1 | 11 PRs merged 9 Nov, by KIREETI001, no approving review required; list; approval claim from the project lead | S17; S18 |
+| 2.5 | State on 9 Nov: contract draft.3, recipe draft, API calls the engine (SQLite 73, local Postgres 41, not Azure), screens demo-only on mock data, make kit and empty template, CI passes, AI pipeline not connected, open PRs, D3/D4 mock mismatch, placket and 50 mm open | S19; S20; S17; S18; S15 |
+| 2.5 | 1 Nov: Contract draft.2 not frozen; recipe `draft`, no reviewer; ease ranges unverified; X1/X2 outcomes; CI Benchmarks failure; PR #19 synthetic counts (27 cases, 29 checks, 0/21, 21/21, 8/8, 0/8, 0/29) | S10 |
 | 2.6 | Questions Q1–Q4 on physical work | S8 audit |
 | 2.6 | Keep denominators and negative results | S9 |
 | 2.7 | Page counts (scope 10, blueprint 21) | S2 footer; S3 footer |
+| 2.8 | L0's last P0 rating is RED dated 1 Nov, no later rating on `main`; P-02 re-plan open on 9 Nov | S10; S20 |
+| 2.8 | CI Benchmarks fixed by #19, passing on 9 Nov | S18 |
 | 2.8 | P0 red: 28 Oct 0 of 5 items in repo (4 days left); 1 Nov still RED, window ended; 0 of 5 fully met, 4 partial, 1 absent; §12 re-plan recommended by L0, not recorded | S8 audit; S10 |
 | 2.8 | CI added in PR #6, Benchmarks failing on `main` | S10 |
 | 2.8 | Invites pending on 28 Oct; by 2 Nov all three are collaborators, 0 pending (S10 still shows the 1 Nov snapshot with one pending) | S7 body; S14 |
 | 2.8 | Ethics/consent route open (H-05, formerly H-08; D12) | S10 `human-tasks.md`; S3 §20 D12 |
 | 2.8 | Founders' physical-progress answers outstanding | S10 |
-| 3.1 | Open wave-2 PRs and P0 evidence state on `main` | S10; S13; S8 audit table |
+| 3.1 | P0 evidence state on `main` on 9 Nov and open PRs | S20; S17; S18; S19; S8 audit table |
 | 3.1 | #22 and #23 connect separately; the AI pipeline is not connected to the API; #22's proposer is rule-based | S15 |
 | 3.1 | X1 findings and rechecks on #22 (3 critical at `b18d57f`; not safe to merge at `cbffff4`) and #24 (safe only as demo-only on mock data at `36bcda7`; 3 new major); neither merged; fixes in progress. Re-read both at the status date. Not verified here: whether the fixes work (read from X1's comments only) | S15; S16 |
 | 3.2 | Constraint suite: 24 cases proposed; 27 cases and 29 checks on PR #19's run (synthetic) | S3 §17.2; S10 |
