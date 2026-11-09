@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import { getStudioApi, setMockScenario } from "@/api/studio";
+import { isLocalJourney } from "@/api/localTransport";
 import type { InspirationInput } from "@/api/types";
 import { t, type MessageKey } from "@/i18n";
 import { inspirationFor, useIntakeStore } from "@/state/intakeStore";
@@ -52,10 +53,18 @@ export default function GeneratingScreen() {
     const run = async () => {
       let jobId = jobRef.current;
       if (!jobId) {
-        if (api.mode === "mock" && isScenarioName(params.scenario) && attempt === 0) {
+        if (
+          !isLocalJourney() &&
+          api.mode === "mock" &&
+          isScenarioName(params.scenario) &&
+          attempt === 0
+        ) {
           setMockScenario(params.scenario);
         }
-        const projectId = params.projectId ?? "mock-project";
+        const projectId =
+          params.projectId ??
+          (isLocalJourney() ? useStudioStore.getState().projectId : null) ??
+          "mock-project";
         const key = newIdempotencyKey();
         useStudioStore.getState().startAttempt(projectId, key);
         try {

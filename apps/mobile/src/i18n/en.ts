@@ -1,4 +1,5 @@
 import { studioEn } from "./studio";
+import { localDemoEn } from "./localDemo";
 
 /** English catalogue. Add other languages as sibling files with the same keys. */
 export const en = {
@@ -11,7 +12,7 @@ export const en = {
 
   "entry.title": "Remake a garment you already own",
   "entry.subtitle":
-    "Photograph a garment, say what you want and confirm its measurements. This early build stops there. Checking redesigns is still being built.",
+    "Explore intake with your own local draft, or start the synthetic local-model demo to try redesign checks, cut-guide previews and DIY steps.",
   "entry.roleHeading": "I am a",
   "entry.roleUser": "Maker or owner",
   "entry.roleTailor": "Tailor",
@@ -146,6 +147,7 @@ export const en = {
   "measure.needsInspiration": "Add your inspiration first.",
 
   ...studioEn,
+  ...localDemoEn,
 } as const;
 
 export type MessageKey = keyof typeof en;

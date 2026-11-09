@@ -22,7 +22,14 @@ jest.mock("expo-router", () => ({
 const renderScreen = (ui: ReactElement) =>
   render(
     <QueryClientProvider
-      client={new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } })}
+      client={
+        new QueryClient({
+          defaultOptions: {
+            queries: { retry: false, gcTime: Infinity },
+            mutations: { gcTime: Infinity },
+          },
+        })
+      }
     >
       {ui}
     </QueryClientProvider>,

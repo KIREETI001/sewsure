@@ -1,12 +1,16 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { getApi } from "@/api/client";
 import { Body, Button, Chip, Heading, MockBadge, Notice, Row, Screen } from "@/components/plain";
 import { t } from "@/i18n";
 import { useIntakeStore } from "@/state/intakeStore";
+import { startLocalDemo } from "@/studio/localDemo";
+import { useStudioStore } from "@/state/studioStore";
+import { disableLocalJourney } from "@/api/localTransport";
 
 export default function EntryScreen() {
   const router = useRouter();
+  const client = useQueryClient();
   const { role, guest, signedInAs, patch } = useIntakeStore();
 
   const signIn = useMutation({
@@ -21,6 +25,20 @@ export default function EntryScreen() {
     <Screen>
       <Heading>{t("entry.title")}</Heading>
       <Body muted>{t("entry.subtitle")}</Body>
+      {__DEV__ && (
+        <Notice>
+          <Body>{t("local.intro")}</Body>
+          <Button
+            label={t("local.start")}
+            onPress={() => {
+              client.clear();
+              useStudioStore.getState().reset();
+              patch(startLocalDemo());
+              router.push("/(intake)/capture");
+            }}
+          />
+        </Notice>
+      )}
 
       <Body>{t("entry.roleHeading")}</Body>
       <Row>
@@ -62,7 +80,10 @@ export default function EntryScreen() {
       <Button
         secondary
         label={t("entry.guest")}
-        onPress={() => patch({ guest: true, signedInAs: null, role: role ?? "user" })}
+        onPress={() => {
+          disableLocalJourney();
+          patch({ guest: true, signedInAs: null, role: role ?? "user" });
+        }}
       />
       <Body muted>{t("entry.guestNote")}</Body>
 

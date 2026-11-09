@@ -1,5 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
+import { useRouter } from "expo-router";
+import { isLocalJourney } from "@/api/localTransport";
+import { prepareLocalProject } from "@/api/localJourney";
+import { parseCmToMm } from "../../ui";
 import { getApi } from "@/api/client";
 import { BODY_CONSENT_VERSION, type IntakeRequest } from "@/api/types";
 import {
@@ -110,6 +114,12 @@ function MeasureField({ spec }: { spec: MeasurementSpec }) {
 }
 
 export default function MeasurementsScreen() {
+  const router = useRouter();
+  const local = isLocalJourney();
+  const [targetCm, setTargetCm] = useState("45");
+  const [placketCm, setPlacketCm] = useState("60");
+  const [transformation, setTransformation] = useState<"crop" | "lengthen" | "other">("crop");
+  const [localError, setLocalError] = useState(false);
   const draft = useIntakeStore();
   const { category, front, back, fit, skill, measurements, uploadStatus, guest } = draft;
   const inspiration = inspirationFor(draft.inspirationMode, draft.inspirationDraft);
@@ -121,6 +131,32 @@ export default function MeasurementsScreen() {
   const garmentSpecs = category && !ideaOnly ? garmentSpecsFor(category) : [];
   const missing = missingSpecs(garmentSpecs, measurements);
   const [attempted, setAttempted] = useState(false);
+  const target = parseCmToMm(targetCm);
+  const placket = placketCm.trim() ? parseCmToMm(placketCm) : null;
+  const readyLocal =
+    category !== null &&
+    !!front?.checked &&
+    !!back?.checked &&
+    fit !== null &&
+    skill !== null &&
+    missing.length === 0 &&
+    target.status === "ok" &&
+    (!placket || placket.status === "ok") &&
+    inspiration !== null &&
+    inspiration.kind !== "image";
+  const journey = useMutation({
+    mutationFn: async () => {
+      if (!readyLocal || target.status !== "ok") throw new Error("Invalid synthetic inputs");
+      return prepareLocalProject(
+        draft,
+        target.mm,
+        placket?.status === "ok" ? placket.mm : null,
+        transformation,
+      );
+    },
+    onSuccess: (projectId) => router.push({ pathname: "/generating", params: { projectId } }),
+    onError: () => setLocalError(true),
+  });
 
   const prerequisitesMet =
     category !== null &&
@@ -172,6 +208,11 @@ export default function MeasurementsScreen() {
 
   return (
     <Screen>
+      {local && (
+        <Notice>
+          <Body>{t("local.notice")}</Body>
+        </Notice>
+      )}
       <Body muted>{t("measure.intro")}</Body>
       <Row>
         <Body accessibilityLabel={t(statusKey)}>
@@ -200,19 +241,65 @@ export default function MeasurementsScreen() {
         <MeasureField key={spec.key} spec={spec} />
       ))}
 
-      <Heading>{t("measure.bodyHeading")}</Heading>
-      <Body muted>{t("measure.bodyConsent")}</Body>
-      <Chip
-        role="checkbox"
-        label={t("measure.bodyOptIn")}
-        selected={bodyShared}
-        onPress={() =>
-          draft.patch({ bodyConsentVersion: bodyShared ? null : BODY_CONSENT_VERSION })
-        }
-      />
-      {bodySpecs.map((spec) => (
-        <MeasureField key={spec.key} spec={spec} />
-      ))}
+      {!local && <Heading>{t("measure.bodyHeading")}</Heading>}
+      {!local && <Body muted>{t("measure.bodyConsent")}</Body>}
+      {!local && (
+        <Chip
+          role="checkbox"
+          label={t("measure.bodyOptIn")}
+          selected={bodyShared}
+          onPress={() =>
+            draft.patch({ bodyConsentVersion: bodyShared ? null : BODY_CONSENT_VERSION })
+          }
+        />
+      )}
+      {!local && bodySpecs.map((spec) => <MeasureField key={spec.key} spec={spec} />)}
+      {local && (
+        <>
+          <Row>
+            {(["crop", "lengthen", "other"] as const).map((value) => (
+              <Chip
+                key={value}
+                label={t(`local.${value}`)}
+                selected={transformation === value}
+                onPress={() => setTransformation(value)}
+              />
+            ))}
+          </Row>
+          <TextField
+            label={t("local.target")}
+            keyboardType="decimal-pad"
+            value={targetCm}
+            onChangeText={setTargetCm}
+          />
+          {category === "shirt" && (
+            <>
+              <TextField
+                label={t("local.placket")}
+                keyboardType="decimal-pad"
+                value={placketCm}
+                onChangeText={setPlacketCm}
+              />
+              <Body muted>{t("local.placketHint")}</Body>
+            </>
+          )}
+          {inspiration?.kind === "image" && <Body>{t("local.textOnly")}</Body>}
+          {!readyLocal && <Body>{t("local.invalid")}</Body>}
+          {localError && (
+            <Notice tone="error">
+              <Body>{t("local.failed")}</Body>
+            </Notice>
+          )}
+          <Button
+            label={t(journey.isPending ? "local.working" : "local.continue")}
+            disabled={!readyLocal || journey.isPending}
+            onPress={() => {
+              setLocalError(false);
+              journey.mutate();
+            }}
+          />
+        </>
+      )}
       {attempted && unconfirmedBody.length > 0 && (
         <Notice>
           <Body>

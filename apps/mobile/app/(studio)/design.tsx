@@ -11,6 +11,7 @@ import { editableAttributes, readOnlyParameters } from "@/studio/editable";
 import { StudioApiError } from "@/studio/errors";
 import { dimensionText, failureText, flagText, mmToCmText, tOr } from "@/studio/format";
 import { canOpenCutGuide, isStale } from "@/studio/stale";
+import { invalidateMake } from "@/make/useMakeBundle";
 import type { DesignRevision } from "@/studio/types";
 import {
   Button,
@@ -101,6 +102,7 @@ export default function DesignScreen() {
         { idempotencyKey: newIdempotencyKey() },
       ),
     onSuccess: async (res) => {
+      await invalidateMake(qc, revision?.revision_id ?? "", res.data.revision_id);
       useStudioStore.getState().clearEditDraft(designId);
       setEditError(null);
       qc.setQueryData(["revision", res.data.revision_id], res);

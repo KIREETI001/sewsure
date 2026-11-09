@@ -409,7 +409,7 @@ describe("claims audit fixes", () => {
   it("does not promise checked redesigns on the first screen", async () => {
     await renderScreen(<EntryScreen />);
     expect(screen.queryByText(/passed the checks/)).toBeNull();
-    expect(screen.getByText(/This early build stops there/)).toBeTruthy();
+    expect(screen.getByText(/synthetic local-model demo to try redesign checks/)).toBeTruthy();
   });
 
   it("asks for no garment measurements for idea-only garments and still uploads", async () => {

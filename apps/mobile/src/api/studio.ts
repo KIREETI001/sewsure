@@ -6,6 +6,8 @@
  * Envelope whose `provenance` drives the visible mock marker.
  */
 import { StudioApiError } from "@/studio/errors";
+import { isLocalJourney } from "./localTransport";
+import { localStudioApi } from "./localJourney";
 import { cloneScenario, DEFAULT_SCENARIO, type ScenarioName } from "@/studio/scenarios";
 import type {
   DesignCandidate,
@@ -299,7 +301,7 @@ function mockRecheck(
 
 let active: StudioApi = mockStudioApi;
 
-export const getStudioApi = (): StudioApi => active;
+export const getStudioApi = (): StudioApi => (isLocalJourney() ? localStudioApi : active);
 
 /** Test seam, and the hook for swapping in the live client later. */
 export const setStudioApi = (api: StudioApi): void => {

@@ -8,6 +8,8 @@ import needsInput from "../../../../packages/contracts/fixtures/needs_input.json
 import stale from "../../../../packages/contracts/fixtures/stale_after_measurements_change.json";
 import lengthening from "../../../../packages/contracts/fixtures/lengthening_impossible.json";
 import type { DesignRevision, MakeBundle } from "./types";
+import { isLocalJourney } from "@/api/localTransport";
+import { loadLocalMakeBundle } from "@/api/localJourney";
 
 type Fixture = {
   revisions: unknown[];
@@ -22,6 +24,7 @@ const fixtures = [crop, ideaOnly, needsInput, lengthening, stale] as unknown as 
 
 /** Resolves to null for a revision the source does not know, so screens fail closed. */
 export async function loadMakeBundle(revisionId: string): Promise<MakeBundle | null> {
+  if (isLocalJourney()) return loadLocalMakeBundle(revisionId);
   for (const f of fixtures) {
     const revision = (f.revisions as DesignRevision[]).find((r) => r.revision_id === revisionId);
     if (!revision) continue;
