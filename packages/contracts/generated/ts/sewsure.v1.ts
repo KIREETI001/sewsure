@@ -863,6 +863,8 @@ export interface components {
             title: string;
             current_revision_id: components["schemas"]["Id"];
             status: components["schemas"]["design-state.schema"];
+            /** @description Mirrors stale on the current revision. true means the measurements changed after the check: not a design state, and status is unchanged. Lead the card with the recheck; do not present the result as current. */
+            stale: boolean;
             recipe_id: components["schemas"]["RecipeId"] | null;
             parameters: components["schemas"]["Parameters"];
             /** @description Usable source regions the recipe needs, e.g. back_panel, front_left, front_right, sleeve_left. */
@@ -962,7 +964,7 @@ export interface components {
         /** @description Body of POST /v1/designs/{design_id}/revisions. The server copies the parent, applies the changed parameters, reruns the feasibility engine and returns a new revision. The parent is never modified, apart from being marked SUPERSEDED when it had passed. */
         RevisionCreate: {
             parent_revision_id: components["schemas"]["Id"];
-            /** @description Parameters to change. Keys must be in the recipe's allow-list. */
+            /** @description Parameters to change. Keys must be in the recipe's allow-list. Empty means recheck the parent's parameters against the current measurements (the recovery for a stale revision); use a new Idempotency-Key. */
             parameters: components["schemas"]["Parameters"];
         };
         /** @description Exactly what the engine checked, so the result can be reproduced. */
@@ -1025,6 +1027,8 @@ export interface components {
             };
             checks: components["schemas"]["constraint-result.schema"];
             status: components["schemas"]["design-state.schema"];
+            /** @description true when this revision's inputs.measurements_id is no longer the project's current measurements_id, so its check ran on replaced values. Computed by the API at read time: it is not a design state, never changes status, and is not stored on the immutable revision or part of inputs_hash. While true, clients must not offer the result as current: show the recheck first and do not present the cut mark, geometry_mm or a cut guide as ready to use. Recheck with POST /v1/designs/{design_id}/revisions and empty parameters. */
+            stale: boolean;
             /** @description User-specific DIY recommendation, separate from physical feasibility. null when no recipe applies. */
             diy_suitability?: components["schemas"]["DiySuitability"] | null;
             /** @description Checks the user must still do in person before cutting (e.g. verify collar-to-hem reference with a ruler). */
@@ -1059,7 +1063,7 @@ export interface components {
                 /** @description Body of POST /v1/designs/{design_id}/revisions. The server copies the parent, applies the changed parameters, reruns the feasibility engine and returns a new revision. The parent is never modified, apart from being marked SUPERSEDED when it had passed. */
                 RevisionCreate: {
                     parent_revision_id: components["schemas"]["Id"];
-                    /** @description Parameters to change. Keys must be in the recipe's allow-list. */
+                    /** @description Parameters to change. Keys must be in the recipe's allow-list. Empty means recheck the parent's parameters against the current measurements (the recovery for a stale revision); use a new Idempotency-Key. */
                     parameters: components["schemas"]["Parameters"];
                 };
             };
@@ -1471,6 +1475,8 @@ export interface components {
             garment: components["schemas"]["garment.schema"];
             measurements: components["schemas"]["MeasurementsResult"];
             inspiration?: components["schemas"]["inspiration.schema"];
+            /** @description The 409 body GET cut-plan returns in this scenario, where no plan is served. */
+            cut_plan_error?: components["schemas"]["api-error.schema"];
             job: components["schemas"]["job.schema"];
             designs: components["schemas"]["DesignList"];
             revisions: components["schemas"]["design-revision.schema"][];
@@ -1526,6 +1532,18 @@ export interface components {
             };
             content: {
                 "application/json": components["schemas"]["api-error.schema"];
+            };
+        };
+        /** @description No cut plan is served. The status is checked first. REVISION_NOT_PASSING (recoverable false): the revision is not PASS_SUPPORTED_CHECKS. REVISION_STALE (recoverable true): the revision passed, but the project's measurements were replaced after the check (stale is true on the revision and candidate). Recover by rechecking with POST /v1/designs/{design_id}/revisions, body {parent_revision_id, parameters: {}} and a new Idempotency-Key. */
+        CutPlanUnavailable: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["api-error.schema"] & {
+                    /** @enum {string} */
+                    code?: "REVISION_NOT_PASSING" | "REVISION_STALE";
+                };
             };
         };
         /** @description The revision is not PASS_SUPPORTED_CHECKS (code REVISION_NOT_PASSING), so it has no cut plan or DIY steps. */
@@ -1921,7 +1939,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Cut plan for a PASS_SUPPORTED_CHECKS (or read-only SUPERSEDED) revision. */
+            /** @description Cut plan for a PASS_SUPPORTED_CHECKS revision that is not stale. A SUPERSEDED revision is read-only history and gets 409. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -1932,7 +1950,7 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             404: components["responses"]["NotFound"];
-            409: components["responses"]["RevisionNotPassing"];
+            409: components["responses"]["CutPlanUnavailable"];
         };
     };
     getDiySteps: {

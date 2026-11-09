@@ -83,6 +83,13 @@
           "confirmed_at": "2026-10-28T09:00:00Z",
           "entered_unit": "cm",
           "note": null
+        },
+        "placket_end_from_shoulder": {
+          "value_mm": 700,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
         }
       },
       "body": null,

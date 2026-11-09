@@ -1,12 +1,15 @@
 name: CI Benchmarks
 
-# Constraint benchmark (24-case suite) against the feasibility engine.
-# Skips cleanly until the engine and at least one benchmark test exist.
+# Two independent jobs, so a failure in one never hides the other:
+#   constraint-benchmark  the 24-case constraint suite against the feasibility engine
+#   ai-eval               the AI eval harness (mock model; validation and plumbing only)
+# Each skips cleanly until its inputs exist.
 
 on:
   pull_request:
     paths:
       - "packages/feasibility/**"
+      - "services/api/**"
       - "tests/benchmarks/**"
       - "content/recipes/**"
       - ".github/workflows/ci-benchmarks.yml"
@@ -14,6 +17,7 @@ on:
     branches: [main]
     paths:
       - "packages/feasibility/**"
+      - "services/api/**"
       - "tests/benchmarks/**"
       - "content/recipes/**"
       - ".github/workflows/ci-benchmarks.yml"
@@ -35,12 +39,11 @@ jobs:
       - name: Detect benchmark and engine
         id: detect
         run: |
-          if [ -f packages/feasibility/pyproject.toml ] && \
-             [ -n "$(find tests/benchmarks -name 'test_*.py' -print -quit 2>/dev/null)" ]; then
+          if [ -f packages/feasibility/pyproject.toml ] && [ -f tests/benchmarks/constraints/report.py ]; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::No feasibility package or benchmark tests yet; skipping."
+            echo "::notice::No feasibility package or constraint suite yet; skipping."
           fi
 
       - name: Install uv
@@ -62,25 +65,104 @@ jobs:
         run: |
           if [ -f uv.lock ]; then uv sync --frozen --all-extras; else uv sync --all-extras; fi
 
-      - name: Run constraint benchmark
-        if: steps.detect.outputs.exists == 'true'
-        run: |
-          uv run --project packages/feasibility --with-requirements tests/benchmarks/constraints/requirements.txt \
-            pytest tests/benchmarks -ra --junitxml="$GITHUB_WORKSPACE/benchmark-report.xml"
-
-      # pytest exits 0 when engine-backed cases are skipped (engine failed to
-      # import). report.py --strict fails in that case; never pass --allow-skip.
-      - name: Fail if the 24 constraint cases did not all run
+      # Runs from the suite folder so its pytest.ini applies. Engine installed from packages/feasibility.
+      - name: Run constraint tests
         if: steps.detect.outputs.exists == 'true'
         working-directory: tests/benchmarks/constraints
         run: |
           uv run --project ../../../packages/feasibility --with-requirements requirements.txt \
-            python report.py --strict
+            pytest --junitxml="$GITHUB_WORKSPACE/constraint-report.xml"
 
-      - name: Upload benchmark report
+      # pytest exits 0 when engine-backed cases are skipped. report.py --strict
+      # exits 2 if the engine cannot be imported and non-zero on any false
+      # acceptance, mismatch or indeterminate result. Never pass --allow-skip.
+      - name: Constraint report (strict)
+        id: report
+        if: steps.detect.outputs.exists == 'true' && always()
+        working-directory: tests/benchmarks/constraints
+        run: |
+          set -o pipefail
+          uv run --project ../../../packages/feasibility --with-requirements requirements.txt \
+            python report.py --strict | tee "$GITHUB_WORKSPACE/constraint-report.txt"
+
+      # Guard: fail if no check actually executed (zero cases ran).
+      - name: Require executed cases
+        if: steps.detect.outputs.exists == 'true' && always()
+        working-directory: tests/benchmarks/constraints
+        run: |
+          uv run --project ../../../packages/feasibility --with-requirements requirements.txt \
+            python report.py --strict --json > "$GITHUB_WORKSPACE/constraint-report.json"
+          python3 - <<'PY'
+          import json, os, sys
+          rows = {r["name"]: r for r in json.load(open(os.path.join(os.environ["GITHUB_WORKSPACE"], "constraint-report.json")))["rows"]}
+          executed = rows["indeterminate"]["denominator"]
+          if executed <= 0:
+              sys.exit("No constraint checks executed.")
+          print(f"{executed} constraint checks executed")
+          PY
+
+      - name: Upload constraint report
         if: always() && steps.detect.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: constraint-benchmark-report
-          path: benchmark-report.xml
+          path: |
+            constraint-report.xml
+            constraint-report.txt
+            constraint-report.json
+          if-no-files-found: ignore
+
+  ai-eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect AI eval harness
+        id: detect
+        run: |
+          if [ -f services/api/pyproject.toml ] && [ -f tests/benchmarks/ai/test_eval_harness.py ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No API package or AI eval harness yet; skipping."
+          fi
+
+      - name: Install uv
+        if: steps.detect.outputs.exists == 'true'
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: services/api/uv.lock
+
+      - name: Set up Python
+        if: steps.detect.outputs.exists == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # The harness imports services/api/ai/schemas.py, which needs jsonschema
+      # (not yet an API dependency). Remove --with jsonschema once K3/K2 add it.
+      - name: Run AI eval tests
+        if: steps.detect.outputs.exists == 'true'
+        working-directory: services/api
+        run: |
+          uv run --with jsonschema pytest ../../tests/benchmarks/ai ai/tests -ra \
+            --junitxml="$GITHUB_WORKSPACE/ai-eval-report.xml"
+
+      - name: Run AI eval harness
+        if: steps.detect.outputs.exists == 'true' && always()
+        working-directory: services/api
+        run: |
+          uv run --with jsonschema python ../../tests/benchmarks/ai/run_eval.py \
+            --out "$GITHUB_WORKSPACE/ai-eval-result.json"
+
+      - name: Upload AI eval report
+        if: always() && steps.detect.outputs.exists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-eval-report
+          path: |
+            ai-eval-report.xml
+            ai-eval-result.json
           if-no-files-found: ignore

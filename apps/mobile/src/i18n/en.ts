@@ -1,3 +1,5 @@
+import { studioEn } from "./studio";
+
 /** English catalogue. Add other languages as sibling files with the same keys. */
 export const en = {
   "common.continue": "Continue",
@@ -142,6 +144,8 @@ export const en = {
   "measure.uploadRetry": "Try upload again",
   "measure.needsPhotos": "Add both garment photos and the garment type first.",
   "measure.needsInspiration": "Add your inspiration first.",
+
+  ...studioEn,
 } as const;
 
 export type MessageKey = keyof typeof en;

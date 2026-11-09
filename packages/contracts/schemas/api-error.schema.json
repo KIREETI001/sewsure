@@ -8,7 +8,7 @@
     "code": {
       "type": "string",
       "pattern": "^[A-Z][A-Z0-9_]*$",
-      "examples": ["VALIDATION_FAILED", "REVISION_NOT_PASSING", "MODEL_TIMEOUT", "RATE_LIMITED", "FORBIDDEN"]
+      "examples": ["VALIDATION_FAILED", "REVISION_NOT_PASSING", "REVISION_STALE", "MODEL_TIMEOUT", "RATE_LIMITED", "FORBIDDEN"]
     },
     "message": { "type": "string", "maxLength": 500 },
     "recoverable": {
