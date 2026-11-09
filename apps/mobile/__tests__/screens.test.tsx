@@ -45,6 +45,43 @@ beforeEach(() => {
 });
 
 describe("entry", () => {
+  it.each(["Try demo mode", "Sign in"])(
+    "removes each Start requirement when satisfied via %s",
+    async (sessionAction) => {
+      await renderScreen(<EntryScreen />);
+      expect(screen.getByText(/Choose Maker or owner to start/)).toBeTruthy();
+      expect(screen.getByText(/To start as Maker or owner, sign in/)).toBeTruthy();
+      await fireEvent.press(screen.getByRole("button", { name: "Start" }));
+      expect(mockPush).not.toHaveBeenCalled();
+      await fireEvent.press(screen.getByRole("radio", { name: "Maker or owner" }));
+      expect(screen.queryByText(/Choose Maker or owner to start/)).toBeNull();
+      expect(screen.getByText(/To start as Maker or owner, sign in/)).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Start" })).toBeDisabled();
+      await fireEvent.press(screen.getByRole("button", { name: sessionAction }));
+      await waitFor(() => expect(screen.getByRole("button", { name: "Start" })).toBeEnabled());
+      expect(screen.queryByText(/To start as Maker or owner, sign in/)).toBeNull();
+    },
+  );
+
+  it.each(["Try demo mode", "Sign in"])(
+    "keeps the Maker requirement for Tailor after %s",
+    async (sessionAction) => {
+      await renderScreen(<EntryScreen />);
+      await fireEvent.press(screen.getByRole("radio", { name: "Tailor" }));
+      await fireEvent.press(screen.getByRole("button", { name: sessionAction }));
+      await waitFor(() =>
+        expect(screen.queryByText(/To start as Maker or owner, sign in/)).toBeNull(),
+      );
+      expect(screen.getByText(/Choose Maker or owner to start. Tailor tools are unavailable/)).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Start" })).toBeDisabled();
+      await fireEvent.press(screen.getByRole("button", { name: "Start" }));
+      expect(mockPush).not.toHaveBeenCalled();
+      await fireEvent.press(screen.getByRole("radio", { name: "Maker or owner" }));
+      expect(screen.queryByText(/Choose Maker or owner to start/)).toBeNull();
+      expect(screen.getByRole("button", { name: "Start" })).toBeEnabled();
+    },
+  );
+
   it("cannot start until sign-in or demo mode, and demo mode is not uploaded", async () => {
     await renderScreen(<EntryScreen />);
     expect(screen.getByRole("button", { name: "Start" })).toBeDisabled();
@@ -98,6 +135,38 @@ describe("capture", () => {
 });
 
 describe("inspiration", () => {
+  it.each([true, false])("removes missing requirements independently (fit first: %s)", async (fitFirst) => {
+    await renderScreen(<InspirationScreen />);
+    expect(screen.getByText(/Nothing entered yet/)).toBeTruthy();
+    expect(screen.getByText("Choose a fit preference to continue.")).toBeTruthy();
+    expect(screen.getByText("Choose your sewing skill to continue.")).toBeTruthy();
+    const input = screen.getByLabelText("Describe the change you want");
+    await fireEvent.changeText(input, "   ");
+    expect(screen.getByText(/Nothing entered yet/)).toBeTruthy();
+    await fireEvent.changeText(input, "shorter sleeves");
+    expect(screen.queryByText(/Nothing entered yet/)).toBeNull();
+    await fireEvent.press(screen.getByRole("radio", { name: fitFirst ? "No preference" : "Beginner" }));
+    expect(screen.queryByText(fitFirst ? "Choose a fit preference to continue." : "Choose your sewing skill to continue.")).toBeNull();
+    expect(screen.getByText(fitFirst ? "Choose your sewing skill to continue." : "Choose a fit preference to continue.")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    await fireEvent.press(screen.getByRole("radio", { name: fitFirst ? "Beginner" : "No preference" }));
+    expect(screen.queryByText("Choose a fit preference to continue.")).toBeNull();
+    expect(screen.queryByText("Choose your sewing skill to continue.")).toBeNull();
+    expect(useIntakeStore.getState().tools).toEqual([]);
+    expect(useIntakeStore.getState().extraMaterials).toBe("");
+    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+    await fireEvent.press(screen.getByRole("button", { name: "Continue" }));
+    expect(mockPush).toHaveBeenCalledWith("/(intake)/measurements");
+    for (const mode of ["Image", "Surprise Me"]) {
+      await fireEvent.press(screen.getByRole("radio", { name: mode }));
+      expect(screen.getByText(/Nothing entered yet/)).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    }
+    await fireEvent.press(screen.getByRole("radio", { name: "Describe it" }));
+    expect(screen.queryByText(/Nothing entered yet/)).toBeNull();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+  });
+
   it("offers Surprise Me when blank and fills the idea with a mock marker", async () => {
     await renderScreen(<InspirationScreen />);
     expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
