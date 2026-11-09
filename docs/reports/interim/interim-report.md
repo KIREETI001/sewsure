@@ -32,7 +32,7 @@ The team ran an exploratory survey (n = 25). It is a small, non-representative s
 | Rated the proposed tool 4 or 5 for usefulness | 21 |
 | Would consider finding a tailor through the app in the stated scenario | 12 |
 
-These findings do not show willingness to pay or technical accuracy [S2 §01]. The survey was run across October 2026 among university students and friends. The questionnaire is not available for this report, so the method cannot be described further [S23].
+These findings do not show willingness to pay or technical accuracy [S2 §01]. The survey was run in October 2026 among university students and friends. The questionnaire is not available for this report, so the method cannot be described further [S23].
 
 The team's own preliminary observation is that existing tools (Stitch Switch, ReStitch, SewPal, local tailors) each cover part of the path from inspiration to execution. This is unverified [S1 slide 3] and is not used as a claim here.
 
@@ -92,7 +92,7 @@ Other Imagine Cup dates in the Project Plan (a training programme from Winter we
 | P3 | 25 Jan – 14 Feb 2027 | Validation and stabilisation | Benchmark with denominators, four physical makes, de-identified task metrics if consent allows, frozen build [S3 §12] |
 | P4 | 15 – 28 Feb 2027 | Evidence, demo and submission preparation; internal freeze 21 Feb | Reproducible analysis, 2 to 3 minute demo video, pitch deck, architecture overview, entry checks before the deadline [S3 §12; S22] |
 
-The windows are the drafter's proposal from the dates above and the blueprint's phase lengths; they do not follow from a source. A decision on whether to enter the Imagine Cup at all is proposed for 30 Nov 2026, after P0 and once the risks in Section 3.4 are checked. `[FOUNDER INPUT NEEDED: agree the plan with the supervisor, including exam and holiday weeks, which it does not account for]`
+The windows are the drafter's proposal from the dates above and the blueprint's phase lengths; they do not follow from a source. A decision on whether to enter the Imagine Cup at all is proposed for 30 Nov 2026, after P0 and once the risks in Section 3.4 are checked. The proposed plan has not yet been agreed with the supervisor, and it does not account for exam and holiday weeks.
 
 The advisor deck puts the dependency gate plainly: do not widen garment coverage until the first measured transformation passes validation and a physical make confirms planned against actual dimensions [S1 slide 13].
 
@@ -124,7 +124,7 @@ This report documents what has been achieved so far and what remains, in the NTU
 |---|---|---|
 | 14 Sep 2026 | Project Plan A3126-261 for Imagine Cup 2027. SewSure had not been selected at that date. Allocation: Kireeti backend, interfaces, deployment and integration; Narthananilaa data preparation, AI and evaluation; Delfine application, usability and acceptance testing. Objective: a prototype with at least 2 Microsoft AI services | [S21] |
 | Before 21 Oct 2026 | Product Scope V0.1 and earlier feature discussions. The V0.1 document is not available to this report | [S2 §15; S23] |
-| October 2026 | Exploratory survey, n = 25, run across October 2026 among university students and friends and reported in the 22 Oct deck. Exact dates and the questionnaire are not available | [S1 slide 2; S23] |
+| October 2026 | Exploratory survey, n = 25, run in October 2026 among university students and friends and reported in the 22 Oct deck. Exact dates and the questionnaire are not available | [S1 slide 2; S23] |
 | 21 Oct 2026 | FYP team meeting; two independent sets of minutes | [S2 §15] |
 | 22 Oct 2026 | Product Scope V0.2 reconciled the meeting notes with the owner's clarifications | [S2 cover] |
 | 22 Oct 2026 | 14-slide advisor presentation prepared for Dr Wesley, labelled "proposed plan, not results" | [S1 slide 1] |
@@ -134,7 +134,7 @@ This report documents what has been achieved so far and what remains, in the NTU
 | By 1 Nov 2026 | Approval requirement removed from `main` (one required review was seen on 28 Oct): a PR is still required, including for admins, but GitHub requires 0 approving reviews. Review levels A0–A3 became team guidance (PR #16). Removed at Kireeti's request so that any one founder can approve and merge; the date is recorded only as "by 1 Nov" [S23]. | [S11; S12] |
 | 1 Nov 2026 | 14 PRs merged between 18:16 and 18:18 SGT, all from the KIREETI001 account with no approving review. They add a contract draft, a feasibility engine and draft recipe, a constraint suite, an API scaffold, an AI pipeline skeleton, staging infrastructure and CI, an Expo scaffold with intake screens on fixtures, design tokens, a research kit, site and outreach drafts, and L0's baseline audit | [S10; S13] |
 | 1 Nov 2026 (snapshot) | 13 PRs open, including this report (#8) and the video script (#13); 15 by 2 Nov | [S13] |
-| 9 Nov 2026 | 11 more PRs merged between 11:07 and 11:12 UTC, all from the KIREETI001 account: #19 (CI fix), #34 (site and outreach audit fixes), #17 (P0 make kit and empty record template), #18 (security documents), #26 (L0's 1 Nov digest), #35 (contract `1.0.0-draft.3`), #22 (API calls the engine on the P0 path), #24 (cut guide and DIY screens), #25 (Design Studio screens), #40 (body profile and measurement validation), #41 (original garment profile). Kireeti ran all 25 merges (14 on 1 Nov and these 11) from his own account, using commands an agent prepared, after he approved each batch [S23]. GitHub still required 0 approving reviews | [S17; S20] |
+| 9 Nov 2026 | 11 more PRs merged between 11:07 and 11:12 UTC, all from the KIREETI001 account: #19 (CI fix), #34 (site and outreach audit fixes), #17 (P0 make kit and empty record template), #18 (security documents), #26 (L0's 1 Nov digest), #35 (contract `1.0.0-draft.3`), #22 (API calls the engine on the P0 path), #24 (cut guide and DIY screens), #25 (Design Studio screens), #40 (body profile and measurement validation), #41 (original garment profile). Kireeti ran all 25 merges (14 on 1 Nov and these 11) from the KIREETI001 account, using commands an agent prepared, after approving each batch [S23]. GitHub still required 0 approving reviews | [S17; S20] |
 | 9 Nov 2026 | Open: #8 and #13 (this report and the video script), #20 (fit and ease), #21 (calibration), #23 (AI pipeline), #32 (mobile QA), #33, #36 (audit fixes; #36 draft), #37, #38, #39, #42, #43 and #44 (draft integration of the intake and QA PRs) | [S17] |
 
 The team has regular check-ins with the supervisor, updated fortnightly [S23]. `[FOUNDER INPUT NEEDED: dates of the check-ins and any advice the supervisor gave, if wanted in this report]`
@@ -192,7 +192,7 @@ A three-person team has to cover backend, AI, geometry, mobile, research and rep
 
 **Non-negotiable rules** that agents and humans both follow include millimetres internally, no invented numeric geometry by the model, no secrets or real photos or body measurements in the repo, no guarantee language ("perfect fit", "precision AR", "100% accurate"), and contract-first changes to API shapes [S6 `CLAUDE.md`].
 
-**Limits of this method, stated honestly.** These controls are written down and the hooks exist. CI workflows reached `main` on 1 Nov (PR #6), but CI Benchmarks failed on `main` until PR #19 merged on 9 Nov; the CI Benchmarks and CI Python runs on `main@8b6faa5` passed on 9 Nov [S10; S18]. The `needs-human` label did not exist in the repository on 28 Oct [S8 audit] and L0 still listed it as open on 1 Nov [S10]. The "agents never merge or approve" rule is a hook that blocks specific commands (PR merge and approve commands, pushes to `main`), not a GitHub permission [S6 `guard-shell.mjs`; S11], so it does not stop a person or another tool. On 1 Nov all 14 merges, and on 9 Nov all 11, were made from Kireeti's account with no approving review, using commands an agent prepared, after he approved each batch [S10; S17; S23]. Approvals were removed at his request so that any one founder can approve and merge. Review is by the X1 and X2 agents plus the merging founder [S23]. Agent output is a draft until a human has checked it.
+**Limits of this method, stated honestly.** These controls are written down and the hooks exist. CI workflows reached `main` on 1 Nov (PR #6), but CI Benchmarks failed on `main` until PR #19 merged on 9 Nov; the CI Benchmarks and CI Python runs on `main@8b6faa5` passed on 9 Nov [S10; S18]. The `needs-human` label did not exist in the repository on 28 Oct [S8 audit] and L0 still listed it as open on 1 Nov [S10]. The "agents never merge or approve" rule is a hook that blocks specific commands (PR merge and approve commands, pushes to `main`), not a GitHub permission [S6 `guard-shell.mjs`; S11], so it does not stop a person or another tool. On 1 Nov all 14 merges, and on 9 Nov all 11, were made from Kireeti's account with no approving review, using commands an agent prepared, after Kireeti approved each batch [S10; S17; S23]. Approvals were removed at Kireeti's request so that any one founder can approve and merge. Review, where it ran, is by the X1 and X2 agents plus the merging founder [S23]. Agent output is a draft until a human has checked it.
 
 ### 2.5 Agent work to date
 
@@ -207,7 +207,7 @@ On 28 Oct 2026 the lead agent (L0) reported 14 agents running in parallel, each 
 - The AI pipeline (#10, skeleton) is **not connected to the API**; #23, which connects it to the contract and engine but not to the API, is open. No run with a live model is recorded [S15; S20].
 - N3's ease ranges (#20, open) are unverified placeholders. Fit, calibration and overlay (#21) are open.
 
-X1's time-boxed rechecks on 9 Nov reported **no merge blockers** on #22, #24 and #25. Its verdict on #24 was "safe to merge as demo-only code on mock data" and "still not a real cut guide"; on #25, "safe to merge on mock data" [S19]. X1 could not run a device, Maestro, TalkBack, a signed APK or a live API. Known gaps from those rechecks: the Design Studio (D3) and cut guide (D4) do not yet share one mock, so after a studio edit the link to the cut guide dead-ends ("could not find that version"), and the demo's edit-then-cut path does not work [S19]. The placket definition and the 50 mm minimum used by the API are open human decisions `[FOUNDER INPUT NEEDED: decide, with the recipe reviewer]`. Two further earlier-dated items stay as recorded: on 1 Nov L0 saw no X1 re-review after several fixes, and X2 rated D9's site and outreach drafts (#7), this report (#8) and the video script (#13) Blocked; D9's audit fixes (#34) merged on 9 Nov, and this report and #13 remain open [S10; S17].
+X1's time-boxed rechecks on 9 Nov reported **no merge blockers** on #22, #24 and #25. Its verdict on #24 was "safe to merge as demo-only code on mock data" and "still not a real cut guide"; on #25, "safe to merge on mock data" [S19]. X1 could not run a device, Maestro, TalkBack, a signed APK or a live API. Known gaps from those rechecks: the Design Studio (D3) and cut guide (D4) do not yet share one mock, so after a studio edit the link to the cut guide dead-ends ("could not find that version"), and the demo's edit-then-cut path does not work [S19]. The placket definition and the 50 mm minimum used by the API are open human decisions still open, to be decided with the recipe reviewer. Two further earlier-dated items stay as recorded: on 1 Nov L0 saw no X1 re-review after several fixes, and X2 rated D9's site and outreach drafts (#7), this report (#8) and the video script (#13) Blocked; D9's audit fixes (#34) merged on 9 Nov, and this report and #13 remain open [S10; S17].
 
 PR #19 reported the constraint suite at 27 cases and 29 checks on synthetic inputs: false acceptance 0/21, correct rejection 21/21, correct acceptance 8/8, false rejection 0/8, indeterminate 0/29 [S10], and matched by the CI Benchmarks run on `main@8b6faa5` on 9 Nov (29 of 29 exact matches) [S18]. These are synthetic-input results, not re-run by me for this report, and say nothing about a real garment. The suite has grown past the 24 cases named as the blueprint target [S10; S3 §17.2]. Merged code on mock data is not evidence about a real garment.
 
@@ -249,16 +249,16 @@ No measurement, make or participant data is reported in this draft because none 
 
 ### 2.9 Individual contribution (Kireeti)
 
-This is my individual report. SewSure is team work, and Sections 2.3 to 2.8 describe the team's project. This section describes my part. **Agents wrote the code in my area under my direction. I did not write all of it by hand, and this report does not claim that I did** [S23].
+This is my individual report. SewSure is team work, and Sections 2.3 to 2.8 describe the team's project. This section describes my part. **Agents wrote the code in my area under my direction. This report does not claim that I wrote it by hand** [S23].
 
 **My area.** I am the human lead for platform, backend, Azure AI, cloud spend and release: `services/`, `infrastructure/` and `.github/workflows/` [S6 `CLAUDE.md`]. The agents for that area are K1 to K8.
 
-**What merged from my area (GitHub shows each PR opened from my account)** [S17; S20]:
+**What merged from the agents assigned to me, K1 to K6 (GitHub shows each PR opened from my account, as it does for every agent PR)** [S17; S20]:
 
 | PR | Agent | What it added | Merged |
 |---|---|---|---|
 | #5 | K2 | API scaffold: app, persistence, jobs, idempotency, auth seam | 1 Nov |
-| #6 | K5 | Staging Bicep, five CI workflows and a setup runbook | 1 Nov |
+| #6 | K5 | Staging Bicep, four CI workflows, a staging deploy workflow and a setup runbook | 1 Nov |
 | #10 | K3 | AI pipeline skeleton (stages A to H) and eval harness | 1 Nov |
 | #15 | K1 | Contract v1 draft: schemas, OpenAPI, fixtures, codegen (shared by all three leads) | 1 Nov |
 | #18 | K6 | Threat model, data inventory, pilot privacy checklist, security test plan (documents) | 9 Nov |
@@ -268,13 +268,13 @@ This is my individual report. SewSure is team work, and Sections 2.3 to 2.8 desc
 
 K3's PR connecting the AI pipeline to the contract and engine (#23) is still open [S17].
 
-**Directing the agents.** The scaffold commit of 28 Oct, with the 29 agent definitions, per-area rules, four hooks and the code-owners file, was made from my GitHub account [S6]. I gave the agents their tasks and the rules in Section 2.4.
+**Directing the agents.** The scaffold commit of 28 Oct, with the 29 agent definitions, per-area rules, four hooks and the code-owners file, was made from my GitHub account [S6]. The agents worked under my direction, to the rules in Section 2.4 [S23].
 
-**Merge and review decisions.** I ran all 25 merges (14 on 1 Nov and 11 on 9 Nov) from my own account, using commands an agent prepared, after I approved each batch. PR #16, made from my account, removed the approval requirement, at my request, so that any one founder can approve and merge; review is by the X1 and X2 agents plus the merging founder [S11; S17; S23]. One consequence is that X2 audits rated several PRs Blocked after they had merged (Section 2.5) [S10].
+**Merge and review decisions.** I ran all 25 merges (14 on 1 Nov and 11 on 9 Nov) from my own account, using commands an agent prepared, after I approved each batch. The approval requirement on `main` was removed at my request, so that any one founder can approve and merge. PR #16, made from my account, then changed the agent rules to match. Review, where it ran, is by the X1 and X2 agents plus the merging founder [S11; S17; S23]. One consequence is that X2 audits rated two merged PRs (#7, #14) Blocked after they had merged [S10].
 
-**Not done in my area.** Azure is not set up: no subscription, model deployment or spend cap. The AI pipeline is not connected to the API. No device run is recorded, although I have a Samsung S24 Ultra and an active EAS account, and `main` has no `eas.json` [S20; S23].
+**Not done in my area.** Azure is not set up: no subscription, model deployment or spend cap. The AI pipeline is not connected to the API. No device run is recorded, although a Samsung S24 Ultra and an active EAS account are available, and `main` has no `eas.json` [S20; S23].
 
-`[FOUNDER INPUT NEEDED: what Kireeti personally designed, decided, tested or wrote by hand, which decisions were his, and what he learned]`
+`[FOUNDER INPUT NEEDED: what Kireeti personally designed, decided, tested or wrote by hand, which decisions were Kireeti's, and what Kireeti learned]`
 
 ---
 
@@ -331,8 +331,8 @@ The blueprint's risk register rates pattern validity and three-person overload a
 |---|---|---|
 | The entrant must be a legal entity founded on or after 2 Nov 2024. The Student Startup Category sits within these rules and also requires all founding team members to be enrolled students between 30 Sep 2026 and 31 May 2027 | Rules §4.1, §4.2 [S22] | No legal entity exists [S23, as relayed by the project lead] |
 | Entry needs a valid Azure Subscription ID and a Microsoft for Startups account | Rules §7, §8 [S22] | Azure is not set up (Section 2.6) |
-| By 28 Feb 2027 the entry must use at least 10 Azure services, with at least US$1.00 of usage shown on each | Rules §8 [S22]; the FAQ states the same per the project lead (not read here) | No Azure service is in use |
-| A 2 to 3 minute demonstration video, pitch deck and Azure architecture diagram or technical overview are needed if the entry advances to Stage 2 | Rules §8, §12.3 [S22] | None exists; the video script for the NTU interim video is a separate item (PR #13) |
+| By 28 Feb 2027 the entry must use at least 10 unique eligible Azure services, with at least $1.00 of usage shown on each | Rules §8 [S22]; the FAQ adds "unique eligible" (X2 read it on 9 Nov) | No Azure service is in use |
+| A 2 to 3 minute demonstration video, pitch deck and Azure architecture diagram or technical overview are needed if the entry advances to Stage 2 | Rules §8, §12.3 [S22] | None exists; the video script for the NTU interim video is a separate item (PR #13). The FAQ lists these materials as due by 23:59 CST on 28 Feb 2027, while Rules §8 says after advancing, by a date Microsoft communicates. The FAQ summarises the Rules; plan to have them ready by 28 Feb |
 | Rules and later-stage dates may change; Stage 4 to 6 dates are still to be communicated | Rules §3 [S22] | Last updated 4 Nov 2026 |
 
 ### 3.5 Needs-human items
@@ -351,14 +351,14 @@ Work agents may only prepare, and that is listed for L0 [S10 `human-tasks.md`]. 
 - **My contribution.** In my area, agents wrote the code under my direction and I ran all 25 merges (Section 2.9). Azure, the live model and the device run are still to do [S23].
 - **Not claimed:** no feasibility accuracy, rejection rate on real garments, overlay error, usability result or cost figure exists. The constraint-suite counts are synthetic inputs. Survey figures are directional only, and the worked example is illustrative [S1 slides 2, 8; S10].
 - **What decides the next phase.** If P0 closes (one measured shirt, a reviewed dimensioned cut plan, a physical trial with deviation recorded), the plan can proceed to the connected alpha. P0 did not pass by its proposed date, so the blueprint's rule applies: demonstration mode and no library expansion until it passes. The documented re-plan §12 requires (P-02) is still open on 9 Nov. Build work continues but adds no garments or transformations [S3 §12, §19.1; S10; S20]. If the make has not happened by the submission date, this report says it has not been done.
-- **Schedule.** The Imagine Cup 2027 submission deadline is 23:59 CST on 28 Feb 2027, about 16 weeks after 9 Nov, replacing the tentative 7 and 8 Jan dates [S22]. The plan in Section 1.5 re-baselines P0 to P4 up to that date and is **proposed**, with P0 first and not yet met [S3 §12; S10]. The NTU final report is due 9 Apr 2027 (confirm) [S5]. Entry also depends on requirements not yet met, such as a legal entity and an Azure subscription (Section 3.4). `[FOUNDER INPUT NEEDED: agree the re-baselined plan with the supervisor]`
+- **Schedule.** The Imagine Cup 2027 submission deadline is 23:59 CST on 28 Feb 2027, about 16 weeks after 9 Nov, replacing the tentative 7 and 8 Jan dates [S22]. The plan in Section 1.5 re-baselines P0 to P4 up to that date and is **proposed**, with P0 first and not yet met [S3 §12; S10]. The NTU final report is due 9 Apr 2027 (confirm) [S5]. Entry also depends on requirements not yet met, such as a legal entity and an Azure subscription (Section 3.4). The proposed plan has not yet been agreed with the supervisor.
 - **Method.** The governance model is written down and partly enforced by hooks. Its first real use was 14 merges in two minutes from one account with no approving review, followed by X2 audits that rated several merged or open PRs Blocked; on 9 Nov 11 further PRs merged: 6 after X1 rechecks that found no merge blocker at the merged head (#22, #24, #25, #35, #40, #41), #34 after an X2 recheck, and 4 with no X1 or X2 comment on the PR (#17, #18, #19, #26) [S10; S17; S19]. That shows the review steps find problems when they run, and that GitHub does not enforce review. Whether the model works in practice is not yet established. Every geometry rule, recipe and claim still needs human review and a physical test before it counts as evidence [S6 `CLAUDE.md`; S3 §8.2].
 
 ---
 
 ## References
 
-Internal documents are listed in `SOURCES.md` under tags S1–S23. **No academic literature is cited yet.** The references below come from the project's own sources; garment pattern-making, ease and fit, and human-AI decision support literature has not been reviewed for this report.
+Internal documents are listed in `SOURCES.md` under tags S1–S24. **No academic literature is cited yet.** The references below come from the project's own sources; garment pattern-making, ease and fit, and human-AI decision support literature has not been reviewed for this report.
 
 1. School of Electrical and Electronic Engineering, NTU. *Final Year Project* (EEE intranet page, submission deadlines table), printed 22 Oct 2026.
 2. School of Electrical and Electronic Engineering, NTU. *Suggested Format of FYP Interim Report.*
@@ -381,17 +381,17 @@ The M, E and C entries are as cited in the blueprint [S3]; they were not indepen
 
 ## Appendix A. Declaration of generative AI assistance (notes for the NTU GAI declaration form)
 
-This appendix gives the facts needed to complete NTU's GAI declaration form. **The form itself is completed and submitted by the student** [S5]: Kireeti for this report. Narthananilaa and Delfine submit their own reports and forms. This draft does not replace the form.
+This appendix gives the facts needed to complete NTU's GAI declaration form. **The form itself is completed and submitted by the student** [S5]: Kireeti for this report. This draft does not replace the form.
 
 | Item | Detail |
 |---|---|
 | Tool | Claude Code (Anthropic) running as software agents inside this repository. The exact model version per task is recorded in the PR or commit trailer `Co-Authored-By` |
-| Used for in the project | Writing code, tests, documentation and drafts under the agent roles in Section 2.4. Work since branch protection was enabled enters `main` through a PR merged from a founder's GitHub account, which agents also use (Kireeti ran all 25 merges from his own account, using commands an agent prepared, after approving each batch [S23]); GitHub required no approving review on 1 Nov and still required none on 9 Nov [S11; S12] |
-| Used for in this report | Drafting structure and text from the source documents and repository (agent X3, Report Writer), then adapting it as Kireeti's individual report with the founder answers of 9 Nov. Factual claims are tagged to a source in `SOURCES.md`; judgments in the Conclusion are the drafter's. Section 2.9 states plainly that agents wrote the code in Kireeti's area under his direction |
+| Used for in the project | Writing code, tests, documentation and drafts under the agent roles in Section 2.4. Work since branch protection was enabled enters `main` through a PR merged from a founder's GitHub account, which agents also use (Kireeti ran all 25 merges from the KIREETI001 account, using commands an agent prepared, after approving each batch [S23]); GitHub required no approving review on 1 Nov and still required none on 9 Nov [S11; S12] |
+| Used for in this report | Drafting structure and text from the source documents and repository (agent X3, Report Writer), then adapting it as Kireeti's individual report with the founder answers of 9 Nov. Factual claims are tagged to a source in `SOURCES.md`; judgments in the Conclusion are the drafter's. Section 2.9 states plainly that agents wrote the code in Kireeti's area under Kireeti's direction |
 | Human input | `[FOUNDER INPUT NEEDED: who wrote each source PDF (scope, blueprint, advisor deck), and was AI used in writing them?]` Kireeti supplied the physical, research and process facts tagged [S23] and reviews the draft |
 | Not delegated | Sewing and measuring, participant contact, consent, accounts, credentials, submissions and approvals are human-only [S6 `CLAUDE.md`] |
 | Data given to the tools | Project rule: synthetic or consented data only; no secrets, real user photos or body measurements in the repository, prompts or logs [S6 `CLAUDE.md`, rule 7]. Kireeti reports that no real photos, body measurements or secrets have been used and that nothing real has been tested [S23] |
-| Verification | Draft checked by the claims auditor agent (X2), then reviewed line by line by Kireeti before submission [S23] |
+| Verification | Draft checked by the claims auditor agent (X2). Kireeti will review it line by line before submission [S23] |
 | Limitation | AI-written text can contain errors or unsupported statements. Anything not traceable in `SOURCES.md` should be removed |
 
 ## Appendix B. Open placeholders for Kireeti (collected)
@@ -400,10 +400,10 @@ Items answered on 9 Nov are filled in the text and tagged [S23]. What remains:
 
 1. Full name, matric number and project code as on the NTU template; the supervisor's title and the examiner's name.
 2. Dates and advice from the supervisor check-ins, if wanted.
-3. Kireeti's own hours, and his description of what he personally designed, decided, tested or wrote by hand (Section 2.9).
+3. Kireeti's own hours, and a description of what Kireeti personally designed, decided, tested or wrote by hand (Section 2.9).
 4. Who wrote each source PDF (scope, blueprint, advisor deck) and whether AI was used in writing them (Appendix A).
-5. Agreement of the re-baselined phase plan with the supervisor, including exam and holiday weeks (Section 1.5).
-6. The placket definition and the 50 mm minimum, which are open human decisions (Section 2.5).
+5. Not a marker: the re-baselined plan has not yet been agreed with the supervisor (Section 1.5).
+6. Not a marker: the placket definition and the 50 mm minimum are still open, to be decided with the recipe reviewer (Section 2.5).
 7. Confirmation of the NTU dates marked "confirm" in Section 1.5.
 8. The P0 result and any newer L0 rating, once a make happens (the repository holds only L0's 1 Nov rating).
 9. The NTU GAI declaration form, completed and submitted by Kireeti (H-10).

@@ -29,8 +29,9 @@ Maps each factual claim in `interim-report.md` to its source. Revised 9 Nov 2026
 | S19 | X1 time-boxed rechecks on 9 Nov 2026: #22 at `7fb7198` (SQLite 73 passed, local PostgreSQL 16.2 41 passed, no merge blocker); #24 at `53076fd` (safe as demo-only code on mock data; D3/D4 mock mismatch); #25 at `6888b7f` (safe on mock data; "Verified" label shown with MOCK DATA; dead-end after edit). I read the comments, not the code, and ran nothing | PR issue comments |
 | S20 | This repo on `main@8b6faa5`, 9 Nov 2026: `packages/contracts` version `1.0.0-draft.3`; `woven_shirt_crop_v1` `status: draft`; `docs/evaluation/physical-make-record.md` says no make has been recorded; no `apps/mobile/eas.json`; `docs/decisions.md` P-02 (re-plan) `open`; latest digest `docs/digests/2026-11-01.md` | git |
 | S21 | Project Plan, Project No. A3126-261, "Design and build an industrial software or product for Microsoft Imagine Cup 2027", AY2026-27 Semester 1, 14 Sep 2026: students, supervisor Dr Tan Chee Wah Wesley, responsibility allocation, objective of at least 2 Microsoft AI services, tentative 8 Jan 2027 submission and 13 Feb 2027 training dates | source text `plan.txt` from the PDF (read 9 Nov) |
-| S22 | Microsoft Imagine Cup 2027 Official Rules and Regulations, last updated 4 Nov 2026: §3 schedule, §4.1 and §4.2 eligibility, §7 and §8 Azure Subscription ID and services requirement (10 services, US$1.00 usage each, by 28 Feb 2027), §8 and §12.3 Stage 2 materials, deadline 23:59 CST on 28 Feb 2027 (read in `rules.txt`). The FAQ was not read by me | source text `rules.txt` |
-| S23 | Kireeti's answers of 9 Nov 2026, relayed by the project lead: Azure, merges, approvals, shirt, measurements, make, reviewer, survey, research, device, effort, obstacles, data rule, final review, check-ins; and the facts that no legal entity exists and that agents wrote code under his direction. Not independently verified against any document | lead message, 9 Nov 2026 |
+| S22 | Microsoft Imagine Cup 2027 Official Rules and Regulations, last updated 4 Nov 2026: §3 schedule, §4.1 and §4.2 eligibility, §7 and §8 Azure Subscription ID and services requirement (10 services, US$1.00 usage each, by 28 Feb 2027), §8 and §12.3 Stage 2 materials, deadline 23:59 CST on 28 Feb 2027 (read in `rules.txt`). | source text `rules.txt` |
+| S23 | Kireeti's answers of 9 Nov 2026, relayed by the project lead: Azure, merges, approvals, shirt, measurements, make, reviewer, survey, research, device, effort, obstacles, data rule, final review, check-ins; and the facts that no legal entity exists and that agents wrote code under Kireeti's direction. Not independently verified against any document | lead message, 9 Nov 2026 |
+| S24 | Imagine Cup FAQ, https://imaginecup.microsoft.com/en-us/support/faq, read by X2 on 9 Nov 2026 (not read by me) | web |
 
 S8, S10 are L0's own reports. S10 is dated 1 Nov and was merged on 9 Nov; no later L0 rating is on `main`.
 
@@ -114,7 +115,7 @@ S8, S10 are L0's own reports. S10 is dated 1 Nov and was merged on 9 Nov; no lat
 | 3.4 | Risk ratings | S3 §19; S8 `docs/risk-register.md` |
 | 3.5 | H-05, H-10 | S10 `human-tasks.md` |
 | Header | Individual report by Kireeti; project A3126-261; supervisor named in the plan | S21; S23 |
-| 1.1 | Survey run across October 2026 among university students and friends; questionnaire not available | S23 |
+| 1.1 | Survey run in October 2026 among university students and friends; questionnaire not available | S23 |
 | 1.4 | Objective of at least 2 Microsoft AI services; Azure not set up | S21; S23 |
 | 1.5 | Imagine Cup 2027 schedule (2 Nov 2026 to 28 Feb 2027 rolling, 23:59 CST deadline; expert review 1 to 12 Mar; interviews 16 to 31 Mar; judging April; May to June) | S22 |
 | 1.5 | 7 and 8 Jan 2027 dates were tentative and are superseded | S3 §20 D13; S21; S22 |
@@ -124,7 +125,7 @@ S8, S10 are L0's own reports. S10 is dated 1 Nov and was merged on 9 Nov; no lat
 | 2.4 | Responsibilities now vs the Project Plan; reasons not recorded | S21; S6 `CLAUDE.md` |
 | 2.6 | Shirt not chosen (planned type), no measurements, marking, cutting or sewing, no reviewer, no interviews, Azure not set up, Samsung S24 Ultra and EAS account active | S23; S20 |
 | 2.7, 2.8 | Weekly meetings of about 3 to 4 hours; costs not recorded; no other obstacles | S23 |
-| 2.9 | PRs #5, #6, #10, #15, #18, #19, #22, #35 and agents K1 to K6; #23 open; scaffold commit and #16 from Kireeti's account; agents wrote the code under his direction | S17; S6; S11; S23 |
+| 2.9 | PRs #5, #6, #10, #15, #18, #19, #22, #35 and agents K1 to K6; #23 open; scaffold commit and #16 from Kireeti's account; agents wrote the code under Kireeti's direction | S17; S6; S11; S23 |
 | 3.4 | Imagine Cup entry risks: entity founded on or after 2 Nov 2024, Azure Subscription ID and Microsoft for Startups account, 10 services with US$1.00 usage each, 2 to 3 minute demo, pitch deck, architecture overview; no entity exists | S22 §4.1, §4.2, §7, §8, §12.3; S23 |
 | App. A | Data rule held; final review by Kireeti line by line | S23 |
 | 4 | All assessments | Derived from the rows above; the judgments ("tight", "slack") are the drafter's reading, to be confirmed by founders |
