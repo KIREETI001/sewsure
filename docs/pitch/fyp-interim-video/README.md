@@ -20,13 +20,13 @@ Due **10 Nov 2026**, submitted to the supervisor and examiner with the interim r
 3. Not done, and how we use agents: 1:27 to 2:26
 4. Future work and conclusion: 2:26 to 2:47
 
-Estimated running time about 2:48; 371 spoken words (Delfine 116, Kireeti 169, Narthananilaa 80, all 6) at an assumed 140 wpm. See Totals in `narration-script.md`.
+Estimated running time about 2:51 (about 2:54 if numbers are said in full); 377 spoken words (Delfine 117, Kireeti 174, Narthananilaa 80, all 6) at an assumed 140 wpm. See Totals in `narration-script.md`.
 
 ## Where the project stands (9 Nov 2026, `main` at 8b6faa5)
 
 - Evidenced: engine and 27-case synthetic suite with all 29 checks matching in CI on `main`; API calls the engine (#22); demo screens on mock data (intake #14, result cards #25, cut guide #24; X1 found no merge blockers); 29 agent definitions and guard hooks; 14 PRs merged on 1 Nov and 11 on 9 Nov.
 - Not done: no physical make; shirt not chosen; no sewist review (recipe is a draft); P0 rated RED (1 Nov digest); no overlay; AI pipeline not connected to the API (#23 open); Azure not set up; no phone run recorded; no interviews.
-- Supplied by founders through the lead session, not opened by D8: survey sample description (C-40), Samsung S24 Ultra with Expo build service (C-42), Imagine Cup deadline and legal-entity rule (C-43), "I ran all 25 merges after approving each batch" (C-44).
+- Supplied by founders through the lead session, not opened by D8: survey sample description (C-40), Samsung S24 Ultra with Expo build service (C-42), "I ran all 25 merges after approving each batch" (C-44).
 
 ## Pre-record checklist
 
@@ -35,7 +35,6 @@ Estimated running time about 2:48; 371 spoken words (Delfine 116, Kireeti 169, N
 | CI on `main` still green; merged list unchanged | re-read on recording day, as-of date on screen | Kireeti |
 | S4b device and build-service wording | confirm or cut the clause | Kireeti, Delfine |
 | S5 merge sentence | confirm | Kireeti |
-| S6b date and legal-entity rule | check against the official Rules | Kireeti |
 | Running time | stopwatch read-through, under 3:00 | all three |
 | M3 recording | MOCK DATA badge in frame; say "Verified is sample text"; do not film edit-then-cut | Delfine |
 

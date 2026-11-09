@@ -15,11 +15,11 @@ Limit: **3:00 maximum**, confirmed by Kireeti via the lead session. The NTU docu
 
 | Speaker | Segments | Spoken words | At 140 wpm |
 |---|---|---|---|
-| Delfine (D) | S0, S1, S3c, S4b | 116 | 50 s |
-| Kireeti (K) | S2, S3b, S4c, S5, S6b | 169 | 72 s |
+| Delfine (D) | S0, S1, S3c, S4b | 117 | 50 s |
+| Kireeti (K) | S2, S3b, S4c, S5, S6b | 174 | 75 s |
 | Narthananilaa (N) | S3a, S4a, S6a | 80 | 34 s |
 | All three | S6c | 6 | 3 s |
-| **Total** | | **371** | **159 s (2:39)** |
+| **Total** | | **377** | **162 s (2:42)** |
 
 ---
 
@@ -27,9 +27,9 @@ Limit: **3:00 maximum**, confirmed by Kireeti via the lead session. The NTU docu
 
 ### S0 Open (0:00 to 0:11) | Delfine, over a stand-in shirt on a table
 
-> "We are three students building SewSure, an app that helps turn a garment you own into a redesign you can make. This is our interim summary."
+> "We are three students building SewSure, an app meant to help turn a garment you own into a redesign you can make. This is our interim summary."
 
-(26 words.) No claim about a specific garment.
+(27 words.) No claim about a specific garment.
 
 ### S1 Problem and survey (0:11 to 0:27) | Delfine
 
@@ -85,9 +85,9 @@ Limit: **3:00 maximum**, confirmed by Kireeti via the lead session. The NTU docu
 
 ### S5 How we use agents (2:03 to 2:26) | Kireeti
 
-> "We build with AI coding agents: 29 agent definitions, and hooks that block merge commands [C-09]. I ran all 25 merges, 14 on 1 November and 11 on 9 November, after approving each batch [C-44]. GitHub requires no approval, so that is process, not a technical control [C-10]. We will declare this on the NTU form [C-38]."
+> "We build with AI coding agents: 29 agent definitions, and hooks that block merge commands [C-09]. I ran all 25 merges, 14 on 1 November and 11 on 9 November, using commands an agent prepared, after approving each batch [C-44]. GitHub requires no approval, so that is process, not a technical control [C-10]. We will declare this on the NTU form [C-38]."
 
-(53 words.) `[FOUNDER CONFIRM: "I ran all 25 merges after approving each batch" was supplied through the lead session; GitHub records only the shared account.]`
+(58 words.) `[FOUNDER CONFIRM: "I ran all 25 merges after approving each batch" was supplied through the lead session; GitHub records only the shared account.]`
 
 ## 4 Future work and conclusion
 
@@ -101,7 +101,7 @@ Limit: **3:00 maximum**, confirmed by Kireeti via the lead session. The NTU docu
 
 > "Then the Imagine Cup deadline, 28 February 2027, under its official Rules. They require a legal entity, so we are not claiming eligibility [C-43]."
 
-(23 words.) `[FOUNDER CONFIRM: date and legal-entity rule were supplied through the lead session; D8 did not open the official Rules (H-09).]`
+(23 words.)
 
 ### S6c Close (2:44 to 2:47) | all three
 
@@ -113,10 +113,10 @@ Limit: **3:00 maximum**, confirmed by Kireeti via the lead session. The NTU docu
 
 ## Totals
 
-- **Spoken words: 371**, counted by script on the quoted default lines (claim tags, bracketed notes and headings excluded). By speaker: D 116, K 169, N 80, all 6.
-- **Estimated time: about 2:48** = 159 s of speech at 140 words per minute plus about 0.7 s between segments. That leaves roughly 12 s under the 3:00 maximum.
-- **140 wpm is an assumption**, not a measurement. Time a read-through with a stopwatch before filming; if it runs over 2:55, cut the last sentence of S2 and the NTU-form sentence of S5.
-- The segment windows above come from the same arithmetic, so they move if the pace does.
+- **Spoken words: 377**, counted by script on the quoted default lines (claim tags, bracketed notes and headings excluded). By speaker: D 117, K 174, N 80, all 6. This is 371 before the 2 Nov X2 edits plus 6.
+- **Estimated time: about 2:51** = 162 s of speech at 140 words per minute plus about 9 s of gaps. Saying the numbers in full ("twenty twenty-six", "twenty-eight February") adds about 9 words, so **about 386 words and about 2:54** if read exactly as spoken. That is under 3:00 with about 6 s to spare.
+- **140 wpm is an assumption**, not a measurement. Time a read-through with a stopwatch before filming; if it runs over, cut "This is our interim summary." and the seventeen clause in S1, with its 17/25 card.
+- The segment windows above were computed before these edits and run a few seconds early; re-cut them after the stopwatch read-through.
 
 ## Read-aloud rules
 

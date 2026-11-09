@@ -19,13 +19,13 @@ Schedule: status date is 9 Nov 2026, shared with the report (#8). Script approva
 | R1 | Repo root and folder tree | `apps/`, `services/`, `packages/`, `content/`, `tests/`, `docs/`. | Hide browser profile, tokens, notifications |
 | R2 | Agent definitions and hooks | `.claude/agents/` (29 files), `.claude/hooks/` file names only. | No secrets in frame |
 | R3 | Pull request list | Merged list (14 on 1 Nov, 11 on 9 Nov, incl. #22); `main` requires a PR, 0 required reviews. As-of date on screen. | Redact reviewer emails |
-| R4 | CI result on `main` | CI Benchmarks log line "27 cases, 29 checks (synthetic inputs)" from `main` (8b6faa5 on 9 Nov). Re-check green on recording day. | none |
+| R4 | CI result on `main` | CI Benchmarks log lines "27 cases, 29 checks (synthetic inputs)" and "exact status+code match 29/29" from `main` (8b6faa5 on 9 Nov). Re-check green on recording day. | none |
 
 ## C. App screens (all demo-only, mock data)
 
 | ID | Screen | Label | Notes |
 |---|---|---|---|
-| M1 | Intake screens (`apps/mobile/app/(intake)/`, #14) | PROTOTYPE, SAMPLE DATA | State how the capture was made (web, emulator or device); no phone run is recorded |
+| M1 | Intake screens (`apps/mobile/app/(intake)/`, #14) | PROTOTYPE, SAMPLE DATA | Capture on web or an emulator and caption how. If captured on the S24 Ultra, change S4b first, because a phone run would then exist. Do not film the entry screen unless #33 has merged: on main it still says "get redesigns that passed the checks we run" |
 | M3 | Result card with status badge (#25) | PROTOTYPE, SAMPLE DATA | MOCK DATA badge in frame; say "Verified is sample text" aloud |
 | M4 | Cut guide, dimensioned diagram (#24) | PROTOTYPE, SAMPLE DATA | Diagram only, no overlay. Do not film the edit-then-cut path |
 
@@ -44,7 +44,6 @@ Schedule: status date is 9 Nov 2026, shared with the report (#8). Script approva
 
 1. Film A1, A3; record narration; decide who is on camera.
 2. Confirm the Samsung S24 Ultra and Expo build service wording (S4b) and "I ran all 25 merges after approving each batch" (S5).
-3. Confirm the Imagine Cup date and legal-entity rule against the official Rules (H-09).
-4. Confirm the NTU length limit (3:00 per Kireeti) and file format with the supervisor.
-5. File the NTU generative AI declaration.
-6. Raw footage outside the repo; music and font licences; caption sign-off.
+3. Confirm the NTU length limit (3:00 per Kireeti) and file format with the supervisor.
+4. File the NTU generative AI declaration.
+5. Raw footage outside the repo; music and font licences; caption sign-off.
