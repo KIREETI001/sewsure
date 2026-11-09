@@ -276,6 +276,21 @@ K3's PR connecting the AI pipeline to the contract and engine (#23) is still ope
 
 `[FOUNDER INPUT NEEDED: what Kireeti personally designed, decided, tested or wrote by hand, which decisions were Kireeti's, and what Kireeti learned]`
 
+### 2.10 Prototype screens
+
+**Note that applies to every figure below.** The screens were captured on 9 Nov 2026 from `main` at `8b6faa5` in a desktop browser at phone width. Web support (`react-native-web`) was added only in a temporary local copy and is not in the repository. All garment numbers and check results are mock fixture data, not a real garment. The "Verified within supported checks" badge and the "Passed" lines are sample text, and nothing has been verified. The app has not been run on a phone, and the screens are not connected to the API [S25; S19; S20].
+
+| Figure | Screen |
+|---|---|
+| ![Garment capture screen](figures/01-garment-capture.png) | **Figure 1.** Intake: garment capture (screen 2) |
+| ![Inspiration screen](figures/02-inspiration.png) | **Figure 2.** Intake: inspiration (screen 3) |
+| ![Results screen on mock data](figures/03-results.png) | **Figure 3.** Design Studio: results on mock data |
+| ![Design detail screen on mock data](figures/04-design-detail.png) | **Figure 4.** Design Studio: design detail on mock data |
+| ![Cut guide screen showing the not-yet-reviewed warning, locked checkpoints and a dimensioned diagram](figures/05-cut-guide.png) | **Figure 5.** Cut guide on mock data, with the "Not yet reviewed" demo warning and locked ruler checkpoints. The diagram is a dimensioned diagram, shown for illustration only; no accuracy is claimed |
+| ![DIY steps screen showing locked checkpoints and locked irreversible steps](figures/06-diy-steps.png) | **Figure 6.** DIY steps on mock data, with the "Not yet reviewed" demo warning, locked checkpoints and locked irreversible steps |
+| ![Cut guide refused for an older version](figures/07-gate-old-version-blocked.png) | **Figure 7.** An older revision refused a cut guide after being replaced by a newer version ("Cut guide not available") |
+| ![Informational website home page](figures/08-website.png) | **Figure 8.** Informational website home page (not published) |
+
 ---
 
 ## 3. Future work
