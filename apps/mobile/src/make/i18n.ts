@@ -1,0 +1,114 @@
+/**
+ * English strings for screens 7-8 (cut guide, DIY steps). Kept in its own catalogue file so it
+ * does not collide with other agents editing src/i18n/en.ts; merge into en.ts when convenient.
+ * No guarantee wording: see tests/make/strings.test.ts.
+ */
+export const makeEn = {
+  "make.mockNote": "Sample data from a fixture. Not a real result.",
+  "make.loading": "Loading your cut guide…",
+  "make.loadFailed": "The cut guide did not load. Nothing was changed. Try again.",
+  "make.retry": "Try again",
+  "make.back": "Back",
+
+  // Gate
+  "make.gate.title": "Cut guide not available",
+  "make.gate.reason.idea_only":
+    "This is an idea only. It is outside the recipes we can check, so there is no cut guide.",
+  "make.gate.reason.needs_input":
+    "We need more measurements or a correction before we can check this design.",
+  "make.gate.reason.failed_checks": "This design did not pass the checks, so there is no cut guide.",
+  "make.gate.reason.superseded":
+    "You changed this design after it was checked. This older version is read-only.",
+  "make.gate.reason.stale":
+    "Your measurements changed after this design was checked, so the check may no longer apply. There is no cut guide until it is rechecked.",
+  "make.gate.reason.plan_mismatch":
+    "The cut plan does not belong to this version of the design, so it is not shown.",
+  "make.gate.reason.no_plan": "There is no cut plan for this design yet.",
+  "make.gate.reason.no_revision": "No design was chosen, so there is no cut guide. Go back and pick a design.",
+  "make.gate.reason.not_found": "We could not find that version of the design, so there is no cut guide.",
+  "make.gate.next.ask_tailor": "Next step: ask a tailor, or explore the idea without cutting.",
+  "make.gate.next.add_measurements": "Next step: add or correct your measurements.",
+  "make.gate.next.choose_supported_change": "Next step: pick a change that the checks support.",
+  "make.gate.next.open_newer_revision": "Next step: open the newer version. It must pass its own checks.",
+  "make.gate.next.recheck_design": "Next step: recheck this design against your current measurements.",
+  "make.gate.next.go_back": "Next step: go back to your designs.",
+  "make.gate.openNewer": "Open newer version",
+  "make.gate.addMeasurements": "Add measurements",
+
+  // Cut guide
+  "make.cut.title": "Cut guide",
+  "make.cut.approx":
+    "Lines are approximate. Always measure on the real garment with a ruler before you cut.",
+  "make.cut.fromLandmark": "{cm} cm ({inches} in) below the {landmark}",
+  "make.cut.betweenLandmark": "between {from} cm and {to} cm below the {landmark}, not a level line",
+  "make.cut.lineText": "{kind}: {where}",
+  "make.cut.hemAllowance": "Hem allowance: {cm} cm",
+  "make.cut.seamAllowance": "Seam allowance: {cm} cm",
+  "make.cut.pieceHeading": "{piece}",
+  "make.cut.prohibited": "Do not cut across: {regions}",
+  "make.cut.diagramHeading": "Dimensioned diagram",
+  "make.cut.diagramAlt":
+    "Diagram of {piece} with its cut, fold and stitch lines. Distances are listed below the diagram.",
+  "make.cut.kind.cut": "Cut (solid line)",
+  "make.cut.kind.fold": "Fold (dashed line)",
+  "make.cut.kind.stitch": "Stitch (dotted line)",
+  "make.cut.kind.reference": "Reference (thin line)",
+  "make.cut.fallbackHeading": "Measure from this diagram",
+  "make.cut.continue": "Continue to DIY steps",
+
+  // Checkpoints
+  "make.cp.heading": "Ruler checkpoints",
+  "make.cp.intro":
+    "Cutting cannot be undone. Tick each checkpoint only after you measured with a ruler. You cannot skip this.",
+  "make.cp.locked": "Locked until the earlier steps are done.",
+  "make.cp.label": "{instruction} Distance: {cm} cm from the {landmark}, give or take {tol} cm.",
+  "make.cp.remaining": "{n} checkpoint(s) left before any cut step",
+  "make.cp.done": "All checkpoints ticked. Cut steps are now unlocked.",
+  "make.cp.reset": "Checkpoints reset because this design changed. Measure again.",
+
+  // Demo / review
+  "make.draft.banner":
+    "Not yet reviewed. This recipe is a draft that no sewist has reviewed. Demo only: do not use it on a real garment.",
+  "make.draft.blocked":
+    "This recipe has not been reviewed by a sewist, so it cannot be shown as a guide. Use the tailor route instead.",
+  "make.draft.badge": "Not yet reviewed",
+  "make.draft.demoBadge": "Demo only: recipe not yet reviewed",
+  "make.draft.step": "Demo only: this recipe is not yet reviewed.",
+  "make.blocked.no_steps": "There are no DIY steps for this design, so there is nothing to follow. Ask a tailor instead.",
+  "make.blocked.version_mismatch":
+    "The cut plan and the DIY steps come from different recipe versions, so neither is shown. Ask a tailor instead.",
+  "make.blocked.no_checkpoint_step": "These steps have a cut but no ruler check before it, so they are not shown.",
+  "make.blocked.not_reviewed":
+    "This recipe has not been reviewed by a sewist, so it cannot be shown as a guide. Use the tailor route instead.",
+
+  // DIY
+  "make.diy.title": "DIY steps",
+  "make.diy.tools": "Tools",
+  "make.diy.materials": "Materials",
+  "make.diy.skills": "Skills used",
+  "make.diy.practice": "Practice first",
+  "make.diy.practiceNote": "Try these on spare fabric before you work on your garment.",
+  "make.diy.progress": "{done} of {total} steps ticked",
+  "make.diy.resume": "Resume at step {n}: {title}",
+  "make.diy.resumeButton": "Go to step {n}",
+  "make.diy.tick": "I did this step",
+  "make.diy.untick": "Undo tick",
+  "make.diy.irreversible": "This step cannot be undone.",
+  "make.diy.lockedCheckpoint": "Locked. Tick every ruler checkpoint in step {n} first.",
+  "make.diy.lockedEarlier": "Locked. Finish the earlier steps first.",
+  "make.diy.lockedCut": "Locked. Finish the cut step first.",
+  "make.diy.checkpointStep": "This step is ticked for you once every checkpoint below is ticked.",
+  "make.diy.selfReported": "Ticks are your own record. They are not checked by anyone.",
+  "make.diy.extraRequired":
+    "This recipe needs a tool or skill you did not list. A tailor may be a better fit.",
+  "make.diy.openCheckpoints": "Go to ruler checkpoints",
+  "make.diy.empty": "No steps came back for this design.",
+} as const;
+
+export type MakeKey = keyof typeof makeEn;
+
+export const tm = (key: MakeKey, vars?: Record<string, string | number>): string => {
+  const template: string = makeEn[key];
+  if (!vars) return template;
+  return template.replace(/\{(\w+)\}/g, (_, n: string) => String(vars[n] ?? `{${n}}`));
+};

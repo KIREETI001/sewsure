@@ -1,0 +1,22 @@
+# The cut step stays locked until the earlier steps are done and every ruler checkpoint is ticked.
+# There is no skip button. Needs a development or demo build (EXPO_PUBLIC_SEWSURE_DEMO=1): a
+# release build blocks this draft recipe. Not yet run on a device.
+appId: com.sewsure.mobile
+---
+- clearState
+- launchApp
+- openLink: sewsure:///diy?revisionId=rev-crop-a-2
+- scrollUntilVisible:
+    element: "Locked. Finish the earlier steps first."
+- assertVisible: "Locked. Finish the earlier steps first."
+- assertNotVisible: "Skip.*"
+# Checkpoints are locked too: ticking them does nothing yet.
+- tapOn: "Measure straight down from the high shoulder point.*"
+- assertVisible: "Locked. Finish the earlier steps first."
+- tapOn: "I did this step: Mark the cut line"
+- assertVisible: "Locked. Tick every ruler checkpoint in step 4 first."
+- tapOn: "Measure straight down from the high shoulder point.*"
+- assertVisible: "Locked. Tick every ruler checkpoint in step 4 first."
+- tapOn: "Repeat on the back.*"
+- assertNotVisible: "Locked. Tick every ruler checkpoint in step 4 first."
+- assertVisible: "Cut through one layer.*"
