@@ -20,7 +20,7 @@ Schedule: **not agreed.** Three dates conflict and D8 has not chosen between the
 |---|---|---|---|---|---|
 | R1 | Repo root and folder tree | `apps/`, `services/`, `packages/`, `content/`, `tests/`, `docs/`. Show the README or CLAUDE.md headings only. | Kireeti | Private repo: hide browser profile, tokens, notifications | planned |
 | R2 | Agent definitions and hooks | `.claude/agents/` (29 files) and `.claude/hooks/` file names. Do not open any hook that references secrets paths. | Kireeti | check no secrets in frame | planned |
-| R3 | Pull request list | Show open and merged PRs. `main` requires a PR but no approval (API read 1 Nov: 0 required reviews). Put the as-of date on screen. SLOT-1 depends on what is merged by then. | Kireeti | Redact reviewer emails | planned |
+| R3 | Pull request list | Show open and merged PRs. `main` requires a PR but no approval (API read 9 Nov: 0 required reviews). Put the as-of date (9 Nov 2026) on screen. SLOT-1 depends on what is merged by then; 11 PRs merged on 9 Nov, #23 and others still open. | Kireeti | Redact reviewer emails | planned |
 | R4 | Test or benchmark run | Only if N1/N2 PRs are merged and tests really run. Show command and the final "x passed" line with the total. | Narthananilaa | none | planned, conditional |
 
 ## C. Props and paper shots (can be captured at a desk)
@@ -37,8 +37,8 @@ Schedule: **not agreed.** Three dates conflict and D8 has not chosen between the
 |---|---|---|---|---|
 | M1 | Entry and garment capture screens | Merged D2 code, `apps/mobile/app/(intake)/` (#14), sample data | PROTOTYPE, SAMPLE DATA | planned (record on the day) |
 | M2 | Inspiration and measurements screens | Merged D2 code (#14), sample data | PROTOTYPE, SAMPLE DATA | planned (record on the day) |
-| M3 | Result card with status badge, fewer than three options | D3 design | MOCK-UP | only if the PR is merged on recording day (open: #24, #25); otherwise label `OPEN PR, NOT MERGED` |
-| M4 | Cut guide with ruler checkpoint (fallback diagram) | D4 design | MOCK-UP | only if the PR is merged on recording day (open: #24, #25); otherwise label `OPEN PR, NOT MERGED` |
+| M3 | Result card with status badge, fewer than three options | D3 screens 5-6, merged (#25) | PROTOTYPE, SAMPLE DATA (MOCK DATA badge stays in frame) | planned (record on the day; state how it was captured) |
+| M4 | Cut guide with ruler checkpoint (dimensioned diagram, no overlay) | D4 screens 7-8, merged (#24) | PROTOTYPE, SAMPLE DATA | planned. Shows only in a demo build; do not show the edit-then-cut path (dead end) |
 | M5 | (Only if an installable build exists) screen recording on a real Android device | D6 | label by what is real: "prototype build" only if connected to the real engine, else MOCK-UP | planned, conditional |
 
 ## E. Graphics (can be produced without filming)
@@ -51,7 +51,7 @@ Schedule: **not agreed.** Three dates conflict and D8 has not chosen between the
 | G4 | Coverage ladder, three levels | Advisor deck slide 4 | planned |
 | G5 | Phase bar P0 to P4, "internal, provisional" | Blueprint section 12 (phase dates) | planned |
 | G6 | "Research: planned" card | this folder | planned |
-| G7 | "P0 status" card with the as-of date | L0 baseline audit on `main`; 1 Nov digest in open PR #26 | planned |
+| G7 | "P0 status" card with the as-of date | L0 baseline audit on `main`; L0 digest of 1 Nov (merged, #26) | planned |
 | G8 | Architecture sketch, boxes tagged proposed | Advisor deck slide 11 | planned |
 | G9 | Evidence plan table with empty Result column | Advisor deck slide 12 | planned |
 

@@ -22,21 +22,22 @@ Due **10 Nov 2026**, submitted to the supervisor and examiner with the interim r
 
 ## Where the project stands when this was drafted (28 Oct 2026)
 
-- Facts below were checked on 1 Nov 2026; every spoken status needs an on-screen "as of [date]" and a re-check on recording day.
-- Evidenced: planning documents (Scope V0.2, Blueprint V0.1, advisor deck of 22 Oct 2026), the n = 25 survey as reported in those documents, a repo scaffold with 29 agent definitions and guard hooks (commit `84efce5`), and fourteen PRs merged on 1 Nov 2026 in about two minutes from one account (`main` at c46c5d8 on 2 Nov) (first engine, constraint suite, draft contract, API scaffold, AI skeleton, four intake screens). Open, not merged: #19, #22 to #26. X1 rechecked both on 2 Nov: #22 at `cbffff4` is not safe to merge (a lengthen request can still reach a shortening plan; `REVISION_STALE` is not in the contract); #24 at `36bcda7` is safe to merge only as demo-only code on mock data, with three major findings to fix before real use. Fixes are in progress and not re-verified. Do not present either as finished (X1 rechecks linked in claims register C-39).
+- Facts below were updated on 9 Nov 2026 (`main` at 8b6faa5); the on-screen as-of date is set to 9 Nov 2026 and Kireeti can change it; every spoken status needs an on-screen "as of [date]" and a re-check on recording day.
+- Evidenced: planning documents (Scope V0.2, Blueprint V0.1, advisor deck of 22 Oct 2026), the n = 25 survey as reported in those documents, a repo scaffold with 29 agent definitions and guard hooks, fourteen PRs merged on 1 Nov 2026 in about two minutes and eleven more on 9 Nov in under five (#19, #34, #17, #18, #26, #35, #22, #24, #25, #40, #41), all from the `KIREETI001` account with no approving review. Now on `main`: first engine, constraint suite (27 cases, 29 checks, synthetic; CI Benchmarks passes on `main`), contract draft.3 with `REVISION_STALE`, an API that calls the engine, intake screens, result cards and a cut guide as demo-only screens on mock data (X1 9 Nov rechecks: no merge blockers). Open: #23 (model pipeline), #20, #21, #36, #44 and others.
+- Still true: dimensioned diagram only, no overlay; AI pipeline not connected to the API; no device or live-model run recorded; recipe is a draft; intake does not link to the Design Studio and the edit-then-cut demo path dead-ends.
 - Not evidenced: any measured shirt, a verified test result, any live Azure call, any usability session, any tailor quote.
-- Phase P0 is rated RED in L0's audit (baseline audit on `main`; 1 Nov digest in open PR #26). The script therefore defaults to the honest "not yet" wording, with explicit evidence slots to swap in if real results land before recording.
+- Phase P0 is rated RED in L0's audit (baseline audit and 1 Nov digest, both on `main`; no later digest). The script therefore defaults to the honest "not yet" wording, with explicit evidence slots to swap in if real results land before recording.
 
 ## Pre-record checklist (the SLOTs)
 
 | Slot | Default wording stays unless | Evidence needed | Who checks |
 |---|---|---|---|
 | SLOT-1 merged work | state re-read on recording day | PR list with as-of date on screen | Kireeti |
-| SLOT-2 engine and tests | #19 merged and main green, suite run | test output with real passed/total (27 cases, 29 checks reported in #26 from a run on #19's branch) | Narthananilaa, X2 |
+| SLOT-2 engine and tests | main green on recording day (CI Benchmarks passed on `main` at 8b6faa5), suite run | test output with real passed/total (27 cases, 29 checks in the CI run on `main`) | Narthananilaa, X2 |
 | SLOT-3 research | D7 sessions actually held, consented | de-identified notes, counts with denominators | Delfine, X2 |
 | SLOT-4 P0 physical trial | measured shirt made and recorded | physical record: predicted and measured mm, number of measurements | Narthananilaa, X2 |
 | SLOT-5 conclusion | any of the above change | as above | all three |
-| SLOT-6 app screens | D3/D4 PRs (#25, #24) merged | merged PR per screen | Delfine, X2 |
+| SLOT-6 app screens | D3/D4 PRs (#25, #24) merged (done 9 Nov) | merged PR per screen | Delfine, X2 |
 
 ## Open questions for the founders
 
