@@ -374,7 +374,7 @@ Work agents may only prepare, and that is listed for L0 [S10 `human-tasks.md`]. 
 
 ## References
 
-Internal documents are listed in `SOURCES.md` under tags S1–S24. **No academic literature is cited yet.** The references below come from the project's own sources; garment pattern-making, ease and fit, and human-AI decision support literature has not been reviewed for this report.
+Internal documents are listed in `SOURCES.md` under tags S1–S25. **No academic literature is cited yet.** The references below come from the project's own sources; garment pattern-making, ease and fit, and human-AI decision support literature has not been reviewed for this report.
 
 1. School of Electrical and Electronic Engineering, NTU. *Final Year Project* (EEE intranet page, submission deadlines table), printed 22 Oct 2026.
 2. School of Electrical and Electronic Engineering, NTU. *Suggested Format of FYP Interim Report.*

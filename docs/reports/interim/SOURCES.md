@@ -32,6 +32,7 @@ Maps each factual claim in `interim-report.md` to its source. Revised 9 Nov 2026
 | S22 | Microsoft Imagine Cup 2027 Official Rules and Regulations, last updated 4 Nov 2026: §3 schedule, §4.1 and §4.2 eligibility, §7 and §8 Azure Subscription ID and services requirement (10 services, US$1.00 usage each, by 28 Feb 2027), §8 and §12.3 Stage 2 materials, deadline 23:59 CST on 28 Feb 2027 (read in `rules.txt`). | source text `rules.txt` |
 | S23 | Kireeti's answers of 9 Nov 2026, relayed by the project lead: Azure, merges, approvals, shirt, measurements, make, reviewer, survey, research, device, effort, obstacles, data rule, final review, check-ins; and the facts that no legal entity exists and that agents wrote code under Kireeti's direction. Not independently verified against any document | lead message, 9 Nov 2026 |
 | S24 | Imagine Cup FAQ, https://imaginecup.microsoft.com/en-us/support/faq, read by X2 on 9 Nov 2026 (not read by me) | web |
+| S25 | Prototype screenshots, `docs/reports/interim/figures/01-garment-capture.png` to `08-website.png`, supplied by the project lead from the folder `interim-report-figures` on Kireeti's desktop: captured 9 Nov 2026 from `main@8b6faa5` in a desktop browser at phone width, with `react-native-web` added only in a temporary local copy (not in the repository). I viewed figures 5, 7 and 8; captions for the others follow the lead's description | files, lead message |
 
 S8, S10 are L0's own reports. S10 is dated 1 Nov and was merged on 9 Nov; no later L0 rating is on `main`.
 
@@ -125,6 +126,7 @@ S8, S10 are L0's own reports. S10 is dated 1 Nov and was merged on 9 Nov; no lat
 | 2.4 | Responsibilities now vs the Project Plan; reasons not recorded | S21; S6 `CLAUDE.md` |
 | 2.6 | Shirt not chosen (planned type), no measurements, marking, cutting or sewing, no reviewer, no interviews, Azure not set up, Samsung S24 Ultra and EAS account active | S23; S20 |
 | 2.7, 2.8 | Weekly meetings of about 3 to 4 hours; costs not recorded; no other obstacles | S23 |
+| 2.10 | Figures 1 to 8 and the shared note (mock data, not a real garment, nothing verified, not run on a phone, not connected to the API, `react-native-web` not in the repo) | S25; S19; S20 |
 | 2.9 | PRs #5, #6, #10, #15, #18, #19, #22, #35 and agents K1 to K6; #23 open; scaffold commit and #16 from Kireeti's account; agents wrote the code under Kireeti's direction | S17; S6; S11; S23 |
 | 3.4 | Imagine Cup entry risks: entity founded on or after 2 Nov 2024, Azure Subscription ID and Microsoft for Startups account, 10 services with US$1.00 usage each, 2 to 3 minute demo, pitch deck, architecture overview; no entity exists | S22 §4.1, §4.2, §7, §8, §12.3; S23 |
 | App. A | Data rule confirmed: no real photos, body measurements or secrets in repo, prompts or logs; nothing real tested; final review by Kireeti line by line, still to happen | S23 |
