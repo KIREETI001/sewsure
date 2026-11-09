@@ -200,6 +200,7 @@ def test_reject_empty_description() -> None:
             description=" ",
         )
 
+
 def test_defect_is_immutable() -> None:
     defect = make_defect()
 
@@ -216,6 +217,7 @@ def test_condition_is_immutable() -> None:
 
     with pytest.raises(FrozenInstanceError):
         setattr(condition, attribute_name, (make_defect(),))
+
 
 def test_defect_without_panel_is_allowed() -> None:
     defect = GarmentDefect(
