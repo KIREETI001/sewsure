@@ -1,0 +1,297 @@
+{
+  "mock": true,
+  "scenario": "stale_after_measurements_change",
+  "description": "The user replaced the measurements after a crop passed. The revision keeps PASS_SUPPORTED_CHECKS because only the engine sets states, stale is true, and GET cut-plan returns 409 REVISION_STALE until a recheck.",
+  "project": {
+    "project_id": "prj-stale",
+    "owner_id": "usr-demo-01",
+    "garment_id": "gar-stale",
+    "title": null,
+    "measurements_id": "msr-stale",
+    "latest_job_id": "job-stale",
+    "created_at": "2026-10-28T09:00:00Z",
+    "updated_at": "2026-10-28T09:01:30Z"
+  },
+  "garment": {
+    "garment_id": "gar-stale",
+    "project_id": "prj-stale",
+    "owner_id": "usr-demo-01",
+    "category": "woven_shirt",
+    "fabric_family": "woven",
+    "attribute_origin": "ai_suggested_user_confirmed",
+    "attributes_confirmed_at": "2026-10-28T09:00:00Z",
+    "visible_features": [
+      "button_placket"
+    ],
+    "condition_notes": null,
+    "photos": [
+      {
+        "photo_id": "pho-stale-front",
+        "garment_id": "gar-stale",
+        "view": "front",
+        "storage_ref": "mock/garments/gar-stale/front.jpg",
+        "content_type": "image/jpeg",
+        "byte_size": 1843200,
+        "width_px": 3024,
+        "height_px": 4032,
+        "status": "verified",
+        "has_calibration_marker": true,
+        "image_use_consent": "app_only",
+        "created_at": "2026-10-28T09:00:00Z"
+      },
+      {
+        "photo_id": "pho-stale-back",
+        "garment_id": "gar-stale",
+        "view": "back",
+        "storage_ref": "mock/garments/gar-stale/back.jpg",
+        "content_type": "image/jpeg",
+        "byte_size": 1843200,
+        "width_px": 3024,
+        "height_px": 4032,
+        "status": "verified",
+        "has_calibration_marker": true,
+        "image_use_consent": "app_only",
+        "created_at": "2026-10-28T09:00:00Z"
+      }
+    ],
+    "created_at": "2026-10-28T09:00:00Z",
+    "updated_at": "2026-10-28T09:00:00Z"
+  },
+  "measurements": {
+    "measurements": {
+      "measurements_id": "msr-stale",
+      "project_id": "prj-stale",
+      "units": "mm",
+      "garment": {
+        "shoulder_to_hem": {
+          "value_mm": 760,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
+        },
+        "chest_flat_width": {
+          "value_mm": 560,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
+        },
+        "hem_width": {
+          "value_mm": 540,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
+        },
+        "placket_end_from_shoulder": {
+          "value_mm": 700,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
+        }
+      },
+      "body": null,
+      "updated_at": "2026-10-28T09:00:00Z"
+    },
+    "issues": [],
+    "missing_dimensions": []
+  },
+  "inspiration": {
+    "inspiration_id": "ins-stale",
+    "project_id": "prj-stale",
+    "text": "Make it a cropped shirt.",
+    "photo_ids": [],
+    "requested_features": {
+      "transformation": "crop",
+      "target_finished_length_mm": 500
+    },
+    "surprise_me": false,
+    "skill_level": "beginner",
+    "tools": [
+      "ruler",
+      "chalk",
+      "fabric_scissors",
+      "hand_needle",
+      "iron"
+    ],
+    "supplies": [],
+    "recogniser_notes": null,
+    "created_at": "2026-10-28T09:00:00Z"
+  },
+  "job": {
+    "job_id": "job-stale",
+    "kind": "generate_designs",
+    "project_id": "prj-stale",
+    "state": "complete",
+    "stage": null,
+    "result": {
+      "outcome": "designs",
+      "design_ids": [
+        "des-stale-a"
+      ]
+    },
+    "error": null,
+    "created_at": "2026-10-28T09:00:00Z",
+    "updated_at": "2026-10-28T09:01:30Z"
+  },
+  "designs": {
+    "project_id": "prj-stale",
+    "job_id": "job-stale",
+    "designs": [
+      {
+        "design_id": "des-stale-a",
+        "project_id": "prj-stale",
+        "rank": 1,
+        "title": "Cropped shirt",
+        "current_revision_id": "rev-stale-a-1",
+        "status": "PASS_SUPPORTED_CHECKS",
+        "stale": true,
+        "recipe_id": "woven_shirt_crop_v1",
+        "parameters": {
+          "finished_length_mm": 500,
+          "hem_allowance_mm": 25,
+          "hem_finish": "double_fold"
+        },
+        "required_panels": [
+          "front_left",
+          "front_right",
+          "back_panel"
+        ],
+        "explanation": "Measurements changed since this check; recheck this design before cutting.",
+        "failure_codes": [],
+        "missing_dimensions": [],
+        "preview": {
+          "preview_id": "prv-stale-a-1",
+          "approximate": true,
+          "kind": "silhouette_2d",
+          "photo_id": null
+        },
+        "provenance": {
+          "source": "mock",
+          "schema_version": "1.0",
+          "engine_version": "0.1.0",
+          "model_id": null,
+          "prompt_version": null
+        },
+        "created_at": "2026-10-28T09:01:30Z"
+      }
+    ],
+    "binding_constraint": null
+  },
+  "revisions": [
+    {
+      "revision_id": "rev-stale-a-1",
+      "design_id": "des-stale-a",
+      "project_id": "prj-stale",
+      "garment_id": "gar-stale",
+      "parent_revision_id": null,
+      "revision_number": 1,
+      "inputs_hash": "475cffb0a389a10edfb5daf43c21a882aae5128b9a770449ef8358ff3a23ec6c",
+      "inputs": {
+        "measurements_id": "msr-stale-old",
+        "garment_category": "woven_shirt",
+        "fabric_family": "woven",
+        "inspiration_id": "ins-stale",
+        "calibration_id": null
+      },
+      "recipe_id": "woven_shirt_crop_v1",
+      "recipe_version": "1.0",
+      "parameters": {
+        "finished_length_mm": 500,
+        "hem_allowance_mm": 25,
+        "hem_finish": "double_fold"
+      },
+      "units": "mm",
+      "geometry_mm": {
+        "original_length_mm": 780,
+        "finished_length_mm": 500,
+        "hem_allowance_mm": 25,
+        "cut_mark_from_shoulder_mm": 525,
+        "fabric_removed_mm": 255
+      },
+      "checks": {
+        "hard_pass": true,
+        "failure_codes": [],
+        "residuals": [
+          {
+            "check_id": "length_gate",
+            "quantity": "garment_length",
+            "required_mm": 525,
+            "available_mm": 780,
+            "residual_mm": 255,
+            "tolerance_mm": 0
+          }
+        ],
+        "missing_dimensions": [],
+        "uncertainty_flags": [
+          "SIDE_SEAMS_NOT_VERIFIED"
+        ],
+        "checks": [
+          {
+            "check_id": "supported_material",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "required_dimensions",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "length_gate",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "structure",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "construction",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          }
+        ],
+        "alternatives": [],
+        "engine_version": "0.1.0",
+        "checked_at": "2026-10-28T09:01:30Z"
+      },
+      "status": "PASS_SUPPORTED_CHECKS",
+      "stale": true,
+      "diy_suitability": "DIY_WITH_PRACTICE",
+      "pending_checks": [
+        "Measurements changed since this check; recheck this design before cutting."
+      ],
+      "fit": null,
+      "cut_plan_id": "cut-stale-a-1",
+      "preview": {
+        "preview_id": "prv-stale-a-1",
+        "approximate": true,
+        "kind": "silhouette_2d",
+        "photo_id": null
+      },
+      "superseded_by_revision_id": null,
+      "provenance": {
+        "source": "mock",
+        "schema_version": "1.0",
+        "engine_version": "0.1.0",
+        "model_id": null,
+        "prompt_version": null
+      },
+      "created_at": "2026-10-28T09:01:30Z"
+    }
+  ],
+  "cut_plan_error": {
+    "code": "REVISION_STALE",
+    "message": "Measurements changed since this check. Recheck the design before cutting.",
+    "recoverable": true
+  }
+}

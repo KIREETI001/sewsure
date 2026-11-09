@@ -1,0 +1,14 @@
+# Zero designs: the binding constraint and a next step are shown, and no card is invented.
+# Mock build only: the scenario parameter is honoured only by the fixture-backed client.
+appId: com.sewsure.mobile
+---
+- launchApp
+- openLink: sewsure:///generating?scenario=zero_designs
+- extendedWaitUntil:
+    visible: "No option passed the checks"
+    timeout: 20000
+- assertVisible: "The garment is not long enough for this change."
+- assertVisible: "Next step"
+- assertVisible: "Change my request"
+- assertNotVisible: "View design.*"
+- assertVisible: "MOCK DATA"

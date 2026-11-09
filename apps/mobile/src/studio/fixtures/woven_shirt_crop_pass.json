@@ -1,0 +1,982 @@
+{
+  "mock": true,
+  "scenario": "woven_shirt_crop_pass",
+  "description": "Feasible crop of a woven shirt. Two designs (not three); design A was edited once, so rev 1 is SUPERSEDED and rev 2 passed. Includes cut plan, DIY steps, progress and a tailor quote.",
+  "user": {
+    "user_id": "usr-demo-01",
+    "role": "user",
+    "display_name": "Demo user",
+    "profile_ref": null,
+    "consent": {
+      "consent_version": "2026-10-draft",
+      "accepted_at": "2026-10-28T09:00:00Z",
+      "body_measurements": false,
+      "image_use": "app_only",
+      "withdrawn_at": null
+    },
+    "created_at": "2026-10-28T09:00:00Z"
+  },
+  "project": {
+    "project_id": "prj-crop",
+    "owner_id": "usr-demo-01",
+    "garment_id": "gar-crop",
+    "title": null,
+    "measurements_id": "msr-crop",
+    "latest_job_id": "job-crop",
+    "created_at": "2026-10-28T09:00:00Z",
+    "updated_at": "2026-10-28T09:01:30Z"
+  },
+  "garment": {
+    "garment_id": "gar-crop",
+    "project_id": "prj-crop",
+    "owner_id": "usr-demo-01",
+    "category": "woven_shirt",
+    "fabric_family": "woven",
+    "attribute_origin": "ai_suggested_user_confirmed",
+    "attributes_confirmed_at": "2026-10-28T09:00:00Z",
+    "visible_features": [
+      "button_placket",
+      "chest_pocket",
+      "curved_hem"
+    ],
+    "condition_notes": null,
+    "photos": [
+      {
+        "photo_id": "pho-crop-front",
+        "garment_id": "gar-crop",
+        "view": "front",
+        "storage_ref": "mock/garments/gar-crop/front.jpg",
+        "content_type": "image/jpeg",
+        "byte_size": 1843200,
+        "width_px": 3024,
+        "height_px": 4032,
+        "status": "verified",
+        "has_calibration_marker": true,
+        "image_use_consent": "app_only",
+        "created_at": "2026-10-28T09:00:00Z"
+      },
+      {
+        "photo_id": "pho-crop-back",
+        "garment_id": "gar-crop",
+        "view": "back",
+        "storage_ref": "mock/garments/gar-crop/back.jpg",
+        "content_type": "image/jpeg",
+        "byte_size": 1843200,
+        "width_px": 3024,
+        "height_px": 4032,
+        "status": "verified",
+        "has_calibration_marker": true,
+        "image_use_consent": "app_only",
+        "created_at": "2026-10-28T09:00:00Z"
+      }
+    ],
+    "created_at": "2026-10-28T09:00:00Z",
+    "updated_at": "2026-10-28T09:00:00Z"
+  },
+  "measurements": {
+    "measurements": {
+      "measurements_id": "msr-crop",
+      "project_id": "prj-crop",
+      "units": "mm",
+      "garment": {
+        "shoulder_to_hem": {
+          "value_mm": 780,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
+        },
+        "chest_flat_width": {
+          "value_mm": 560,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
+        },
+        "hem_width": {
+          "value_mm": 540,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
+        },
+        "placket_end_from_shoulder": {
+          "value_mm": 700,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
+        }
+      },
+      "body": null,
+      "updated_at": "2026-10-28T09:00:00Z"
+    },
+    "issues": [],
+    "missing_dimensions": []
+  },
+  "inspiration": {
+    "inspiration_id": "ins-crop",
+    "project_id": "prj-crop",
+    "text": "Make it a cropped shirt I can wear over a dress.",
+    "photo_ids": [],
+    "requested_features": {
+      "transformation": "crop",
+      "target_finished_length_mm": 500,
+      "closure_preservation": true
+    },
+    "surprise_me": false,
+    "skill_level": "beginner",
+    "tools": [
+      "ruler",
+      "chalk",
+      "fabric_scissors",
+      "hand_needle",
+      "iron"
+    ],
+    "supplies": [],
+    "recogniser_notes": null,
+    "created_at": "2026-10-28T09:00:00Z"
+  },
+  "job": {
+    "job_id": "job-crop",
+    "kind": "generate_designs",
+    "project_id": "prj-crop",
+    "state": "complete",
+    "stage": null,
+    "result": {
+      "outcome": "designs",
+      "design_ids": [
+        "des-crop-a",
+        "des-crop-b"
+      ]
+    },
+    "error": null,
+    "created_at": "2026-10-28T09:00:00Z",
+    "updated_at": "2026-10-28T09:01:30Z"
+  },
+  "designs": {
+    "project_id": "prj-crop",
+    "job_id": "job-crop",
+    "designs": [
+      {
+        "design_id": "des-crop-a",
+        "project_id": "prj-crop",
+        "rank": 1,
+        "title": "Cropped shirt, 500 mm",
+        "current_revision_id": "rev-crop-a-2",
+        "status": "PASS_SUPPORTED_CHECKS",
+        "stale": false,
+        "recipe_id": "woven_shirt_crop_v1",
+        "parameters": {
+          "finished_length_mm": 500,
+          "hem_allowance_mm": 25,
+          "hem_finish": "double_fold"
+        },
+        "required_panels": [
+          "back_panel",
+          "front_left",
+          "front_right"
+        ],
+        "explanation": "Crop to 500 mm finished length with a 25 mm hem turn-up. The cut mark sits 525 mm below the shoulder point. Side seams are not verified by this check; measure with a ruler before cutting.",
+        "failure_codes": [],
+        "missing_dimensions": [],
+        "preview": {
+          "preview_id": "prv-crop-a-2",
+          "approximate": true,
+          "kind": "silhouette_2d",
+          "photo_id": null
+        },
+        "provenance": {
+          "source": "mock",
+          "schema_version": "1.0",
+          "engine_version": "0.1.0",
+          "model_id": null,
+          "prompt_version": null
+        },
+        "created_at": "2026-10-28T09:01:30Z"
+      },
+      {
+        "design_id": "des-crop-b",
+        "project_id": "prj-crop",
+        "rank": 2,
+        "title": "Short crop, 450 mm",
+        "current_revision_id": "rev-crop-b-1",
+        "status": "PASS_SUPPORTED_CHECKS",
+        "stale": false,
+        "recipe_id": "woven_shirt_crop_v1",
+        "parameters": {
+          "finished_length_mm": 450,
+          "hem_allowance_mm": 30,
+          "hem_finish": "double_fold"
+        },
+        "required_panels": [
+          "back_panel",
+          "front_left",
+          "front_right"
+        ],
+        "explanation": "Crop to 450 mm finished length with a 30 mm hem turn-up. The cut mark sits 480 mm below the shoulder point. Side seams are not verified by this check; measure with a ruler before cutting.",
+        "failure_codes": [],
+        "missing_dimensions": [],
+        "preview": {
+          "preview_id": "prv-crop-b-1",
+          "approximate": true,
+          "kind": "silhouette_2d",
+          "photo_id": null
+        },
+        "provenance": {
+          "source": "mock",
+          "schema_version": "1.0",
+          "engine_version": "0.1.0",
+          "model_id": null,
+          "prompt_version": null
+        },
+        "created_at": "2026-10-28T09:01:30Z"
+      }
+    ],
+    "binding_constraint": null
+  },
+  "revisions": [
+    {
+      "revision_id": "rev-crop-a-1",
+      "design_id": "des-crop-a",
+      "project_id": "prj-crop",
+      "garment_id": "gar-crop",
+      "parent_revision_id": null,
+      "revision_number": 1,
+      "inputs_hash": "3381af2202ff3bc95f58f84d65770e21f7035c8ee30b681d1470cff1b189c022",
+      "inputs": {
+        "measurements_id": "msr-crop",
+        "garment_category": "woven_shirt",
+        "fabric_family": "woven",
+        "inspiration_id": "ins-crop",
+        "calibration_id": null
+      },
+      "recipe_id": "woven_shirt_crop_v1",
+      "recipe_version": "1.0",
+      "parameters": {
+        "finished_length_mm": 500,
+        "hem_allowance_mm": 30,
+        "hem_finish": "double_fold"
+      },
+      "units": "mm",
+      "geometry_mm": {
+        "original_length_mm": 780,
+        "finished_length_mm": 500,
+        "hem_allowance_mm": 30,
+        "cut_mark_from_shoulder_mm": 530,
+        "fabric_removed_mm": 250
+      },
+      "checks": {
+        "hard_pass": true,
+        "failure_codes": [],
+        "residuals": [
+          {
+            "check_id": "length_gate",
+            "quantity": "garment_length",
+            "required_mm": 530,
+            "available_mm": 780,
+            "residual_mm": 250,
+            "tolerance_mm": 0
+          }
+        ],
+        "missing_dimensions": [],
+        "uncertainty_flags": [
+          "SIDE_SEAMS_NOT_VERIFIED"
+        ],
+        "checks": [
+          {
+            "check_id": "supported_material",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "required_dimensions",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "length_gate",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "structure",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "construction",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          }
+        ],
+        "alternatives": [],
+        "engine_version": "0.1.0",
+        "checked_at": "2026-10-28T09:01:30Z"
+      },
+      "status": "SUPERSEDED",
+      "stale": false,
+      "diy_suitability": "DIY_WITH_PRACTICE",
+      "pending_checks": [
+        "Verify the shoulder-to-hem reference with a ruler on the garment before cutting."
+      ],
+      "fit": null,
+      "cut_plan_id": "cut-crop-a-1",
+      "preview": {
+        "preview_id": "prv-crop-a-1",
+        "approximate": true,
+        "kind": "silhouette_2d",
+        "photo_id": null
+      },
+      "superseded_by_revision_id": "rev-crop-a-2",
+      "provenance": {
+        "source": "mock",
+        "schema_version": "1.0",
+        "engine_version": "0.1.0",
+        "model_id": null,
+        "prompt_version": null
+      },
+      "created_at": "2026-10-28T09:01:30Z"
+    },
+    {
+      "revision_id": "rev-crop-a-2",
+      "design_id": "des-crop-a",
+      "project_id": "prj-crop",
+      "garment_id": "gar-crop",
+      "parent_revision_id": "rev-crop-a-1",
+      "revision_number": 2,
+      "inputs_hash": "d0df8554afa11480829b3a86d2fd49e0f8fb8347bb0c5a1e20b31dbc7d160f1d",
+      "inputs": {
+        "measurements_id": "msr-crop",
+        "garment_category": "woven_shirt",
+        "fabric_family": "woven",
+        "inspiration_id": "ins-crop",
+        "calibration_id": null
+      },
+      "recipe_id": "woven_shirt_crop_v1",
+      "recipe_version": "1.0",
+      "parameters": {
+        "finished_length_mm": 500,
+        "hem_allowance_mm": 25,
+        "hem_finish": "double_fold"
+      },
+      "units": "mm",
+      "geometry_mm": {
+        "original_length_mm": 780,
+        "finished_length_mm": 500,
+        "hem_allowance_mm": 25,
+        "cut_mark_from_shoulder_mm": 525,
+        "fabric_removed_mm": 255
+      },
+      "checks": {
+        "hard_pass": true,
+        "failure_codes": [],
+        "residuals": [
+          {
+            "check_id": "length_gate",
+            "quantity": "garment_length",
+            "required_mm": 525,
+            "available_mm": 780,
+            "residual_mm": 255,
+            "tolerance_mm": 0
+          }
+        ],
+        "missing_dimensions": [],
+        "uncertainty_flags": [
+          "SIDE_SEAMS_NOT_VERIFIED"
+        ],
+        "checks": [
+          {
+            "check_id": "supported_material",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "required_dimensions",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "length_gate",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "structure",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "construction",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          }
+        ],
+        "alternatives": [],
+        "engine_version": "0.1.0",
+        "checked_at": "2026-10-28T09:01:30Z"
+      },
+      "status": "PASS_SUPPORTED_CHECKS",
+      "stale": false,
+      "diy_suitability": "DIY_WITH_PRACTICE",
+      "pending_checks": [
+        "Verify the shoulder-to-hem reference with a ruler on the garment before cutting."
+      ],
+      "fit": null,
+      "cut_plan_id": "cut-crop-a-2",
+      "preview": {
+        "preview_id": "prv-crop-a-2",
+        "approximate": true,
+        "kind": "silhouette_2d",
+        "photo_id": null
+      },
+      "superseded_by_revision_id": null,
+      "provenance": {
+        "source": "mock",
+        "schema_version": "1.0",
+        "engine_version": "0.1.0",
+        "model_id": null,
+        "prompt_version": null
+      },
+      "created_at": "2026-10-28T09:01:30Z"
+    },
+    {
+      "revision_id": "rev-crop-b-1",
+      "design_id": "des-crop-b",
+      "project_id": "prj-crop",
+      "garment_id": "gar-crop",
+      "parent_revision_id": null,
+      "revision_number": 1,
+      "inputs_hash": "a26591eeaf35ec90b60c81a6f7ff2a8953743e71e705565a5df2c3bd2e6351d4",
+      "inputs": {
+        "measurements_id": "msr-crop",
+        "garment_category": "woven_shirt",
+        "fabric_family": "woven",
+        "inspiration_id": "ins-crop",
+        "calibration_id": null
+      },
+      "recipe_id": "woven_shirt_crop_v1",
+      "recipe_version": "1.0",
+      "parameters": {
+        "finished_length_mm": 450,
+        "hem_allowance_mm": 30,
+        "hem_finish": "double_fold"
+      },
+      "units": "mm",
+      "geometry_mm": {
+        "original_length_mm": 780,
+        "finished_length_mm": 450,
+        "hem_allowance_mm": 30,
+        "cut_mark_from_shoulder_mm": 480,
+        "fabric_removed_mm": 300
+      },
+      "checks": {
+        "hard_pass": true,
+        "failure_codes": [],
+        "residuals": [
+          {
+            "check_id": "length_gate",
+            "quantity": "garment_length",
+            "required_mm": 480,
+            "available_mm": 780,
+            "residual_mm": 300,
+            "tolerance_mm": 0
+          }
+        ],
+        "missing_dimensions": [],
+        "uncertainty_flags": [
+          "SIDE_SEAMS_NOT_VERIFIED"
+        ],
+        "checks": [
+          {
+            "check_id": "supported_material",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "required_dimensions",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "length_gate",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "structure",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          },
+          {
+            "check_id": "construction",
+            "result": "pass",
+            "failure_code": null,
+            "detail": null
+          }
+        ],
+        "alternatives": [],
+        "engine_version": "0.1.0",
+        "checked_at": "2026-10-28T09:01:30Z"
+      },
+      "status": "PASS_SUPPORTED_CHECKS",
+      "stale": false,
+      "diy_suitability": "DIY_WITH_PRACTICE",
+      "pending_checks": [
+        "Verify the shoulder-to-hem reference with a ruler on the garment before cutting."
+      ],
+      "fit": null,
+      "cut_plan_id": "cut-crop-b-1",
+      "preview": {
+        "preview_id": "prv-crop-b-1",
+        "approximate": true,
+        "kind": "silhouette_2d",
+        "photo_id": null
+      },
+      "superseded_by_revision_id": null,
+      "provenance": {
+        "source": "mock",
+        "schema_version": "1.0",
+        "engine_version": "0.1.0",
+        "model_id": null,
+        "prompt_version": null
+      },
+      "created_at": "2026-10-28T09:01:30Z"
+    }
+  ],
+  "cut_plan": {
+    "cut_plan_id": "cut-crop-a-2",
+    "revision_id": "rev-crop-a-2",
+    "recipe_id": "woven_shirt_crop_v1",
+    "recipe_version": "1.0",
+    "units": "mm",
+    "mode": "dimensioned_diagram",
+    "coordinate_frame": {
+      "origin_landmark": "high_shoulder_point",
+      "x_axis": "across the body, towards centre front",
+      "y_axis": "downwards, towards the hem"
+    },
+    "pieces": [
+      {
+        "piece_id": "front_left",
+        "source_panel": "front_left",
+        "lines": [
+          {
+            "line_id": "cut_line",
+            "kind": "cut",
+            "points_mm": [
+              [
+                0,
+                525
+              ],
+              [
+                280,
+                525
+              ]
+            ],
+            "label": "Cut 525 mm below shoulder"
+          },
+          {
+            "line_id": "fold_line",
+            "kind": "fold",
+            "points_mm": [
+              [
+                0,
+                512.5
+              ],
+              [
+                280,
+                512.5
+              ]
+            ],
+            "label": "First fold"
+          },
+          {
+            "line_id": "hem_line",
+            "kind": "fold",
+            "points_mm": [
+              [
+                0,
+                500
+              ],
+              [
+                280,
+                500
+              ]
+            ],
+            "label": "Finished hem 500 mm"
+          }
+        ],
+        "prohibited_regions": [
+          "button_placket"
+        ]
+      },
+      {
+        "piece_id": "front_right",
+        "source_panel": "front_right",
+        "lines": [
+          {
+            "line_id": "cut_line",
+            "kind": "cut",
+            "points_mm": [
+              [
+                0,
+                525
+              ],
+              [
+                280,
+                525
+              ]
+            ],
+            "label": "Cut 525 mm below shoulder"
+          },
+          {
+            "line_id": "fold_line",
+            "kind": "fold",
+            "points_mm": [
+              [
+                0,
+                512.5
+              ],
+              [
+                280,
+                512.5
+              ]
+            ],
+            "label": "First fold"
+          },
+          {
+            "line_id": "hem_line",
+            "kind": "fold",
+            "points_mm": [
+              [
+                0,
+                500
+              ],
+              [
+                280,
+                500
+              ]
+            ],
+            "label": "Finished hem 500 mm"
+          }
+        ],
+        "prohibited_regions": [
+          "button_placket"
+        ]
+      },
+      {
+        "piece_id": "back_panel",
+        "source_panel": "back_panel",
+        "lines": [
+          {
+            "line_id": "cut_line",
+            "kind": "cut",
+            "points_mm": [
+              [
+                0,
+                525
+              ],
+              [
+                280,
+                525
+              ]
+            ],
+            "label": "Cut 525 mm below shoulder"
+          },
+          {
+            "line_id": "fold_line",
+            "kind": "fold",
+            "points_mm": [
+              [
+                0,
+                512.5
+              ],
+              [
+                280,
+                512.5
+              ]
+            ],
+            "label": "First fold"
+          },
+          {
+            "line_id": "hem_line",
+            "kind": "fold",
+            "points_mm": [
+              [
+                0,
+                500
+              ],
+              [
+                280,
+                500
+              ]
+            ],
+            "label": "Finished hem 500 mm"
+          }
+        ],
+        "prohibited_regions": []
+      }
+    ],
+    "allowances": {
+      "seam_allowance_mm": 0,
+      "hem_allowance_mm": 25
+    },
+    "ruler_checkpoints": [
+      {
+        "checkpoint_id": "cut_mark_front",
+        "instruction": "Measure straight down from the high shoulder point and mark the cut line with chalk.",
+        "from_landmark": "high_shoulder_point",
+        "distance_mm": 525,
+        "tolerance_mm": 3
+      },
+      {
+        "checkpoint_id": "cut_mark_back",
+        "instruction": "Repeat on the back from the shoulder seam and check both marks line up at the side seams.",
+        "from_landmark": "shoulder_seam",
+        "distance_mm": 525,
+        "tolerance_mm": 3
+      }
+    ],
+    "calibration": {
+      "state": "uncalibrated",
+      "calibration_id": null,
+      "reference_photo_id": "pho-crop-front",
+      "scale_px_per_mm": null,
+      "median_error_mm": null,
+      "max_error_mm": null,
+      "tolerance_mm": null,
+      "rejection_reason": "No calibration has been run for this mock."
+    },
+    "provenance": {
+      "source": "mock",
+      "schema_version": "1.0",
+      "engine_version": "0.1.0",
+      "model_id": null,
+      "prompt_version": null
+    },
+    "created_at": "2026-10-28T09:05:00Z"
+  },
+  "diy_steps": {
+    "revision_id": "rev-crop-a-2",
+    "recipe_id": "woven_shirt_crop_v1",
+    "recipe_version": "1.0",
+    "review": {
+      "reviewed_on": "2026-10-20",
+      "reviewer_role": "supervisor"
+    },
+    "required_tools": [
+      "ruler",
+      "chalk",
+      "fabric_scissors",
+      "hand_needle",
+      "iron"
+    ],
+    "skill_prerequisites": [
+      "straight_hand_stitch",
+      "double_fold_hem"
+    ],
+    "materials": [
+      "Original shirt",
+      "Matching thread"
+    ],
+    "steps": [
+      {
+        "step_id": "s1_prepare",
+        "order": 1,
+        "phase": "prepare",
+        "title": "Press the shirt",
+        "body": "Lay the shirt flat on a hard surface and smooth out folds.",
+        "irreversible": false,
+        "checkpoint_id": null,
+        "media_refs": []
+      },
+      {
+        "step_id": "s2_measure",
+        "order": 2,
+        "phase": "measure",
+        "title": "Find the shoulder point",
+        "body": "Locate the high shoulder point on each front panel.",
+        "irreversible": false,
+        "checkpoint_id": null,
+        "media_refs": []
+      },
+      {
+        "step_id": "s3_mark",
+        "order": 3,
+        "phase": "mark",
+        "title": "Mark the cut line",
+        "body": "Mark 525 mm down from the shoulder point with chalk.",
+        "irreversible": false,
+        "checkpoint_id": null,
+        "media_refs": []
+      },
+      {
+        "step_id": "s4_ruler_checkpoint",
+        "order": 4,
+        "phase": "ruler_checkpoint",
+        "title": "Check the marks",
+        "body": "Re-measure both marks with a ruler. They must read 525 mm, within 3 mm.",
+        "irreversible": false,
+        "checkpoint_id": "cut_mark_front",
+        "media_refs": []
+      },
+      {
+        "step_id": "s5_cut",
+        "order": 5,
+        "phase": "cut",
+        "title": "Cut along the line",
+        "body": "Cut through one layer at a time along the chalk line.",
+        "irreversible": true,
+        "checkpoint_id": null,
+        "media_refs": []
+      },
+      {
+        "step_id": "s6_finish",
+        "order": 6,
+        "phase": "finish",
+        "title": "Hem",
+        "body": "Fold 12.5 mm, press, fold again and stitch close to the inner fold.",
+        "irreversible": false,
+        "checkpoint_id": null,
+        "media_refs": []
+      },
+      {
+        "step_id": "s7_verify",
+        "order": 7,
+        "phase": "verify",
+        "title": "Measure the result",
+        "body": "Measure the finished length from the shoulder point and record it.",
+        "irreversible": false,
+        "checkpoint_id": null,
+        "media_refs": []
+      }
+    ],
+    "practice_exercises": [
+      {
+        "step_id": "p1_hem_scrap",
+        "order": 1,
+        "phase": "practice",
+        "title": "Practise a hem",
+        "body": "Hem a 200 mm scrap strip before working on the shirt.",
+        "irreversible": false,
+        "checkpoint_id": null,
+        "media_refs": []
+      }
+    ],
+    "extra_tools_or_skills_required": false
+  },
+  "diy_progress": {
+    "progress_id": "prg-crop-a-2",
+    "revision_id": "rev-crop-a-2",
+    "user_id": "usr-demo-01",
+    "steps": [
+      {
+        "step_id": "s1_prepare",
+        "self_verification": "self_reported_done",
+        "checked_at": "2026-10-28T09:05:00Z",
+        "measured_mm": null
+      },
+      {
+        "step_id": "s2_measure",
+        "self_verification": "self_reported_done",
+        "checked_at": "2026-10-28T09:05:00Z",
+        "measured_mm": null
+      },
+      {
+        "step_id": "s3_mark",
+        "self_verification": "not_started",
+        "checked_at": null,
+        "measured_mm": null
+      }
+    ],
+    "updated_at": "2026-10-28T09:05:00Z"
+  },
+  "maker_request": {
+    "request_id": "req-crop-a-2",
+    "user_id": "usr-demo-01",
+    "tailor_id": "usr-tailor-01",
+    "revision_id": "rev-crop-a-2",
+    "brief": {
+      "verification_label": "verified_checks",
+      "design_status": "PASS_SUPPORTED_CHECKS",
+      "garment_category": "woven_shirt",
+      "modification_request": "Crop to 500 mm finished length with a double-fold hem.",
+      "shared_photo_ids": [
+        "pho-crop-front"
+      ],
+      "shared_measurements": {
+        "shoulder_to_hem": 780
+      },
+      "unresolved_checks": [
+        "Verify the shoulder-to-hem reference with a ruler on the garment before cutting."
+      ],
+      "consent": {
+        "consent_version": "2026-10-draft",
+        "shared_fields": [
+          "garment_category",
+          "photos.front",
+          "measurements.shoulder_to_hem"
+        ],
+        "consented_at": "2026-10-28T09:05:00Z"
+      }
+    },
+    "status": "QUOTED",
+    "price_estimate": {
+      "amount_minor": 1500,
+      "currency": "SGD"
+    },
+    "created_at": "2026-10-28T09:05:00Z",
+    "updated_at": "2026-10-28T09:05:00Z"
+  },
+  "quotes": [
+    {
+      "quote_id": "quo-crop-a-2",
+      "request_id": "req-crop-a-2",
+      "tailor_id": "usr-tailor-01",
+      "kind": "quote",
+      "price": {
+        "amount_minor": 1500,
+        "currency": "SGD"
+      },
+      "estimated_duration_days": 3,
+      "message": "Mock quote for UI work.",
+      "created_at": "2026-10-28T09:05:00Z"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "evd-crop-001",
+      "kind": "constraint_benchmark",
+      "input_case_id": "C01_normal_crop",
+      "revision_id": "rev-crop-a-2",
+      "outcome": "correct_accept",
+      "predicted_mm": {
+        "cut_mark_from_shoulder": 525
+      },
+      "actual_mm": {},
+      "abs_error_mm": {},
+      "corrections": [],
+      "notes": "Mock record showing the shape only. Not a measured result.",
+      "duration_min": null,
+      "cost": null,
+      "anonymous": true,
+      "media_consent": "none",
+      "recorded_at": "2026-10-28T09:05:00Z"
+    }
+  ]
+}
