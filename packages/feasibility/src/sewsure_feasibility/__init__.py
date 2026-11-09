@@ -55,6 +55,7 @@ __all__ = [
     "GarmentDefect",
     "GarmentProfile",
     "Measurement",
+    "OriginalGarmentRecord",
     "PatternPiece",
     "Placement",
     "Repairability",
@@ -84,3 +85,4 @@ from sewsure_feasibility.garment_profile import (
     GARMENT_MEASUREMENT_KEYS,
     GarmentProfile,
 )
+from sewsure_feasibility.original_garment import OriginalGarmentRecord
