@@ -83,7 +83,7 @@ class RevisionCreate(BaseModel):
     """
     parameters: common_schema.Parameters
     """
-    Parameters to change. Keys must be in the recipe's allow-list.
+    Parameters to change. Keys must be in the recipe's allow-list. Empty means recheck the parent's parameters against the current measurements (the recovery for a stale revision); use a new Idempotency-Key.
     """
 
 
@@ -179,6 +179,10 @@ class DesignRevision(BaseModel):
     """
     checks: constraint_result_schema.ConstraintResult
     status: design_state_schema.DesignState
+    stale: bool
+    """
+    true when this revision's inputs.measurements_id is no longer the project's current measurements_id, so its check ran on replaced values. Computed by the API at read time: it is not a design state, never changes status, and is not stored on the immutable revision or part of inputs_hash. While true, clients must not offer the result as current: show the recheck first and do not present the cut mark, geometry_mm or a cut guide as ready to use. Recheck with POST /v1/designs/{design_id}/revisions and empty parameters.
+    """
     diy_suitability: DiySuitability | None = None
     """
     User-specific DIY recommendation, separate from physical feasibility. null when no recipe applies.

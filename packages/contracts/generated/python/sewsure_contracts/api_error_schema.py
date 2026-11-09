@@ -34,6 +34,7 @@ class ApiError(BaseModel):
             examples=[
                 'VALIDATION_FAILED',
                 'REVISION_NOT_PASSING',
+                'REVISION_STALE',
                 'MODEL_TIMEOUT',
                 'RATE_LIMITED',
                 'FORBIDDEN',
