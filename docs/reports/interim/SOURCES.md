@@ -1,6 +1,6 @@
 # Sources for the interim report draft
 
-Maps each factual claim in `interim-report.md` to its source. Revised 9 Nov 2026 (v0.5, matching the report). Sources were first read 28 Oct 2026; GitHub facts were re-checked on 1, 2 and 9 Nov 2026. Source PDFs are in the founders' parent folder (outside this repo) and are not copied here.
+Maps each factual claim in `interim-report.md` to its source. Revised 9 Nov 2026 (v0.6, matching the report: Kireeti's individual report). Sources were first read 28 Oct 2026; GitHub facts were re-checked on 1, 2 and 9 Nov 2026. Source PDFs are in the founders' parent folder (outside this repo) and are not copied here.
 
 ## Source list
 
@@ -28,6 +28,9 @@ Maps each factual claim in `interim-report.md` to its source. Revised 9 Nov 2026
 | S18 | GitHub Actions runs on `main` read 9 Nov 2026: CI Benchmarks and CI Python succeeded on `8b6faa5` (11:12 UTC); X2 reports the CI Benchmarks log shows 27 cases, 29 checks, 0/21, 21/21, 8/8, 0/8, 0/29 and 29/29 exact matches (I did not read the log myself); earlier runs on the same morning were cancelled by newer pushes. Branch protection API: 0 approving reviews required, `enforce_admins` true | `gh run list --branch main`; `gh api .../branches/main/protection` |
 | S19 | X1 time-boxed rechecks on 9 Nov 2026: #22 at `7fb7198` (SQLite 73 passed, local PostgreSQL 16.2 41 passed, no merge blocker); #24 at `53076fd` (safe as demo-only code on mock data; D3/D4 mock mismatch); #25 at `6888b7f` (safe on mock data; "Verified" label shown with MOCK DATA; dead-end after edit). I read the comments, not the code, and ran nothing | PR issue comments |
 | S20 | This repo on `main@8b6faa5`, 9 Nov 2026: `packages/contracts` version `1.0.0-draft.3`; `woven_shirt_crop_v1` `status: draft`; `docs/evaluation/physical-make-record.md` says no make has been recorded; no `apps/mobile/eas.json`; `docs/decisions.md` P-02 (re-plan) `open`; latest digest `docs/digests/2026-11-01.md` | git |
+| S21 | Project Plan, Project No. A3126-261, "Design and build an industrial software or product for Microsoft Imagine Cup 2027", AY2026-27 Semester 1, 14 Sep 2026: students, supervisor Dr Tan Chee Wah Wesley, responsibility allocation, objective of at least 2 Microsoft AI services, tentative 8 Jan 2027 submission and 13 Feb 2027 training dates | source text `plan.txt` from the PDF (read 9 Nov) |
+| S22 | Microsoft Imagine Cup 2027 Official Rules and Regulations, last updated 4 Nov 2026: §3 schedule, §4.1 and §4.2 eligibility, §7 and §8 Azure Subscription ID and services requirement (10 services, US$1.00 usage each, by 28 Feb 2027), §8 and §12.3 Stage 2 materials, deadline 23:59 CST on 28 Feb 2027 (read in `rules.txt`). The FAQ was not read by me | source text `rules.txt` |
+| S23 | Kireeti's answers of 9 Nov 2026, relayed by the project lead: Azure, merges, approvals, shirt, measurements, make, reviewer, survey, research, device, effort, obstacles, data rule, final review, check-ins; and the facts that no legal entity exists and that agents wrote code under his direction. Not independently verified against any document | lead message, 9 Nov 2026 |
 
 S8, S10 are L0's own reports. S10 is dated 1 Nov and was merged on 9 Nov; no later L0 rating is on `main`.
 
@@ -110,6 +113,20 @@ S8, S10 are L0's own reports. S10 is dated 1 Nov and was merged on 9 Nov; no lat
 | 3.3 | Tee and accessory conditional on primary gate; marketplace after validated design record | S3 §12 P2; S3 executive position |
 | 3.4 | Risk ratings | S3 §19; S8 `docs/risk-register.md` |
 | 3.5 | H-05, H-10 | S10 `human-tasks.md` |
+| Header | Individual report by Kireeti; project A3126-261; supervisor named in the plan | S21; S23 |
+| 1.1 | Survey run across October 2026 among university students and friends; questionnaire not available | S23 |
+| 1.4 | Objective of at least 2 Microsoft AI services; Azure not set up | S21; S23 |
+| 1.5 | Imagine Cup 2027 schedule (2 Nov 2026 to 28 Feb 2027 rolling, 23:59 CST deadline; expert review 1 to 12 Mar; interviews 16 to 31 Mar; judging April; May to June) | S22 |
+| 1.5 | 7 and 8 Jan 2027 dates were tentative and are superseded | S3 §20 D13; S21; S22 |
+| 1.5, 3.2 | Re-baselined phase windows P0 10 to 22 Nov through P4 15 to 28 Feb, and the 30 Nov entry decision | **Drafter's proposal**, not sourced; labelled proposed |
+| 2.1 | 14 Sep Project Plan, allocation and objective; V0.1 not available; approval removal at Kireeti's request, date "by 1 Nov"; all 25 merges by Kireeti after approving each batch | S21; S23; S11 |
+| 2.1, 2.9 | Fortnightly supervisor check-ins; no dates or advice supplied | S23 |
+| 2.4 | Responsibilities now vs the Project Plan; reasons not recorded | S21; S6 `CLAUDE.md` |
+| 2.6 | Shirt not chosen (planned type), no measurements, marking, cutting or sewing, no reviewer, no interviews, Azure not set up, Samsung S24 Ultra and EAS account active | S23; S20 |
+| 2.7, 2.8 | Weekly meetings of about 3 to 4 hours; costs not recorded; no other obstacles | S23 |
+| 2.9 | PRs #5, #6, #10, #15, #18, #19, #22, #35 and agents K1 to K6; #23 open; scaffold commit and #16 from Kireeti's account; agents wrote the code under his direction | S17; S6; S11; S23 |
+| 3.4 | Imagine Cup entry risks: entity founded on or after 2 Nov 2024, Azure Subscription ID and Microsoft for Startups account, 10 services with US$1.00 usage each, 2 to 3 minute demo, pitch deck, architecture overview; no entity exists | S22 §4.1, §4.2, §7, §8, §12.3; S23 |
+| App. A | Data rule held; final review by Kireeti line by line | S23 |
 | 4 | All assessments | Derived from the rows above; the judgments ("tight", "slack") are the drafter's reading, to be confirmed by founders |
 | App. A | GAI declaration is a student-submitted NTU form | S5 (links list "GAI declare form"); S9 |
 | App. A | Commit trailer `Co-Authored-By` | repo commit convention given in the task brief |
