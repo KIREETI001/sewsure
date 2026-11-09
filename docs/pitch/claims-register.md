@@ -69,6 +69,11 @@ Source PDFs live in the parent folder outside the repo.
 | C-37 | PLAN: model and API cost per successful checked design will be measured | Video S3a | BP sections 11.5, 17.4 | planned | No cost measured yet (L0 digest) | K7 cost report | |
 | C-38 | PLAN: AI assistance will be declared on the NTU generative AI declaration form | Video S2a | `docs/CLAUDE.md`; DL | planned | Declaration is a needs-human task (L0 H-10) | Filed form | |
 | C-39 | Fourteen PRs (#1 to #7, #9 to #12, #14 to #16) were merged on 1 Nov 2026 between 10:16:31 and 10:18:34 UTC, and eleven more (#19, #34, #17, #18, #26, #35, #22, #24, #25, #40, #41) on 9 Nov between 11:07:18 and 11:12:02 UTC (under five minutes); all recorded under the `KIREETI001` account with no approving review. `main` at 8b6faa5 holds the engine (#12), constraint suite (#9), contract draft.3 with `REVISION_STALE` and a `stale` field (#35), an API that calls the engine (#22), intake screens (#14), result screens (#25), cut guide (#24), BodyProfile and original garment profile (#40, #41), CI split (#19). Still open at 9 Nov: #23 (AI pipeline to contract and engine), #20, #21, #32, #33, #36, #37 to #39, #42 to #44, #13, #8 | Video S2a, S2c, S3a | GitHub PR list, merge times, `mergedBy` and reviews read 9 Nov 2026; X1 rechecks 9 Nov: #22 at `7fb7198` https://github.com/KIREETI001/sewsure/pull/22#issuecomment-6738417242, #24, #25 (links in C-20) | evidenced (as of 9 Nov 2026) | Merged is not tested on a device or with a model. X1 found no merge blockers on #22, #24, #25 but lists human decisions before a user sees a cut plan (placket definition and 50 mm minimum, H-02 sewist review of the recipe and 30 mm hem, 2 mm ruler tolerance). Limits that still hold: the AI pipeline is not connected to the API (#23 open; #22's default proposer is rule-based and uses no model), so nothing runs end to end with a model; recipe is a draft; no live Azure run. Who ran the merges is a founder fact | Re-read before recording; founders confirm who ran the merges; on-screen as-of date 9 Nov 2026 | |
+| C-40 | The survey was run in October 2026 with 25 university students and friends | Video S1 (3:00 cut) | Founder-supplied through the lead session, 9 Nov 2026. SCOPE section 01 and DECK slide 2 give the figures (C-01, C-02) | needs data (founder-supplied; D8 did not find this sample description in the sources it opened) | n = 25, not representative, directional only | X2 or D7 to check the wording against SCOPE section 01 or the raw export before filming | |
+| C-41 | Not done as of 9 Nov 2026: no physical make; shirt not chosen; no sewist has reviewed the recipe (still `status: draft`); no interviews yet; AI pipeline not connected to the API; Azure not set up | Video S4a, S4c; storyboard 7, 8 | `docs/evaluation/physical-make-record.md` ("no make has been recorded yet"); recipe `status: draft` under `content/recipes/`; L0 digest 1 Nov and human tasks H-02, H-03 (sewist, shirt) on `main`; #22 changes no pipeline code and #23 is open (X2 9 Nov); L0 digest: no staging deploy, H-11 Azure access overdue | evidenced (negatives, as of 9 Nov 2026) | A negative claim holds only for what the repo shows. Interviews and the Azure status are founder/lead-supplied for 9 Nov; no interview notes exist under `docs/research/` | Re-read on recording day; founders confirm no off-repo make, shirt or interview | |
+| C-42 | The test phone is a Samsung S24 Ultra with the Expo build service (EAS) active; no phone run is recorded | Video S4b | Founder-supplied through the lead session, 9 Nov 2026. No `eas.json` is on `main` under `apps/mobile/` and the device is not named in the repo | needs data (founder-supplied; not verifiable from the repo) | The no-run part is consistent with X1 (no device, Maestro or TalkBack run). The device and EAS part is not evidenced | Kireeti to confirm, or cut "with the Expo build service active" | |
+| C-43 | The Imagine Cup deadline is 28 Feb 2027 under the official Rules, which require a legal entity, so the team does not claim eligibility | Video S6b; storyboard 11 | Founder-supplied through the lead session, 9 Nov 2026. D8 did not open the official Rules | needs data (founder-supplied; official Rules not opened by D8) | Spoken as a deadline, not as eligibility. Replaces C-22's "unconfirmed" only once checked | Check date and legal-entity rule against the official Rules (H-09) | |
+| C-44 | Kireeti ran all 25 merges (14 on 1 Nov, 11 on 9 Nov), approving each batch first | Video S5; storyboard 9 | Founder-supplied through the lead session. GitHub shows 25 merges under the `KIREETI001` account, 0 required approvals (C-39, C-10) | evidenced (counts and account) / needs data (who ran them and the batch approval) | GitHub records only the shared account, so who ran them and any prior approval cannot be proven from the repo. The script says "process, not a technical control" | Kireeti confirms the sentence | |
 
 ## Claims we will not make (and why)
 
@@ -83,8 +88,23 @@ Source PDFs live in the parent folder outside the repo.
 | That 15 Nov, 15 Dec, 22 Dec or 7 Jan are official dates | Internal proposals (BP section 12) |
 | "Three options" as a constant | The app never assumes exactly three exist (non-negotiable 8) |
 
+## 3:00 cut: spoken claims by segment
+
+The Used-in column above refers to the 10-minute version (commit `331ffe5`) unless it says "3:00 cut". In the 3:00 script (`fyp-interim-video/narration-script.md`) these are the only claims spoken:
+
+| Segment | Claims | Register rows |
+|---|---|---|
+| S1 survey | October 2026, 25 students and friends; 24/25 beginners; 17/25 rejected second-hand for fit | C-40, C-01, C-02 |
+| S2 what and rule | intended flow; design rule | C-05, C-07 |
+| S3a engine | engine for one recipe; 27 synthetic cases, all 29 checks matched on `main` | C-08 |
+| S3b API | API calls the engine | C-39 |
+| S3c screens | demo screens on mock data; "Verified" is sample text | C-20 |
+| S4a to S4c not done | no make, shirt not chosen, no reviewer, recipe draft, phase 0 not passed, no interviews, no overlay, no phone run, device, pipeline not connected, Azure not set up | C-41, C-16, C-20, C-42, C-21 |
+| S5 agents | 29 definitions and hooks; 25 merges by Kireeti after batch approval; no GitHub approval required; NTU declaration | C-09, C-44, C-10, C-38 |
+| S6 next | one real shirt (planned); Imagine Cup deadline, no eligibility claim | C-16, C-43 |
+
 ## Hand-off to X2
 
 - Resolve every `needs data` row before it appears in a final cut or deck. They are currently not used as facts anywhere in the draft script (default wording is the "not yet" version).
-- Check each SLOT swap in `fyp-interim-video/narration-script.md` against the evidence listed here.
+- The 3:00 script has no SLOT variants; check each spoken line against the table above. Rows C-40, C-42, C-43 and C-44 are founder-supplied and not opened by D8.
 - Check the survey figures against the raw export when D7 files it.

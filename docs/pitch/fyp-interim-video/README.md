@@ -1,59 +1,57 @@
-# FYP interim video presentation
+# FYP interim video presentation (3:00 summary)
 
 Owner: D8 Pitch & Demo Producer. Human approver: Delfine (A3: all three founders). X2 must clear every claim before recording.
 
-Due **10 Nov 2026**, submitted to the supervisor and examiner with the interim report (source: `fyp deadlines.pdf`, FYP 2026 S1 row). X3 drafts the interim report in `docs/reports/`; keep both documents on the same facts, and use the claims register as the shared fact list.
+Due **10 Nov 2026**, submitted to the supervisor and examiner with the interim report (source: `fyp deadlines.pdf`, FYP 2026 S1 row). Maximum length 3:00, confirmed by Kireeti (the NTU PDFs state no limit). X3 drafts the interim report in `docs/reports/`; keep both documents on the same facts, and use the claims register as the shared fact list. The earlier 10-minute version is in git history (commit `331ffe5`).
 
 ## Files
 
 | File | Purpose |
 |---|---|
-| `narration-script.md` | Timed narration, split by founder, with claim IDs and evidence slots |
+| `narration-script.md` | Timed narration, split by founder, with claim IDs, word count and time estimate |
 | `storyboard.md` | Scene table: visual, label, evidence, shot IDs |
 | `shot-list.md` | What to film or capture, owner, consent, needs-human |
 | `../claims-register.md` | Every claim, source, status |
 
-## Structure (matches NTU suggested interim report format)
+## Structure (matches the NTU interim format)
 
-1. Introduction and objectives: 0:25 to 3:15
-2. Work done so far: 3:15 to 7:35
-3. Future work: 7:35 to 8:30
-4. Honest conclusion: 8:30 to 9:30
+1. Introduction (problem, survey, what SewSure is): 0:00 to 0:59
+2. Work done so far (engine, API, demo screens): 0:59 to 1:26
+3. Not done, and how we use agents: 1:27 to 2:26
+4. Future work and conclusion: 2:26 to 2:47
 
-## Where the project stands when this was drafted (28 Oct 2026)
+Estimated running time about 2:48; 371 spoken words (Delfine 116, Kireeti 169, Narthananilaa 80, all 6) at an assumed 140 wpm. See Totals in `narration-script.md`.
 
-- Facts below were updated on 9 Nov 2026 (`main` at 8b6faa5); the on-screen as-of date is set to 9 Nov 2026 and Kireeti can change it; every spoken status needs an on-screen "as of [date]" and a re-check on recording day.
-- Evidenced: planning documents (Scope V0.2, Blueprint V0.1, advisor deck of 22 Oct 2026), the n = 25 survey as reported in those documents, a repo scaffold with 29 agent definitions and guard hooks, fourteen PRs merged on 1 Nov 2026 in about two minutes and eleven more on 9 Nov in under five (#19, #34, #17, #18, #26, #35, #22, #24, #25, #40, #41), all from the `KIREETI001` account with no approving review. Now on `main`: first engine, constraint suite (27 cases, 29 checks, synthetic; CI Benchmarks passes on `main`), contract draft.3 with `REVISION_STALE`, an API that calls the engine, intake screens, result cards and a cut guide as demo-only screens on mock data (X1 9 Nov rechecks: no merge blockers). Open: #23 (model pipeline), #20, #21, #36, #44 and others.
-- Still true: dimensioned diagram only, no overlay; AI pipeline not connected to the API; no device or live-model run recorded; recipe is a draft; intake does not link to the Design Studio and the edit-then-cut demo path dead-ends.
-- Not evidenced: any measured shirt, a verified test result, any live Azure call, any usability session, any tailor quote.
-- Phase P0 is rated RED in L0's audit (baseline audit and 1 Nov digest, both on `main`; no later digest). The script therefore defaults to the honest "not yet" wording, with explicit evidence slots to swap in if real results land before recording.
+## Where the project stands (9 Nov 2026, `main` at 8b6faa5)
 
-## Pre-record checklist (the SLOTs)
+- Evidenced: engine and 27-case synthetic suite with all 29 checks matching in CI on `main`; API calls the engine (#22); demo screens on mock data (intake #14, result cards #25, cut guide #24; X1 found no merge blockers); 29 agent definitions and guard hooks; 14 PRs merged on 1 Nov and 11 on 9 Nov.
+- Not done: no physical make; shirt not chosen; no sewist review (recipe is a draft); P0 rated RED (1 Nov digest); no overlay; AI pipeline not connected to the API (#23 open); Azure not set up; no phone run recorded; no interviews.
+- Supplied by founders through the lead session, not opened by D8: survey sample description (C-40), Samsung S24 Ultra with Expo build service (C-42), Imagine Cup deadline and legal-entity rule (C-43), "I ran all 25 merges after approving each batch" (C-44).
 
-| Slot | Default wording stays unless | Evidence needed | Who checks |
-|---|---|---|---|
-| SLOT-1 merged work | state re-read on recording day | PR list with as-of date on screen | Kireeti |
-| SLOT-2 engine and tests | main green on recording day (CI Benchmarks passed on `main` at 8b6faa5), suite run | test output with real passed/total (27 cases, 29 checks in the CI run on `main`) | Narthananilaa, X2 |
-| SLOT-3 research | D7 sessions actually held, consented | de-identified notes, counts with denominators | Delfine, X2 |
-| SLOT-4 P0 physical trial | measured shirt made and recorded | physical record: predicted and measured mm, number of measurements | Narthananilaa, X2 |
-| SLOT-5 conclusion | any of the above change | as above | all three |
-| SLOT-6 app screens | D3/D4 PRs (#25, #24) merged (done 9 Nov) | merged PR per screen | Delfine, X2 |
+## Pre-record checklist
 
-## Open questions for the founders
+| Check | Needed | Who |
+|---|---|---|
+| CI on `main` still green; merged list unchanged | re-read on recording day, as-of date on screen | Kireeti |
+| S4b device and build-service wording | confirm or cut the clause | Kireeti, Delfine |
+| S5 merge sentence | confirm | Kireeti |
+| S6b date and legal-entity rule | check against the official Rules | Kireeti |
+| Running time | stopwatch read-through, under 3:00 | all three |
+| M3 recording | MOCK DATA badge in frame; say "Verified is sample text"; do not film edit-then-cut | Delfine |
 
-1. NTU video length and format limit: not stated in the source PDFs. Draft assumes 8 to 10 minutes as instructed.
-2. Is the shirt for the P0 trial chosen? Whose is it, and do they consent to appear?
-3. Who speaks which section: draft follows the ownership table in `CLAUDE.md`; swap if preferred.
-4. Do you want a live demo clip? Draft uses the merged intake screens on sample data (tagged `PROTOTYPE, SAMPLE DATA`) and labelled mock-ups, because no connected build is evidenced.
-5. Status date is 9 Nov 2026 in both this script and #8; the founders can change it.
-6. Peplum example: the deck lists a peplum as "later, needs proof", so a real rejection of a peplum by the engine may not be possible by 10 Nov. See rejection scene variants in `storyboard.md` and ask Narthananilaa whether N1/N2 will have a material-check rejection test by then (the blueprint's mandatory smoke test already includes an impossible lengthening request, which is the safer real alternative).
+There are no slot variants for a physical make: none has happened. If one happens before recording, add a new register row and get X2 to clear it first.
+
+## Open questions
+
+1. NTU video length: 3:00 maximum per Kireeti; not stated in the source PDFs.
+2. Status date is 9 Nov 2026 in both this script and #8; the founders can change it.
+3. Who speaks which section: split by the ownership table in `CLAUDE.md`; swap if preferred.
 
 ## needs-human
 
-- Film real footage; record narration; decide on-camera people (shot-list A1 to A5).
+- Film real footage; record narration; decide on-camera people (shot-list A1, A3).
 - Confirm NTU length limit and format.
 - File the NTU generative AI declaration covering the agent workflow shown in the video.
 - Final caption review; music or font licences.
 - Approve the script (A3: all three founders).
-- Confirm any physical make done off the repository (SLOT-4), with date and what was measured.
-- Agree one evidence-freeze date with X3 and L0; decide whether to close the shared-account merge route (L0 decision P-03).
+- Confirm the founder-supplied facts listed above.

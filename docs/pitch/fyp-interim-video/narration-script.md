@@ -1,140 +1,125 @@
-# FYP interim video: narration script (draft v0)
+# FYP interim video: narration script (3:00 summary, draft v1)
 
-Status: DRAFT for Delfine's approval (A3: all three founders). Not yet cleared by X2. Written 28 Oct 2026 for submission on 10 Nov 2026 with the interim report. Facts updated to the repo state of 9 Nov 2026 (`main` at 8b6faa5).
+Status: DRAFT for the founders' approval (A3). Not yet cleared by X2. Replaces the 10-minute script of commit `331ffe5` (kept in git history). Status date: **9 Nov 2026** (Kireeti can change it). Submission with the interim report: 10 Nov 2026 (source: `fyp deadlines.pdf`).
 
-Format follows the NTU suggested interim report: 1 Introduction, 2 Work done so far, 3 Future work, 4 Conclusion (source: `SuggestedFormatInterimReport.pdf`). Deadline source: `fyp deadlines.pdf` (FYP 2026 S1: Interim Report and Video Presentation, 10 Nov 2026).
+Limit: **3:00 maximum**, confirmed by Kireeti via the lead session. The NTU documents D8 read state no video length.
 
 ## How to read this file
 
-- Target length is about **9:30** (re-timed 9 Nov) (allowed range 8:00 to 10:00, an assumption, not a confirmed NTU limit; see README open question 1).
-- `[C-nn]` after a line points to the claims register row that supports it (`../claims-register.md`). A line with no tag makes no factual claim.
-- `[SLOT-n]` is text that depends on evidence that does not exist yet. The default wording beside each slot is the honest "not yet" version and is safe to record as is. Swap in the evidenced version only when the listed evidence exists and X2 has cleared it.
-- Everything marked **planned** is not done. The speaker must say "planned" or "we have not yet" aloud, not only show it on screen.
-- Word budget: about 140 spoken words per minute with pauses for b-roll. Count is recomputed at the bottom.
+- `[C-nn]` after a line points to the claims register row (`../claims-register.md`). Tags, `[FOUNDER CONFIRM]` notes and headings are never read aloud.
+- Every quoted line is the default wording and states only what exists on 9 Nov 2026 or is labelled not done / planned. There are no slot variants that assume a physical make: none has happened.
+- Say "planned", "not done", "mock data", "sample text" aloud wherever the matching label is on screen.
+- Order follows the NTU interim format: introduction, work done so far, what is not done and future work, conclusion.
 
-## Speakers (split by area, from root `CLAUDE.md` ownership table)
+## Speakers
 
-| Speaker | Area | Segments |
-|---|---|---|
-| Delfine (D) | Mobile app, UX, research | S0, S1a, S3c, S2c |
-| Kireeti (K) | Platform, backend, AI, release | S1b, S1c, S2a, S3a |
-| Narthananilaa (N) | Garment rules, feasibility, evidence | S2b, S2d, S3b |
-| All three | Conclusion | S4 |
-
----
-
-## S0 Cold open (0:00 to 0:25) | Delfine
-
-> **[D, over the real shirt on a table, ruler and chalk beside it]**
-> "Imagine a shirt like this one, already in a wardrobe, too big, and unlikely to be worn again. (Framing device, not a claim about a specific garment.) We are three students building SewSure, an app that tries to close the gap between 'I have an idea for this garment' and 'I can actually make it'. This is our Final Year Project interim presentation."
-
-(~21 s of speech; see Totals)
-
-## S1 Introduction and objectives (0:25 to 3:15)
-
-### S1a Problem and evidence (0:25 to 1:20) | Delfine
-
-> "We ran a small exploratory survey of 25 people. It is a small, non-representative sample, so we treat it as a direction, not a result. Twenty-four of the 25 had no sewing experience or were beginners [C-01]. Seventeen had rejected second-hand clothing because of fit [C-02]. Twenty-one rated our proposed tool four or five for usefulness [C-03], and that was a description of a tool, not a working product. Twelve would consider finding a tailor through the app, in the scenario we described [C-04].
-> The concerns people raised included sewing time, missing equipment, inaccurate AI patterns and fear of damaging a garment [C-35]. Our own reading is that an image alone does not show whether a design can be cut from the fabric you have."
-
-(~54 s of speech; see Totals)
-
-### S1b What SewSure is and the objectives (1:20 to 2:45) | Kireeti
-
-> "SewSure is a mobile app we are designing. The user photographs a garment they own, says what they want, and confirms measurements. The app then aims to offer up to three redesigns that pass the feasibility checks the engine is designed to apply, and then a cut guide with DIY steps, or a brief a tailor can quote from [C-05].
-> The key idea is a split of roles, and it is a design rule we are still building into the code. A generative model may propose a design from an approved list of recipes, but must not invent pattern geometry. A deterministic feasibility engine checks the numbers, in millimetres, and is meant to be the only thing that can set a design's status [C-07].
-> Our four objectives match the interim report: a measured cut plan for one real shirt that we physically trial; a connected prototype; engine-set design states with immutable revisions; and evidence that keeps failures, using proposed targets for tests, makes and participants. These are targets, not yet shown to hold in the code [C-06]."
-
-(~79 s of speech; see Totals)
-
-### S1c Scope, plan and purpose of this video (2:45 to 3:15) | Kireeti
-
-> "Scope is deliberately narrow. The planned flagship is oversized woven button-up shirts. Jersey tees are limited and conditional. Everything else is inspiration only, with no cut plan [C-12]. There are no payments in the first version.
-> Our plan runs in phases, from proving one transformation, to a connected alpha, to integration, testing, and submission preparation. The dates are internal and provisional [C-23]."
-
-(~27 s of speech; see Totals)
+| Speaker | Segments | Spoken words | At 140 wpm |
+|---|---|---|---|
+| Delfine (D) | S0, S1, S3c, S4b | 116 | 50 s |
+| Kireeti (K) | S2, S3b, S4c, S5, S6b | 169 | 72 s |
+| Narthananilaa (N) | S3a, S4a, S6a | 80 | 34 s |
+| All three | S6c | 6 | 3 s |
+| **Total** | | **371** | **159 s (2:39)** |
 
 ---
 
-## S2 Work done so far (3:15 to 7:35)
+## 1 Introduction
 
-### S2a Repository, agent workflow, contract first (3:15 to 4:50) | Kireeti
+### S0 Open (0:00 to 0:11) | Delfine, over a stand-in shirt on a table
 
-> "What exists today in our repository is a monorepo with a defined structure: mobile app, API service, a standalone feasibility package, a shared contracts package, recipes, and benchmarks [C-09].
-> We also use AI coding agents, supervised by us. There are 29 agent definitions, each with a written list of the folders it may edit. A hook blocks agents from the merge and approve commands, and from editing secrets and production infrastructure [C-09]. Agents work in branches and open pull requests. `main` only accepts pull requests, and GitHub currently requires no approval. On 1 November, fourteen pull requests were merged in about two minutes, and on 9 November eleven more in under five, all from one founder's account with no approving review [C-39]. [FOUNDER CONFIRM: who ran the merges, and whether that sentence is accurate.] We will declare this assistance on the NTU generative AI form [C-38].
-> Our written rules include millimetres throughout and no guarantee language anywhere [C-11].
-> [SLOT-1] As of [AS-OF DATE = 9 Nov 2026; Kireeti may change it; re-check the merged and open lists on the day you record], the merged work includes a first feasibility engine for one shirt crop recipe, a constraint test suite, a draft API contract, an API that calls the engine, an AI pipeline skeleton and demo app screens [C-39]. Default for what is not merged: 'The AI pipeline is not connected to the API yet, so nothing runs end to end with a model. No run on a phone or with a live model is recorded.' [C-39]"
+> "We are three students building SewSure, an app that helps turn a garment you own into a redesign you can make. This is our interim summary."
 
-(~103 s of speech; see Totals)
+(26 words.) No claim about a specific garment.
 
-### S2b Feasibility engine and the honest rejection (4:50 to 6:15) | Narthananilaa
+### S1 Problem and survey (0:11 to 0:27) | Delfine
 
-> "My part is the rules: what can physically be cut from a shirt, and when the answer is no.
-> For a shirt crop, the engine takes the original length, the finished length wanted, and a hem allowance, and works out where to mark the cut. The numbers on screen are the illustrative ones from our advisor deck, not measurements: an original length of 76 centimetres, a finished length of 52, a 2 centimetre hem, and a cut mark at 54 [C-13].
-> Next is the part we care about most. When a request is impossible, the engine must say so and say why. In our plan's example, a peplum needs a strip about 140 centimetres by 18, but the leftover fabric yields about 112, so it is rejected and a shorter, less full option is suggested [C-14]. That is an illustrative example. A peplum is a later transformation that still needs proof.
-> [SLOT-2] Default: 'A first engine for one shirt crop recipe and a constraint test suite are merged. The suite uses synthetic cases, not a measured shirt. Its automated check on main passes as of 9 Nov 2026: 27 cases, and all 29 checks matched.' [C-08, C-17] Re-check main is green on recording day; if it is not, say so instead. Evidenced extra: run the suite on recording day and read out the real passed and total counts; the CI Benchmarks run on main at 8b6faa5 reported 27 synthetic cases and 29 checks, not the 24 proposed."
+> "In October 2026 we surveyed 25 university students and friends [C-40]. It is small and not representative: a direction, not a result. Twenty-four had no sewing experience or were beginners [C-01]; seventeen had rejected second-hand clothes because of fit [C-02]."
 
-(~86 s of speech; see Totals)
+(37 words.)
 
-### S2c App screens and research (6:15 to 7:05) | Delfine
+### S2 What SewSure is, and the rule (0:28 to 0:59) | Kireeti
 
-> "On the app side, four intake screens are merged: entry, garment capture, inspiration and measurements. Result cards and a cut guide with DIY steps are merged too, as demo screens on mock data. The word "Verified" on those cards is sample text, because nothing has been verified. They are not connected to the engine, and no run on a phone is recorded [C-20]. The cut guide is a dimensioned diagram; the on-garment overlay is planned and switched off. The intake screens do not yet lead into the result screens, and in the demo an edit does not carry through to a new cut guide. [SLOT-6] Show a screen only if it is merged on recording day; tag it as sample data.
-> One rule shapes the design: an unverified design must never reach a 'safe to cut' screen. Previews will be labelled approximate [C-25], and the result list will not assume there are three options.
-> For research, we have the survey I described. [SLOT-3] Default: 'Interviews and usability sessions with real users and tailors are planned, with consent forms, and have not started.'"
+> "SewSure is a mobile app we are designing. You photograph a garment, say what you want, and confirm measurements. It aims to offer redesigns that pass feasibility checks, then a cut guide or a tailor brief [C-05]. One rule: an AI model may only pick approved recipes, and a feasibility engine, in millimetres, is meant to be the only thing that sets a design's status. We are still building that into the code [C-07]."
 
-(~62 s of speech; see Totals)
+(72 words.)
 
-### S2d Problems encountered (7:05 to 7:35) | Narthananilaa
+## 2 Work done so far (as of 9 Nov 2026)
 
-> "Our first phase, proving one measured transformation, was rated red in our lead agent's digest of 1 November, the latest on main. At that date none of its five evidence items was fully met, and no physical make is recorded in the repository, as of 9 Nov 2026. Its planned window ended on 1 November [C-16]. [SLOT-4] Founders only: if a physical make has happened off the repository, say so here with its date and what was measured, and give the record to X2 first. Default: 'No physical make is recorded in our repository.' We also still need to confirm which competition rules apply [C-22]."
+### S3a Engine (0:59 to 1:14) | Narthananilaa
 
-(~28 s of speech; see Totals)
+> "As of 9 November: a first feasibility engine for one shirt-crop recipe, and a suite of 27 synthetic cases [C-08]. On main, all 29 checks matched [C-08]. Synthetic means invented inputs, not a measured shirt."
+
+(33 words.) Re-check on recording day that CI is still green on `main`; if it is not, say so instead.
+
+### S3b API (1:14 to 1:17) | Kireeti
+
+> "An API now calls the engine [C-39]."
+
+(6 words.)
+
+### S3c Demo screens (1:18 to 1:26) | Delfine
+
+> "Demo screens run on mock data [C-20]. The word Verified on the result cards is sample text; nothing has been verified [C-20]."
+
+(20 words.) Say the second sentence whenever the result card (M3) is on screen, with the MOCK DATA badge in frame. Do not film the edit-then-cut path.
+
+## 3 What is not done, and agents
+
+### S4a Not done: make, shirt, reviewer, phase 0 (1:27 to 1:40) | Narthananilaa
+
+> "Not done: no physical make, the shirt is not chosen, and no sewist has reviewed the recipe, which is still a draft [C-41]. Our first phase, due 1 November, did not pass [C-16]."
+
+(31 words.)
+
+### S4b Not done: overlay, phone, interviews (1:41 to 1:55) | Delfine
+
+> "The cut guide is a diagram only; there is no overlay [C-20]. Our phone is a Samsung S24 Ultra with the Expo build service active, but no phone run is recorded [C-42]. No interviews yet [C-41]."
+
+(33 words.) `[FOUNDER CONFIRM: device and build service; no eas.json is on main. Cut "with the Expo build service active" if unsure.]`
+
+### S4c Not done: pipeline, Azure (1:56 to 2:02) | Kireeti
+
+> "The AI pipeline is not connected to the API, and Azure is not set up [C-41, C-21]."
+
+(15 words.)
+
+### S5 How we use agents (2:03 to 2:26) | Kireeti
+
+> "We build with AI coding agents: 29 agent definitions, and hooks that block merge commands [C-09]. I ran all 25 merges, 14 on 1 November and 11 on 9 November, after approving each batch [C-44]. GitHub requires no approval, so that is process, not a technical control [C-10]. We will declare this on the NTU form [C-38]."
+
+(53 words.) `[FOUNDER CONFIRM: "I ran all 25 merges after approving each batch" was supplied through the lead session; GitHub records only the shared account.]`
+
+## 4 Future work and conclusion
+
+### S6a Next (2:26 to 2:33) | Narthananilaa
+
+> "Next: one real shirt, a measured cut plan, and an honest comparison with what we sew [C-16]."
+
+(16 words.) Planned, not a result.
+
+### S6b Imagine Cup (2:34 to 2:44) | Kireeti
+
+> "Then the Imagine Cup deadline, 28 February 2027, under its official Rules. They require a legal entity, so we are not claiming eligibility [C-43]."
+
+(23 words.) `[FOUNDER CONFIRM: date and legal-entity rule were supplied through the lead session; D8 did not open the official Rules (H-09).]`
+
+### S6c Close (2:44 to 2:47) | all three
+
+> "Targets are not results. Thank you."
+
+(6 words.)
 
 ---
 
-## S3 Future work (7:35 to 8:30)
+## Totals
 
-### S3a Platform and AI | Kireeti (7:35 to 8:00)
-
-> "Next for me: connecting the structured model pipeline to the API. The API already calls the engine. An open pull request connects the pipeline to the engine, and connecting it to the API is still to do. The model stays constrained to approved recipe parameters. Live access to the cloud AI service is still to be verified, and cost per design is still to be measured [C-21, C-37]. All of this is planned."
-
-(~27 s of speech; see Totals)
-
-### S3b Feasibility and evidence | Narthananilaa (8:00 to 8:15)
-
-> "Next for me: extending the constraint test suite, then four planned physical makes where we compare predicted and ruler-measured dimensions [C-17, C-18]. We will report false approvals and failures, not hide them."
-
-(~13 s of speech; see Totals)
-
-### S3c App, users and tailors | Delfine (8:15 to 8:30)
-
-> "Next for me: connecting the screens to real results, usability sessions with eight to twelve participants as a proposed target, and a small test with two or three tailors or makers reading a brief and quoting [C-18, C-36]. These are targets, not results."
-
-(~19 s of speech; see Totals)
-
----
-
-## S4 Honest conclusion (8:30 to 9:30) | all three, one line each, then Kireeti closes
-
-> **[N]** "Progress so far is mostly foundations: scope, plan, rules, a first engine, an API that calls it, and demo screens, all on sample data. [SLOT-5] Default: 'No measured, physically tested result is recorded in our repository.'"
-> **[D]** "That means every claim about accuracy, and about whether people can follow our steps, is still untested."
-> **[K]** "Our first phase did not pass by its planned date, so under our plan the app stays in demonstration mode, and we do not widen scope until it passes. Our first priority now is one real shirt, a measured cut plan, and an honest comparison with what we sew. We will report the re-plan and the result, whichever way it goes. [FOUNDER CONFIRM: re-plan date, if agreed; P-02 is open at the time of drafting.]
-> We hope to take SewSure to the Imagine Cup 2027, if we are eligible and the rules allow it. We have not confirmed that yet [C-22]. Thank you."
-
-(~57 s of speech; see Totals)
-
----
-
-## Totals (re-timed 9 Nov 2026)
-
-Spoken defaults (SLOT directions, claim tags and bracketed notes removed) count about 1,340 words (1,270 at 2 Nov plus about 70) including the cold open, which is about 9:35 at 140 words per minute. Per segment: S0 21 s, S1a 54, S1b 79, S1c 27, S2a 103, S2b 86, S2c 62, S2d 28, S3a 27, S3b 13, S3c 19, S4 57 (seconds of speech). With holds for b-roll and screen reads the running time is about **10:00**, at the assumed 10:00 limit. If the read-through runs over, cut the peplum example in S2b (from "In our plan's example" to "still needs proof") and storyboard scene 2b-ii. Do not cut S3a, the S2a merge disclosure or the S2c caveats. The earlier "about 1,100 words" figure was out of date; the raw `wc -w` of the quoted lines (1,412 before trimming) includes markers and slot directions and is not the running time.
-
-The 9 Nov update added about 70 spoken words net (S2a merge sentence, S2c demo caveats, S2b pass line, S3a rewrite), which is the estimate above; I did not recount with a script. 140 words per minute is an assumption, not a measurement; re-time with a stopwatch before filming and cut if the read-through exceeds 10:00.
-
-Re-time with a stopwatch at the first read-through; 140 wpm is an assumption. The time ranges in the headings and the storyboard are the 2 Nov plan and are not shifted; S2a to S2c now run about 40 seconds longer than their windows, so later scenes start about 20 to 40 seconds later than listed. Re-cut the windows after the stopwatch read-through.
+- **Spoken words: 371**, counted by script on the quoted default lines (claim tags, bracketed notes and headings excluded). By speaker: D 116, K 169, N 80, all 6.
+- **Estimated time: about 2:48** = 159 s of speech at 140 words per minute plus about 0.7 s between segments. That leaves roughly 12 s under the 3:00 maximum.
+- **140 wpm is an assumption**, not a measurement. Time a read-through with a stopwatch before filming; if it runs over 2:55, cut the last sentence of S2 and the NTU-form sentence of S5.
+- The segment windows above come from the same arithmetic, so they move if the pace does.
 
 ## Read-aloud rules
 
-- Never say "guaranteed", "perfect fit", "precision", "100% accurate", "safe to cut" about an output of the app.
-- Say "planned", "proposed", "mock-up", "illustrative" aloud wherever the corresponding label is on screen.
+- Never say "guaranteed", "perfect fit", "precision", "100% accurate", or "safe to cut" about an output of the app.
+- Do not claim eligibility for the Imagine Cup.
 - Do not read any number that is not in the claims register with a source and denominator.
