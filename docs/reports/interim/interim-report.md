@@ -11,7 +11,7 @@
 | Draft status | Draft v0.6, revised 9 Nov 2026 to the repository state of that date (`main@8b6faa5`, GitHub re-read 9 Nov), with founder answers of 9 Nov added. Items dated 1 or 2 Nov are marked as such. X2 has not re-cleared this revision. Kireeti reviews it line by line before submission [S23]. |
 | Status date | **As of 9 Nov 2026**, the date given by the project lead for this report and the video script (PR #13); Kireeti can still change it. Every status statement in Sections 2–4 is as of this date unless it carries another. |
 
-> **How to read this draft.** Facts carry a source tag such as [S3 §12]; `SOURCES.md` maps the tags to a document and location. Factual claims are tagged; judgments in the Conclusion are the drafter's. Text marked **planned** has not happened. Text marked **proposed** is a target that has not been agreed as a threshold. `[FOUNDER INPUT NEEDED: …]` marks facts that only Kireeti can supply. Facts that Kireeti gave on 9 Nov are tagged [S23]. Nothing in this draft is a result unless it says so.
+> **How to read this draft.** Facts carry a source tag such as [S3 §12]; `SOURCES.md` maps the tags to a document and location. Factual claims are tagged; judgments in the Conclusion are the drafter's. Text marked **planned** has not happened. Text marked **proposed** is a target that has not been agreed as a threshold. Facts that only Kireeti can supply are marked with the words FOUNDER INPUT NEEDED in square brackets. Facts that Kireeti gave on 9 Nov are tagged [S23]. Nothing in this draft is a result unless it says so.
 
 ---
 
@@ -64,7 +64,7 @@ Objectives come from the Technical Blueprint V0.1 [S3 §1.1, §2, §17]. They ar
 3. **O3.** Design states (`IDEA_ONLY`, `NEEDS_INPUT`, `FAILED_CHECKS`, `PASS_SUPPORTED_CHECKS`, `SUPERSEDED`) are set only by the feasibility engine, revisions are immutable, and an unverified image can never reach a "safe to cut" screen [S6 `CLAUDE.md`, rules 2, 3, 5; S3 §1.1].
 4. **O4.** Evaluate with evidence that keeps failures: a **proposed** 24-case constraint suite, **proposed** 4 physical makes, **proposed** 8–12 design participants and 2–3 makers [S1 slide 12; S3 §17.2, §20 D12]. V0.2 has not agreed numeric thresholds [S1 slide 12; S2 §12].
 
-The Project Plan of 14 Sep 2026 also set the objective of a working prototype that incorporates at least 2 Microsoft AI services [S21]. The blueprint's Azure service choices are provisional [S3 §2], and no Azure service is set up yet (Section 2.6).
+The Project Plan of 14 Sep 2026 also set the objective of a working prototype that incorporates at least 2 Microsoft AI services [S21]. The blueprint's Azure service choices are provisional [S3 §2], and Azure is not integrated yet: it is a planned next step (Sections 2.6 and 3.2).
 
 ### 1.5 Project plan and timeline
 
@@ -132,7 +132,7 @@ This report documents what has been achieved so far and what remains, in the NTU
 | 28 Oct 2026 | Monorepo, 29 agent definitions, per-area rules, guard hooks and code-owner file on `main` (one commit) | [S6] |
 | 28 Oct 2026 | Branch protection on `main` requiring a PR and one approving code-owner review (state on 28 Oct) | [S8 audit] |
 | By 1 Nov 2026 | Approval requirement removed from `main` (one required review was seen on 28 Oct): a PR is still required, including for admins, but GitHub requires 0 approving reviews. Review levels A0–A3 became team guidance (PR #16). Removed at Kireeti's request so that any one founder can approve and merge; the date is recorded only as "by 1 Nov" [S23]. | [S11; S12] |
-| 1 Nov 2026 | 14 PRs merged between 18:16 and 18:18 SGT, all from the KIREETI001 account with no approving review. They add a contract draft, a feasibility engine and draft recipe, a constraint suite, an API scaffold, an AI pipeline skeleton, staging infrastructure and CI, an Expo scaffold with intake screens on fixtures, design tokens, a research kit, site and outreach drafts, and L0's baseline audit | [S10; S13] |
+| 1 Nov 2026 | 14 PRs merged between 18:16 and 18:18 SGT, all from the KIREETI001 account with no approving review. They add a contract draft, a feasibility engine and draft recipe, a constraint suite, an API scaffold, an AI pipeline skeleton, staging infrastructure and CI as written files (no Azure resources have been created), an Expo scaffold with intake screens on fixtures, design tokens, a research kit, site and outreach drafts, and L0's baseline audit | [S10; S13] |
 | 1 Nov 2026 (snapshot) | 13 PRs open, including this report (#8) and the video script (#13); 15 by 2 Nov | [S13] |
 | 9 Nov 2026 | 11 more PRs merged between 11:07 and 11:12 UTC, all from the KIREETI001 account: #19 (CI fix), #34 (site and outreach audit fixes), #17 (P0 make kit and empty record template), #18 (security documents), #26 (L0's 1 Nov digest), #35 (contract `1.0.0-draft.3`), #22 (API calls the engine on the P0 path), #24 (cut guide and DIY screens), #25 (Design Studio screens), #40 (body profile and measurement validation), #41 (original garment profile). Kireeti ran all 25 merges (14 on 1 Nov and these 11) from the KIREETI001 account, using commands an agent prepared, after approving each batch [S23]. GitHub still required 0 approving reviews | [S17; S20] |
 | 9 Nov 2026 | Open: #8 and #13 (this report and the video script), #20 (fit and ease), #21 (calibration), #23 (AI pipeline), #32 (mobile QA), #33, #36 (audit fixes; #36 draft), #37, #38, #39, #42, #43 and #44 (draft integration of the intake and QA PRs) | [S17] |
@@ -149,7 +149,7 @@ Changes from V0.1 are listed in Section 3.3. The decision register D01–D12 in 
 
 The blueprint defines the system and its checks. These are **designs** [S3 cover]; draft code for some of them (contract, feasibility engine, API, Design Studio and cut-guide screens) merged on 1 and 9 Nov (Section 2.5), and none of it is validated against a real garment:
 
-- **Architecture.** Android-first Expo mobile client; a backend API that owns images, profiles, generation requests, geometry checks and design records; Azure AI services for vision and design proposals; and a custom deterministic feasibility engine with geometry, ease, material and construction rules [S1 slide 11; S3 §2]. Azure service choices are provisional [S1 slide 11].
+- **Architecture.** Android-first Expo mobile client; a backend API that owns images, profiles, generation requests, geometry checks and design records; Azure AI services (planned, not yet integrated) for vision and design proposals; and a custom deterministic feasibility engine with geometry, ease, material and construction rules [S1 slide 11; S3 §2]. Azure service choices are provisional [S1 slide 11].
 - **Design record.** A versioned record used by preview, cut plan, instructions and tailor brief. An approved revision is immutable; edits create a new revision that is rechecked before downstream use [S3 §1.1, §3].
 - **AI boundary.** The model may select recipe IDs and parameters from an allow-list, validated against a JSON schema; hard failures cannot be out-scored by style ranking [S3 §4.1, §4.3; S1 slide 7].
 - **Hard gates and failure codes** for geometry, material, fit and construction, with unit tests written before the app UI [S3 §5.4, §5.5].
@@ -217,12 +217,12 @@ The plan depends on physical makes and user sessions, which happen off the repos
 
 | Item | Status in this draft |
 |---|---|
-| Source shirt chosen (garment, fibre, condition) | Not chosen. Planned type: a plain non-stretch woven cotton button-up with a near-straight hem and no pocket at the cut height [S23] |
+| Source shirt chosen (garment, fibre, condition) | Not yet chosen. Planned type: a plain non-stretch woven cotton button-up with a near-straight hem and no pocket at the cut height. A shirt of that type can be arranged; none is recorded as obtained [S23] |
 | Hand measurements (landmarks, repeat readings, variation in mm) | Not done [S23] |
 | First marking, cutting or sewing on shirt or scrap | None has happened [S23] |
 | Sewist or supervisor reviewer for the recipe (blueprint §8.2) | Not named [S23]; the repository records none [S20] |
 | Interviews, usability sessions, maker conversations | None held. The survey is the only research so far [S23] |
-| Azure subscription, credits, model deployment, spend cap | Not set up: no subscription, model deployment or spend cap [S23] |
+| Azure subscription, credits, model deployment, spend cap | Not integrated; only planned, and integration is a next step (Section 3.2). No subscription, model deployment or spend cap exists, and no Azure resources have been created [S23] |
 | Physical Android test device and EAS account | Samsung S24 Ultra; EAS account active [S23]. No device run is recorded, and there is no `eas.json` on `main` [S20] |
 
 No measurement, make or participant data is reported in this draft because none is in the repository. When added, each value needs its denominator and its source record, and negative results must be kept [S9 `docs/CLAUDE.md`].
@@ -258,7 +258,7 @@ This is my individual report. SewSure is team work, and Sections 2.3 to 2.8 desc
 | PR | Agent | What it added | Merged |
 |---|---|---|---|
 | #5 | K2 | API scaffold: app, persistence, jobs, idempotency, auth seam | 1 Nov |
-| #6 | K5 | Staging Bicep, four CI workflows, a staging deploy workflow and a setup runbook | 1 Nov |
+| #6 | K5 | Staging Bicep, four CI workflows, a staging deploy workflow and a setup runbook, as written files only; no Azure resources have been created | 1 Nov |
 | #10 | K3 | AI pipeline skeleton (stages A to H) and eval harness | 1 Nov |
 | #15 | K1 | Contract v1 draft: schemas, OpenAPI, fixtures, codegen (shared by all three leads) | 1 Nov |
 | #18 | K6 | Threat model, data inventory, pilot privacy checklist, security test plan (documents) | 9 Nov |
@@ -272,7 +272,7 @@ K3's PR connecting the AI pipeline to the contract and engine (#23) is still ope
 
 **Merge and review decisions.** I ran all 25 merges (14 on 1 Nov and 11 on 9 Nov) from my own account, using commands an agent prepared, after I approved each batch. The approval requirement on `main` was removed at my request, so that any one founder can approve and merge. PR #16, made from my account, then changed the agent rules to match. Review, where it ran, is by the X1 and X2 agents plus the merging founder [S11; S17; S23]. One consequence is that X2 audits rated two merged PRs (#7, #14) Blocked after they had merged [S10].
 
-**Not done in my area.** Azure is not set up: no subscription, model deployment or spend cap. The AI pipeline is not connected to the API. No device run is recorded, although a Samsung S24 Ultra and an active EAS account are available, and `main` has no `eas.json` [S20; S23].
+**Not done in my area.** Azure is not integrated and is only planned; integration is a next step (Section 3.2). The Bicep and workflow files exist as written files only, and no Azure resources have been created. The AI pipeline is not connected to the API. No device run is recorded, although a Samsung S24 Ultra and an active EAS account are available, and `main` has no `eas.json` [S20; S23].
 
 `[FOUNDER INPUT NEEDED: what Kireeti personally designed, decided, tested or wrote by hand, which decisions were Kireeti's, and what Kireeti learned]`
 
@@ -298,13 +298,14 @@ X1's rechecks on 9 Nov found no merge blockers on #22, #24 and #25 (Section 2.5)
 
 The following are **planned**, not done. Order follows the blueprint's critical path: garment data contract, real measurements, pattern rule correctness, backend check API, app confirmation, accurate cut guide, physical make, evaluated evidence [S3 §13.1].
 
-1. **Finish P0 (planned; proposed window 10 – 22 Nov 2026):** the original window ended 1 Nov and P0 was not met on L0's 1 Nov rating. Choose the source shirt (planned type: a plain non-stretch woven cotton button-up with a near-straight hem and no pocket at the cut height), agree the first recipe (D01), name the sewist reviewer, hand-measure the shirt, decide the placket definition and the 50 mm minimum, mark and trial a cut, record the deviation in mm, and complete the five exit-evidence items. L0's 1 Nov digest proposed 4 Nov for the first make; no make has happened [S3 §12; S10 `human-tasks.md`, H-01 to H-04; S23].
+1. **Finish P0 (planned; proposed window 10 – 22 Nov 2026):** the original window ended 1 Nov and P0 was not met on L0's 1 Nov rating. Choose the source shirt (planned type: a plain non-stretch woven cotton button-up with a near-straight hem and no pocket at the cut height, which can be arranged), agree the first recipe (D01), name the sewist reviewer, hand-measure the shirt, decide the placket definition and the 50 mm minimum, mark and trial a cut, record the deviation in mm, and complete the five exit-evidence items. L0's 1 Nov digest proposed 4 Nov for the first make; no make has happened [S3 §12; S10 `human-tasks.md`, H-01 to H-04; S23].
 2. **P1 connected alpha (planned; proposed 23 Nov – 20 Dec 2026):** set up an Azure subscription and a model deployment, connect the AI pipeline to the API, produce a three-case trace with a live model, build an APK and demonstrate it on the Samsung S24 Ultra, with auth and versioned revisions [S3 §12; S23].
 3. **P2 MVP integration (planned; proposed 21 Dec 2026 – 24 Jan 2027):** up to three distinct checked results, immutable recheck on edit, calibration and the measured overlay error report, saved body profile, a user-to-tailor test request [S3 §12].
 4. **P3 validation (planned; proposed 25 Jan – 14 Feb 2027):** run the constraint suite (24 cases proposed; the run reported with PR #19 had 27 cases and 29 checks, synthetic data) including false-pass cases, four physical makes, 8 – 12 participant sessions and 2 – 3 maker sessions if consent and recruitment allow, then freeze the build [S3 §12, §17.2].
 5. **P4 evidence and submission (planned; proposed 15 – 28 Feb 2027):** analysis with confidence caveats, a recorded and rehearsed 2 to 3 minute demo, pitch deck and architecture overview, release runbook, and a check of every entry requirement in Section 3.4 before the 23:59 CST deadline on 28 Feb 2027 [S3 §12; S22].
-6. **Final-year deliverables (planned):** draft final report, final report, demonstration and oral presentation on the NTU dates in Section 1.5 [S5].
-7. **Gates before claims.** No presentation claim goes out without source, denominator, method and recorded outcome [S3 §18.3, gate G4].
+6. **Azure integration (planned next step; not integrated as of this report):** create an Azure subscription and a spend cap, apply the staging Bicep that exists only as written files, deploy a model, connect the AI pipeline to the API, and use enough Azure services to meet the entry requirement in Section 3.4. None of this has been done [S23; S22].
+7. **Final-year deliverables (planned):** draft final report, final report, demonstration and oral presentation on the NTU dates in Section 1.5 [S5].
+8. **Gates before claims.** No presentation claim goes out without source, denominator, method and recorded outcome [S3 §18.3, gate G4].
 
 If a milestone slips, the fallback order is: protect the shirt crop with a physical make and an accurate measured cut plan; then mobile intake, measurement correction, design revision and the basic DIY path; then at least one independently useful AI task; then simplify avatars, candidate count and overlay; then reduce the marketplace; and finally postpone tee expansion, accessories, search, speech, AR, try-on and photo checking [S3 §19.1].
 
@@ -330,14 +331,14 @@ The blueprint's risk register rates pattern validity and three-person overload a
 | Risk | Rule | State now |
 |---|---|---|
 | The entrant must be a legal entity founded on or after 2 Nov 2024. The Student Startup Category sits within these rules and also requires all founding team members to be enrolled students between 30 Sep 2026 and 31 May 2027 | Rules §4.1, §4.2 [S22] | No legal entity exists [S23, as relayed by the project lead] |
-| Entry needs a valid Azure Subscription ID and a Microsoft for Startups account | Rules §7, §8 [S22] | Azure is not set up (Section 2.6) |
+| Entry needs a valid Azure Subscription ID and a Microsoft for Startups account | Rules §7, §8 [S22] | Azure is not integrated and only planned (Section 2.6) |
 | By 28 Feb 2027 the entry must use at least 10 unique eligible Azure services, with at least $1.00 of usage shown on each | Rules §8 [S22]; the FAQ adds "unique eligible" (X2 read it on 9 Nov) | No Azure service is in use |
 | A 2 to 3 minute demonstration video, pitch deck and Azure architecture diagram or technical overview are needed if the entry advances to Stage 2 | Rules §8, §12.3 [S22] | None exists; the video script for the NTU interim video is a separate item (PR #13). The FAQ lists these materials as due by 23:59 CST on 28 Feb 2027, while Rules §8 says after advancing, by a date Microsoft communicates. The FAQ summarises the Rules; plan to have them ready by 28 Feb |
 | Rules and later-stage dates may change; Stage 4 to 6 dates are still to be communicated | Rules §3 [S22] | Last updated 4 Nov 2026 |
 
 ### 3.5 Needs-human items
 
-Work agents may only prepare, and that is listed for L0 [S10 `human-tasks.md`]. Items relevant to this report: H-10 (review this draft, record the video, complete the NTU GAI declaration form, submit by 10 Nov 2026), H-05 (supervisor ethics and consent route; the earlier H-08 was merged into it [S10]), and the `[FOUNDER INPUT NEEDED]` items above.
+Work agents may only prepare, and that is listed for L0 [S10 `human-tasks.md`]. Items relevant to this report: H-10 (review this draft, record the video, complete the NTU GAI declaration form, submit by 10 Nov 2026), H-05 (supervisor ethics and consent route; the earlier H-08 was merged into it [S10]), and the founder-input items above.
 
 ---
 
@@ -386,11 +387,11 @@ This appendix gives the facts needed to complete NTU's GAI declaration form. **T
 | Item | Detail |
 |---|---|
 | Tool | Claude Code (Anthropic) running as software agents inside this repository. The exact model version per task is recorded in the PR or commit trailer `Co-Authored-By` |
-| Used for in the project | Writing code, tests, documentation and drafts under the agent roles in Section 2.4. Work since branch protection was enabled enters `main` through a PR merged from a founder's GitHub account, which agents also use (Kireeti ran all 25 merges from the KIREETI001 account, using commands an agent prepared, after approving each batch [S23]); GitHub required no approving review on 1 Nov and still required none on 9 Nov [S11; S12] |
+| Used for in the project | Writing the planning documents (scope, blueprint, advisor deck) together with the founders, and code, tests, documentation and drafts under the agent roles in Section 2.4. Work since branch protection was enabled enters `main` through a PR merged from a founder's GitHub account, which agents also use (Kireeti ran all 25 merges from the KIREETI001 account, using commands an agent prepared, after approving each batch [S23]); GitHub required no approving review on 1 Nov and still required none on 9 Nov [S11; S12] |
 | Used for in this report | Drafting structure and text from the source documents and repository (agent X3, Report Writer), then adapting it as Kireeti's individual report with the founder answers of 9 Nov. Factual claims are tagged to a source in `SOURCES.md`; judgments in the Conclusion are the drafter's. Section 2.9 states plainly that agents wrote the code in Kireeti's area under Kireeti's direction |
-| Human input | `[FOUNDER INPUT NEEDED: who wrote each source PDF (scope, blueprint, advisor deck), and was AI used in writing them?]` Kireeti supplied the physical, research and process facts tagged [S23] and reviews the draft |
+| Human input | The three founders wrote the scope, blueprint and advisor deck together with generative AI, and reviewed every part [S23]. The tool used for those documents is not stated here. Kireeti supplied the physical, research and process facts tagged [S23] and reviews this draft |
 | Not delegated | Sewing and measuring, participant contact, consent, accounts, credentials, submissions and approvals are human-only [S6 `CLAUDE.md`] |
-| Data given to the tools | Project rule: synthetic or consented data only; no secrets, real user photos or body measurements in the repository, prompts or logs [S6 `CLAUDE.md`, rule 7]. Kireeti reports that no real photos, body measurements or secrets have been used and that nothing real has been tested [S23] |
+| Data given to the tools | Project rule: synthetic or consented data only; no secrets, real user photos or body measurements in the repository, prompts or logs [S6 `CLAUDE.md`, rule 7]. Kireeti confirms that no real photos, body measurements or secrets have gone into the repository, prompts or logs, and that nothing real has been tested [S23] |
 | Verification | Draft checked by the claims auditor agent (X2). Kireeti will review it line by line before submission [S23] |
 | Limitation | AI-written text can contain errors or unsupported statements. Anything not traceable in `SOURCES.md` should be removed |
 
@@ -401,7 +402,7 @@ Items answered on 9 Nov are filled in the text and tagged [S23]. What remains:
 1. Full name, matric number and project code as on the NTU template; the supervisor's title and the examiner's name.
 2. Dates and advice from the supervisor check-ins, if wanted.
 3. Kireeti's own hours, and a description of what Kireeti personally designed, decided, tested or wrote by hand (Section 2.9).
-4. Who wrote each source PDF (scope, blueprint, advisor deck) and whether AI was used in writing them (Appendix A).
+4. Not a marker: the three founders wrote the scope, blueprint and advisor deck together with generative AI and reviewed every part (Appendix A).
 5. Not a marker: the re-baselined plan has not yet been agreed with the supervisor (Section 1.5).
 6. Not a marker: the placket definition and the 50 mm minimum are still open, to be decided with the recipe reviewer (Section 2.5).
 7. Confirmation of the NTU dates marked "confirm" in Section 1.5.

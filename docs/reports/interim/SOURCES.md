@@ -127,7 +127,9 @@ S8, S10 are L0's own reports. S10 is dated 1 Nov and was merged on 9 Nov; no lat
 | 2.7, 2.8 | Weekly meetings of about 3 to 4 hours; costs not recorded; no other obstacles | S23 |
 | 2.9 | PRs #5, #6, #10, #15, #18, #19, #22, #35 and agents K1 to K6; #23 open; scaffold commit and #16 from Kireeti's account; agents wrote the code under Kireeti's direction | S17; S6; S11; S23 |
 | 3.4 | Imagine Cup entry risks: entity founded on or after 2 Nov 2024, Azure Subscription ID and Microsoft for Startups account, 10 services with US$1.00 usage each, 2 to 3 minute demo, pitch deck, architecture overview; no entity exists | S22 §4.1, §4.2, §7, §8, §12.3; S23 |
-| App. A | Data rule held; final review by Kireeti line by line | S23 |
+| App. A | Data rule confirmed: no real photos, body measurements or secrets in repo, prompts or logs; nothing real tested; final review by Kireeti line by line, still to happen | S23 |
+| App. A | The three founders wrote the scope, blueprint and advisor deck together with generative AI and reviewed every part; the tool is not stated | S23 |
+| 2.6, 2.9, 3.2 | Azure not integrated, only planned; Bicep and workflows are written files only, no Azure resources created; integration is a next step. A shirt of the planned type can be arranged; none recorded as obtained | S23; S20 |
 | 4 | All assessments | Derived from the rows above; the judgments ("tight", "slack") are the drafter's reading, to be confirmed by founders |
 | App. A | GAI declaration is a student-submitted NTU form | S5 (links list "GAI declare form"); S9 |
 | App. A | Commit trailer `Co-Authored-By` | repo commit convention given in the task brief |
