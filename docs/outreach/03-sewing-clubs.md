@@ -1,5 +1,7 @@
 # Sewing clubs and makers' groups
 
+> Held until H-05 (supervisor ethics and consent review) is closed. See `README.md`.
+
 Draft for [FOUNDER_NAME] to edit and send from their own account. Sewing clubs are often run by volunteers. Ask first, and offer to come along or to speak for a few minutes rather than posting into a group.
 
 ## Message to a club organiser
