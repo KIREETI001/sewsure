@@ -266,6 +266,7 @@ function mockRecheck(
     diy_suitability: fits ? parent.diy_suitability : null,
     pending_checks: fits ? parent.pending_checks : [],
     superseded_by_revision_id: null,
+    stale: false,
     created_at: now,
   };
 
@@ -285,6 +286,7 @@ function mockRecheck(
             ...d,
             current_revision_id: id,
             status: next.status,
+            stale: false,
             parameters,
             failure_codes: next.checks.failure_codes,
             title: d.title,

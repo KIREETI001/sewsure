@@ -20,7 +20,9 @@
     "fabric_family": "woven",
     "attribute_origin": "ai_suggested_user_confirmed",
     "attributes_confirmed_at": "2026-10-28T09:00:00Z",
-    "visible_features": ["button_placket"],
+    "visible_features": [
+      "button_placket"
+    ],
     "condition_notes": null,
     "photos": [
       {
@@ -74,6 +76,13 @@
           "confirmed_at": "2026-10-28T09:00:00Z",
           "entered_unit": "cm",
           "note": null
+        },
+        "placket_end_from_shoulder": {
+          "value_mm": 680,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
         }
       },
       "body": null,
@@ -86,7 +95,9 @@
         "message": "Measure shoulder to hem with a tape and confirm the value."
       }
     ],
-    "missing_dimensions": ["shoulder_to_hem"]
+    "missing_dimensions": [
+      "shoulder_to_hem"
+    ]
   },
   "inspiration": {
     "inspiration_id": "ins-unsure",
@@ -99,7 +110,13 @@
     },
     "surprise_me": false,
     "skill_level": "beginner",
-    "tools": ["ruler", "chalk", "fabric_scissors", "hand_needle", "iron"],
+    "tools": [
+      "ruler",
+      "chalk",
+      "fabric_scissors",
+      "hand_needle",
+      "iron"
+    ],
     "supplies": [],
     "recogniser_notes": null,
     "created_at": "2026-10-28T09:00:00Z"
@@ -112,7 +129,9 @@
     "stage": null,
     "result": {
       "outcome": "needs_input",
-      "design_ids": ["des-unsure-a"]
+      "design_ids": [
+        "des-unsure-a"
+      ]
     },
     "error": null,
     "created_at": "2026-10-28T09:00:00Z",
@@ -129,16 +148,25 @@
         "title": "Cropped shirt, 500 mm",
         "current_revision_id": "rev-unsure-a-1",
         "status": "NEEDS_INPUT",
+        "stale": false,
         "recipe_id": "woven_shirt_crop_v1",
         "parameters": {
           "finished_length_mm": 500,
           "hem_allowance_mm": 30,
           "hem_finish": "double_fold"
         },
-        "required_panels": ["back_panel", "front_left", "front_right"],
+        "required_panels": [
+          "back_panel",
+          "front_left",
+          "front_right"
+        ],
         "explanation": "We need a confirmed shoulder-to-hem length before we can check this crop. The photo suggestion has not been confirmed with a tape.",
-        "failure_codes": ["UNCONFIRMED_DIMENSION"],
-        "missing_dimensions": ["shoulder_to_hem"],
+        "failure_codes": [
+          "UNCONFIRMED_DIMENSION"
+        ],
+        "missing_dimensions": [
+          "shoulder_to_hem"
+        ],
         "preview": {
           "preview_id": "prv-unsure-a-1",
           "approximate": true,
@@ -184,9 +212,13 @@
       "geometry_mm": {},
       "checks": {
         "hard_pass": false,
-        "failure_codes": ["UNCONFIRMED_DIMENSION"],
+        "failure_codes": [
+          "UNCONFIRMED_DIMENSION"
+        ],
         "residuals": [],
-        "missing_dimensions": ["shoulder_to_hem"],
+        "missing_dimensions": [
+          "shoulder_to_hem"
+        ],
         "uncertainty_flags": [],
         "checks": [
           {
@@ -225,6 +257,7 @@
         "checked_at": "2026-10-28T09:01:30Z"
       },
       "status": "NEEDS_INPUT",
+      "stale": false,
       "diy_suitability": null,
       "pending_checks": [],
       "fit": null,

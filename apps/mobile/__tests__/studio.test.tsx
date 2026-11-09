@@ -32,9 +32,13 @@ const useScenario = async (name: ScenarioName) => {
   setMockScenario(name);
   useStudioStore.setState({ projectId: "p1", jobId: null });
   // Settle the mock job so results can read its outcome.
-  const started = await mockStudioApi.generate("p1", { inspiration: { kind: "text", text: "x" } }, {
-    idempotencyKey: `k-${name}`,
-  });
+  const started = await mockStudioApi.generate(
+    "p1",
+    { inspiration: { kind: "text", text: "x" } },
+    {
+      idempotencyKey: `k-${name}`,
+    },
+  );
   for (let i = 0; i < 6; i++) await mockStudioApi.getJob(started.data.job_id);
   useStudioStore.setState({ jobId: started.data.job_id });
 };
@@ -53,7 +57,9 @@ describe("fixture copies", () => {
     const src = path.resolve(__dirname, "../../../packages/contracts/fixtures");
     if (!fs.existsSync(src)) return;
     for (const f of fs.readdirSync(path.resolve(__dirname, "../src/studio/fixtures"))) {
-      const a = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../src/studio/fixtures", f), "utf8"));
+      const a = JSON.parse(
+        fs.readFileSync(path.resolve(__dirname, "../src/studio/fixtures", f), "utf8"),
+      );
       const b = JSON.parse(fs.readFileSync(path.join(src, f), "utf8"));
       expect(a).toEqual(b);
     }
@@ -211,5 +217,69 @@ describe("design detail", () => {
     mockParams = { designId: "des-idea-a" };
     await renderScreen(<DesignScreen />);
     await waitFor(() => expect(screen.getByText(/nothing you can change/)).toBeTruthy());
+  });
+});
+
+describe("stale revisions", () => {
+  it("leads the card with the recheck notice", async () => {
+    await useScenario("stale_after_measurements_change");
+    await renderScreen(<ResultsScreen />);
+    await waitFor(() =>
+      expect(screen.getByText(/Recheck needed: measurements changed/)).toBeTruthy(),
+    );
+  });
+
+  it("hides numbers and the cut link, then the recheck clears it", async () => {
+    await useScenario("stale_after_measurements_change");
+    mockParams = { designId: "des-stale-a" };
+    await renderScreen(<DesignScreen />);
+    await waitFor(() =>
+      expect(screen.getByText(/Recheck needed: your measurements changed/)).toBeTruthy(),
+    );
+    expect(screen.queryByText("Approximate outline")).toBeNull();
+    expect(screen.queryByText(/Cut mark/)).toBeNull();
+    expect(screen.queryByRole("button", { name: "Open the cut guide" })).toBeNull();
+    await fireEvent.press(
+      screen.getByRole("button", { name: "Recheck with my current measurements" }),
+    );
+    await waitFor(() => expect(screen.getByText("Approximate outline")).toBeTruthy());
+    expect(screen.getByRole("button", { name: "Open the cut guide" })).toBeTruthy();
+  });
+
+  it("treats a missing stale flag as stale", async () => {
+    await useScenario("woven_shirt_crop_pass");
+    const rev = (await mockStudioApi.getRevision("rev-crop-a-2")).data;
+    const { stale: _drop, ...noFlag } = rev;
+    setStudioApi({
+      ...mockStudioApi,
+      getRevision: async () => ({ provenance: "mock", data: noFlag as typeof rev }),
+    });
+    mockParams = { designId: "des-crop-a" };
+    await renderScreen(<DesignScreen />);
+    await waitFor(() =>
+      expect(screen.getByText(/Recheck needed: your measurements changed/)).toBeTruthy(),
+    );
+    expect(screen.queryByRole("button", { name: "Open the cut guide" })).toBeNull();
+  });
+});
+
+describe("cut guide link", () => {
+  it("opens for a passing, current revision", async () => {
+    await useScenario("woven_shirt_crop_pass");
+    mockParams = { designId: "des-crop-a" };
+    await renderScreen(<DesignScreen />);
+    await fireEvent.press(await screen.findByRole("button", { name: "Open the cut guide" }));
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/cut",
+      params: { revisionId: "rev-crop-a-2" },
+    });
+  });
+
+  it("is absent for a failed design", async () => {
+    await useScenario("lengthening_impossible");
+    mockParams = { designId: "des-longer-a" };
+    await renderScreen(<DesignScreen />);
+    await screen.findByText("Approximate outline");
+    expect(screen.queryByRole("button", { name: "Open the cut guide" })).toBeNull();
   });
 });

@@ -20,7 +20,9 @@
     "fabric_family": "woven",
     "attribute_origin": "ai_suggested_user_confirmed",
     "attributes_confirmed_at": "2026-10-28T09:00:00Z",
-    "visible_features": ["button_placket"],
+    "visible_features": [
+      "button_placket"
+    ],
     "condition_notes": null,
     "photos": [
       {
@@ -77,6 +79,13 @@
         },
         "hem_width": {
           "value_mm": 540,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
+        },
+        "placket_end_from_shoulder": {
+          "value_mm": 700,
           "origin": "user_tape_measured",
           "confirmed_at": "2026-10-28T09:00:00Z",
           "entered_unit": "cm",

@@ -10,6 +10,7 @@
 import ideaOnly from "./fixtures/idea_only.json";
 import jobFailed from "./fixtures/job_failed_no_designs.json";
 import lengthening from "./fixtures/lengthening_impossible.json";
+import stale from "./fixtures/stale_after_measurements_change.json";
 import needsInput from "./fixtures/needs_input.json";
 import wovenPass from "./fixtures/woven_shirt_crop_pass.json";
 import type { DesignList, DesignRevision, Job } from "./types";
@@ -28,6 +29,7 @@ const base = {
   needs_input: asScenario(needsInput),
   idea_only: asScenario(ideaOnly),
   job_failed_no_designs: asScenario(jobFailed),
+  stale_after_measurements_change: asScenario(stale),
 };
 
 const zeroDesigns = (): Scenario => {
@@ -56,6 +58,7 @@ export const SCENARIO_NAMES: readonly ScenarioName[] = [
   "needs_input",
   "idea_only",
   "job_failed_no_designs",
+  "stale_after_measurements_change",
   "zero_designs",
   "slow",
 ];

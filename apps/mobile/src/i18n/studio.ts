@@ -126,6 +126,14 @@ export const studioEn = {
   "studio.fitLabel.insufficient_ease": "Not enough room to move (estimate)",
   "studio.fitLabel.unknown": "Fit not estimated",
 
+  "studio.stale.title": "Recheck needed: your measurements changed",
+  "studio.stale.body":
+    "These results were checked against older measurements. Recheck before you rely on them or cut.",
+  "studio.stale.cardNote": "Recheck needed: measurements changed since this check.",
+  "studio.stale.recheck": "Recheck with my current measurements",
+  "studio.stale.hidden": "Outline and numbers are hidden until the recheck finishes.",
+  "studio.stale.failed": "The recheck did not complete. Try again.",
+  "studio.cut.open": "Open the cut guide",
   "studio.edit.title": "Customise",
   "studio.edit.intro":
     "Change the lengths below. Each change creates a new version and reruns the checks. Your last good version stays available.",

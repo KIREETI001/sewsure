@@ -10,6 +10,7 @@ import { Silhouette } from "@/studio/components/Silhouette";
 import { editableAttributes, readOnlyParameters } from "@/studio/editable";
 import { StudioApiError } from "@/studio/errors";
 import { dimensionText, failureText, flagText, mmToCmText, tOr } from "@/studio/format";
+import { canOpenCutGuide, isStale } from "@/studio/stale";
 import type { DesignRevision } from "@/studio/types";
 import {
   Button,
@@ -73,6 +74,7 @@ export default function DesignScreen() {
 
   const revision = rev.data?.data;
   const readOnly = revision?.status === "SUPERSEDED";
+  const stale = Boolean(revision) && !readOnly && isStale(revision as DesignRevision);
   const isCurrent = revision?.revision_id === currentId;
   const attrs = revision ? editableAttributes(revision.recipe_id, revision.parameters) : [];
   const text = (key: string, mm: number) => drafts?.[key] ?? mmToCmText(mm);
@@ -89,12 +91,12 @@ export default function DesignScreen() {
   }
 
   const recheck = useMutation({
-    mutationFn: () =>
+    mutationFn: (parameters: Record<string, number> = changed) =>
       api.createRevision(
         designId,
         {
           parent_revision_id: (revision as DesignRevision).revision_id,
-          parameters: changed as unknown as DesignRevision["parameters"],
+          parameters: parameters as unknown as DesignRevision["parameters"],
         },
         { idempotencyKey: newIdempotencyKey() },
       ),
@@ -152,9 +154,40 @@ export default function DesignScreen() {
                 <Button label={t("studio.design.openCurrent")} onPress={() => setViewId(null)} />
               </Card>
             ) : null}
+            {stale ? (
+              <Card>
+                <Text variant="heading">{`! ${t("studio.stale.title")}`}</Text>
+                <Text>{t("studio.stale.body")}</Text>
+                {editError ? (
+                  <Text
+                    tone="danger"
+                    accessibilityRole="alert"
+                  >{`! ${t("studio.stale.failed")}`}</Text>
+                ) : null}
+                <Button
+                  label={t("studio.stale.recheck")}
+                  loading={recheck.isPending}
+                  onPress={() => recheck.mutate({})}
+                />
+              </Card>
+            ) : null}
             <Text>{design.explanation}</Text>
-            <Silhouette revision={revision} />
-            <FitSummary revision={revision} />
+            {stale ? (
+              <Text tone="secondary">{t("studio.stale.hidden")}</Text>
+            ) : (
+              <>
+                <Silhouette revision={revision} />
+                <FitSummary revision={revision} />
+              </>
+            )}
+            {canOpenCutGuide(revision) ? (
+              <Button
+                label={t("studio.cut.open")}
+                onPress={() =>
+                  router.push({ pathname: "/cut", params: { revisionId: revision.revision_id } })
+                }
+              />
+            ) : null}
 
             <Text variant="heading" accessibilityRole="header">
               {t("studio.design.checks")}
@@ -252,7 +285,7 @@ export default function DesignScreen() {
                   label={t("studio.edit.recheck")}
                   loading={recheck.isPending}
                   disabled={invalid || Object.keys(changed).length === 0}
-                  onPress={() => recheck.mutate()}
+                  onPress={() => recheck.mutate(changed)}
                 />
               </View>
             )}

@@ -4,6 +4,7 @@ import { getStudioApi } from "@/api/studio";
 import { t } from "@/i18n";
 import { Button, Card, MockBadge, StateBadge, Text } from "../../../ui";
 import { dimensionText, failureText, flagText, tOr } from "../format";
+import { isStale } from "../stale";
 import type { DesignCandidate } from "../types";
 
 export function CandidateCard({ design, onView }: { design: DesignCandidate; onView: () => void }) {
@@ -38,6 +39,12 @@ export function CandidateCard({ design, onView }: { design: DesignCandidate; onV
       </Text>
       <StateBadge state={design.status} />
       {mocked ? <MockBadge /> : null}
+      {isStale(design) ? (
+        <Text
+          variant="bodyStrong"
+          accessibilityRole="alert"
+        >{`! ${t("studio.stale.cardNote")}`}</Text>
+      ) : null}
       <Text>{design.explanation}</Text>
       {reasons.map((r) => (
         <Text key={r}>{`• ${r}`}</Text>

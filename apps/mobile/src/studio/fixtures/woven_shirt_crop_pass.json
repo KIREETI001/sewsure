@@ -34,7 +34,11 @@
     "fabric_family": "woven",
     "attribute_origin": "ai_suggested_user_confirmed",
     "attributes_confirmed_at": "2026-10-28T09:00:00Z",
-    "visible_features": ["button_placket", "chest_pocket", "curved_hem"],
+    "visible_features": [
+      "button_placket",
+      "chest_pocket",
+      "curved_hem"
+    ],
     "condition_notes": null,
     "photos": [
       {
@@ -95,6 +99,13 @@
           "confirmed_at": "2026-10-28T09:00:00Z",
           "entered_unit": "cm",
           "note": null
+        },
+        "placket_end_from_shoulder": {
+          "value_mm": 700,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
         }
       },
       "body": null,
@@ -115,7 +126,13 @@
     },
     "surprise_me": false,
     "skill_level": "beginner",
-    "tools": ["ruler", "chalk", "fabric_scissors", "hand_needle", "iron"],
+    "tools": [
+      "ruler",
+      "chalk",
+      "fabric_scissors",
+      "hand_needle",
+      "iron"
+    ],
     "supplies": [],
     "recogniser_notes": null,
     "created_at": "2026-10-28T09:00:00Z"
@@ -128,7 +145,10 @@
     "stage": null,
     "result": {
       "outcome": "designs",
-      "design_ids": ["des-crop-a", "des-crop-b"]
+      "design_ids": [
+        "des-crop-a",
+        "des-crop-b"
+      ]
     },
     "error": null,
     "created_at": "2026-10-28T09:00:00Z",
@@ -145,13 +165,18 @@
         "title": "Cropped shirt, 500 mm",
         "current_revision_id": "rev-crop-a-2",
         "status": "PASS_SUPPORTED_CHECKS",
+        "stale": false,
         "recipe_id": "woven_shirt_crop_v1",
         "parameters": {
           "finished_length_mm": 500,
           "hem_allowance_mm": 25,
           "hem_finish": "double_fold"
         },
-        "required_panels": ["back_panel", "front_left", "front_right"],
+        "required_panels": [
+          "back_panel",
+          "front_left",
+          "front_right"
+        ],
         "explanation": "Crop to 500 mm finished length with a 25 mm hem turn-up. The cut mark sits 525 mm below the shoulder point. Side seams are not verified by this check; measure with a ruler before cutting.",
         "failure_codes": [],
         "missing_dimensions": [],
@@ -177,13 +202,18 @@
         "title": "Short crop, 450 mm",
         "current_revision_id": "rev-crop-b-1",
         "status": "PASS_SUPPORTED_CHECKS",
+        "stale": false,
         "recipe_id": "woven_shirt_crop_v1",
         "parameters": {
           "finished_length_mm": 450,
           "hem_allowance_mm": 30,
           "hem_finish": "double_fold"
         },
-        "required_panels": ["back_panel", "front_left", "front_right"],
+        "required_panels": [
+          "back_panel",
+          "front_left",
+          "front_right"
+        ],
         "explanation": "Crop to 450 mm finished length with a 30 mm hem turn-up. The cut mark sits 480 mm below the shoulder point. Side seams are not verified by this check; measure with a ruler before cutting.",
         "failure_codes": [],
         "missing_dimensions": [],
@@ -250,7 +280,9 @@
           }
         ],
         "missing_dimensions": [],
-        "uncertainty_flags": ["SIDE_SEAMS_NOT_VERIFIED"],
+        "uncertainty_flags": [
+          "SIDE_SEAMS_NOT_VERIFIED"
+        ],
         "checks": [
           {
             "check_id": "supported_material",
@@ -288,6 +320,7 @@
         "checked_at": "2026-10-28T09:01:30Z"
       },
       "status": "SUPERSEDED",
+      "stale": false,
       "diy_suitability": "DIY_WITH_PRACTICE",
       "pending_checks": [
         "Verify the shoulder-to-hem reference with a ruler on the garment before cutting."
@@ -354,7 +387,9 @@
           }
         ],
         "missing_dimensions": [],
-        "uncertainty_flags": ["SIDE_SEAMS_NOT_VERIFIED"],
+        "uncertainty_flags": [
+          "SIDE_SEAMS_NOT_VERIFIED"
+        ],
         "checks": [
           {
             "check_id": "supported_material",
@@ -392,6 +427,7 @@
         "checked_at": "2026-10-28T09:01:30Z"
       },
       "status": "PASS_SUPPORTED_CHECKS",
+      "stale": false,
       "diy_suitability": "DIY_WITH_PRACTICE",
       "pending_checks": [
         "Verify the shoulder-to-hem reference with a ruler on the garment before cutting."
@@ -458,7 +494,9 @@
           }
         ],
         "missing_dimensions": [],
-        "uncertainty_flags": ["SIDE_SEAMS_NOT_VERIFIED"],
+        "uncertainty_flags": [
+          "SIDE_SEAMS_NOT_VERIFIED"
+        ],
         "checks": [
           {
             "check_id": "supported_material",
@@ -496,6 +534,7 @@
         "checked_at": "2026-10-28T09:01:30Z"
       },
       "status": "PASS_SUPPORTED_CHECKS",
+      "stale": false,
       "diy_suitability": "DIY_WITH_PRACTICE",
       "pending_checks": [
         "Verify the shoulder-to-hem reference with a ruler on the garment before cutting."
@@ -540,8 +579,14 @@
             "line_id": "cut_line",
             "kind": "cut",
             "points_mm": [
-              [0, 525],
-              [280, 525]
+              [
+                0,
+                525
+              ],
+              [
+                280,
+                525
+              ]
             ],
             "label": "Cut 525 mm below shoulder"
           },
@@ -549,8 +594,14 @@
             "line_id": "fold_line",
             "kind": "fold",
             "points_mm": [
-              [0, 512.5],
-              [280, 512.5]
+              [
+                0,
+                512.5
+              ],
+              [
+                280,
+                512.5
+              ]
             ],
             "label": "First fold"
           },
@@ -558,13 +609,21 @@
             "line_id": "hem_line",
             "kind": "fold",
             "points_mm": [
-              [0, 500],
-              [280, 500]
+              [
+                0,
+                500
+              ],
+              [
+                280,
+                500
+              ]
             ],
             "label": "Finished hem 500 mm"
           }
         ],
-        "prohibited_regions": ["button_placket"]
+        "prohibited_regions": [
+          "button_placket"
+        ]
       },
       {
         "piece_id": "front_right",
@@ -574,8 +633,14 @@
             "line_id": "cut_line",
             "kind": "cut",
             "points_mm": [
-              [0, 525],
-              [280, 525]
+              [
+                0,
+                525
+              ],
+              [
+                280,
+                525
+              ]
             ],
             "label": "Cut 525 mm below shoulder"
           },
@@ -583,8 +648,14 @@
             "line_id": "fold_line",
             "kind": "fold",
             "points_mm": [
-              [0, 512.5],
-              [280, 512.5]
+              [
+                0,
+                512.5
+              ],
+              [
+                280,
+                512.5
+              ]
             ],
             "label": "First fold"
           },
@@ -592,13 +663,21 @@
             "line_id": "hem_line",
             "kind": "fold",
             "points_mm": [
-              [0, 500],
-              [280, 500]
+              [
+                0,
+                500
+              ],
+              [
+                280,
+                500
+              ]
             ],
             "label": "Finished hem 500 mm"
           }
         ],
-        "prohibited_regions": ["button_placket"]
+        "prohibited_regions": [
+          "button_placket"
+        ]
       },
       {
         "piece_id": "back_panel",
@@ -608,8 +687,14 @@
             "line_id": "cut_line",
             "kind": "cut",
             "points_mm": [
-              [0, 525],
-              [280, 525]
+              [
+                0,
+                525
+              ],
+              [
+                280,
+                525
+              ]
             ],
             "label": "Cut 525 mm below shoulder"
           },
@@ -617,8 +702,14 @@
             "line_id": "fold_line",
             "kind": "fold",
             "points_mm": [
-              [0, 512.5],
-              [280, 512.5]
+              [
+                0,
+                512.5
+              ],
+              [
+                280,
+                512.5
+              ]
             ],
             "label": "First fold"
           },
@@ -626,8 +717,14 @@
             "line_id": "hem_line",
             "kind": "fold",
             "points_mm": [
-              [0, 500],
-              [280, 500]
+              [
+                0,
+                500
+              ],
+              [
+                280,
+                500
+              ]
             ],
             "label": "Finished hem 500 mm"
           }
@@ -682,9 +779,21 @@
       "reviewed_on": "2026-10-20",
       "reviewer_role": "supervisor"
     },
-    "required_tools": ["ruler", "chalk", "fabric_scissors", "hand_needle", "iron"],
-    "skill_prerequisites": ["straight_hand_stitch", "double_fold_hem"],
-    "materials": ["Original shirt", "Matching thread"],
+    "required_tools": [
+      "ruler",
+      "chalk",
+      "fabric_scissors",
+      "hand_needle",
+      "iron"
+    ],
+    "skill_prerequisites": [
+      "straight_hand_stitch",
+      "double_fold_hem"
+    ],
+    "materials": [
+      "Original shirt",
+      "Matching thread"
+    ],
     "steps": [
       {
         "step_id": "s1_prepare",
@@ -807,7 +916,9 @@
       "design_status": "PASS_SUPPORTED_CHECKS",
       "garment_category": "woven_shirt",
       "modification_request": "Crop to 500 mm finished length with a double-fold hem.",
-      "shared_photo_ids": ["pho-crop-front"],
+      "shared_photo_ids": [
+        "pho-crop-front"
+      ],
       "shared_measurements": {
         "shoulder_to_hem": 780
       },
@@ -816,7 +927,11 @@
       ],
       "consent": {
         "consent_version": "2026-10-draft",
-        "shared_fields": ["garment_category", "photos.front", "measurements.shoulder_to_hem"],
+        "shared_fields": [
+          "garment_category",
+          "photos.front",
+          "measurements.shoulder_to_hem"
+        ],
         "consented_at": "2026-10-28T09:05:00Z"
       }
     },
