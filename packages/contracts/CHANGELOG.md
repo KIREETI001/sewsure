@@ -4,6 +4,31 @@ Status: **DRAFT, not frozen.** Consumers may build against v1 now, but field nam
 
 Every entry says what changed, why, and which consumers are affected.
 
+## 1.0.0-draft.3 (2026-11-02)
+
+Stale revisions get a documented error and a machine-readable field. Approved by Kireeti; requested by X1's recheck of #22 (finding N1). Still DRAFT.
+
+**What and why**
+
+- **`stale` boolean, required on `DesignRevision` and `DesignCandidate`.** It is true when the revision's `inputs.measurements_id` is no longer the project's current `measurements_id`. Before this, clients could only find out by parsing prose, while `status`, `hard_pass` and `geometry_mm` still read as a pass.
+- **409 `REVISION_STALE` on `GET /v1/revisions/{revision_id}/cut-plan`.** The route's 409 is now the `CutPlanUnavailable` response, which allows `REVISION_NOT_PASSING` (`recoverable: false`) or `REVISION_STALE` (`recoverable: true`). The status is checked first.
+- **Recheck path documented.** `POST /v1/designs/{design_id}/revisions` with `parameters: {}` and a new `Idempotency-Key` reruns the engine on the current measurements.
+- **Corrected the cut plan route's 200 description.** It said a SUPERSEDED revision gets a plan. It gets 409, as #22 implements and the 409 description already said.
+- **`placket_end_from_shoulder` added to the shirt fixtures**, because #22 asks for this dimension. The values (700 and 680 mm) are synthetic. What the dimension should mean is still an open human decision on #22.
+- **New fixture `stale_after_measurements_change`**, with an optional `cut_plan_error` field on the fixture scenario so mobile can mock the 409.
+- `validate.py` now checks that a candidate's `stale` matches its revision, that `stale` matches the measurements IDs, and that no stale revision is served a plan.
+
+**Stale is not a design state.** The five states are unchanged. `stale` is computed at read time, is not stored on the immutable revision, is not part of `inputs_hash`, and never changes `status`. A stale pass keeps `PASS_SUPPORTED_CHECKS` until the engine rechecks it. `Job.result.outcome` is unchanged too, because it summarises the original run.
+
+**Not changed:** `diy-steps` and `diy-progress` still document only `RevisionNotPassing`. See the PR for the open question.
+
+**Consumers affected**
+
+- K2 (#22): set `stale` on revision and candidate responses, and use the documented 409. `stale` is required, so responses without it fail validation.
+- D3 (#25): read `stale` on cards and design detail; lead with the recheck and do not present the cut mark or `geometry_mm` as current. Add `stale` to mocks.
+- D4 (#24): `cutGuideAccess` must treat `stale: true` as closed, and handle 409 `REVISION_STALE` by offering the recheck. Add `stale` to mocks.
+- All: fixtures gain `stale` and the placket dimension.
+
 ## 1.0.0-draft.2 (2026-10-28)
 
 Fixes from the X1 review on PR #15, plus canonical vocabularies after the cross-PR check against N1 #12, N2 #9, K2 #5 and K3 #10. Still DRAFT.

@@ -1,5 +1,7 @@
 # NTU and student channels
 
+> Held until H-05 (supervisor ethics and consent review) is closed. See `README.md`.
+
 Draft for [FOUNDER_NAME] to edit and send from their own account. Use only channels where posting or messaging is allowed. Check the channel's rules first and do not message people who have not opted in to hearing from student groups.
 
 ## Message to a student group or society

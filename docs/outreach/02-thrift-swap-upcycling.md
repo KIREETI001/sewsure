@@ -1,5 +1,7 @@
 # Thrift, swap and upcycling communities
 
+> Held until H-05 (supervisor ethics and consent review) is closed. See `README.md`.
+
 Draft for [FOUNDER_NAME] to edit and send from their own account. Read each community's rules before posting. Many forbid commercial posts; if this one does, ask a moderator first rather than posting.
 
 ## Message to a moderator (ask before posting)

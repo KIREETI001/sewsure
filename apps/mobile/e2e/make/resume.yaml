@@ -1,0 +1,14 @@
+# Progress survives closing the app and the DIY screen offers to resume.
+# Needs a development or demo build (EXPO_PUBLIC_SEWSURE_DEMO=1). Not yet run on a device.
+appId: com.sewsure.mobile
+---
+- clearState
+- launchApp
+- openLink: sewsure:///diy?revisionId=rev-crop-a-2
+- assertVisible: "Resume at step 3.*"
+- tapOn: "I did this step: Mark the cut line"
+- assertVisible: "Resume at step 4.*"
+- stopApp
+- launchApp
+- openLink: sewsure:///diy?revisionId=rev-crop-a-2
+- assertVisible: "Resume at step 4.*"

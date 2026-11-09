@@ -134,6 +134,7 @@
         "title": "Corset-style top (idea)",
         "current_revision_id": "rev-idea-a-1",
         "status": "IDEA_ONLY",
+        "stale": false,
         "recipe_id": null,
         "parameters": {},
         "required_panels": [],
@@ -202,6 +203,7 @@
         "checked_at": "2026-10-28T09:01:30Z"
       },
       "status": "IDEA_ONLY",
+      "stale": false,
       "diy_suitability": "TAILOR_RECOMMENDED",
       "pending_checks": [],
       "fit": null,

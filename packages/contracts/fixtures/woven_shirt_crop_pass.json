@@ -99,6 +99,13 @@
           "confirmed_at": "2026-10-28T09:00:00Z",
           "entered_unit": "cm",
           "note": null
+        },
+        "placket_end_from_shoulder": {
+          "value_mm": 700,
+          "origin": "user_tape_measured",
+          "confirmed_at": "2026-10-28T09:00:00Z",
+          "entered_unit": "cm",
+          "note": null
         }
       },
       "body": null,
@@ -158,6 +165,7 @@
         "title": "Cropped shirt, 500 mm",
         "current_revision_id": "rev-crop-a-2",
         "status": "PASS_SUPPORTED_CHECKS",
+        "stale": false,
         "recipe_id": "woven_shirt_crop_v1",
         "parameters": {
           "finished_length_mm": 500,
@@ -194,6 +202,7 @@
         "title": "Short crop, 450 mm",
         "current_revision_id": "rev-crop-b-1",
         "status": "PASS_SUPPORTED_CHECKS",
+        "stale": false,
         "recipe_id": "woven_shirt_crop_v1",
         "parameters": {
           "finished_length_mm": 450,
@@ -311,6 +320,7 @@
         "checked_at": "2026-10-28T09:01:30Z"
       },
       "status": "SUPERSEDED",
+      "stale": false,
       "diy_suitability": "DIY_WITH_PRACTICE",
       "pending_checks": [
         "Verify the shoulder-to-hem reference with a ruler on the garment before cutting."
@@ -417,6 +427,7 @@
         "checked_at": "2026-10-28T09:01:30Z"
       },
       "status": "PASS_SUPPORTED_CHECKS",
+      "stale": false,
       "diy_suitability": "DIY_WITH_PRACTICE",
       "pending_checks": [
         "Verify the shoulder-to-hem reference with a ruler on the garment before cutting."
@@ -523,6 +534,7 @@
         "checked_at": "2026-10-28T09:01:30Z"
       },
       "status": "PASS_SUPPORTED_CHECKS",
+      "stale": false,
       "diy_suitability": "DIY_WITH_PRACTICE",
       "pending_checks": [
         "Verify the shoulder-to-hem reference with a ruler on the garment before cutting."
