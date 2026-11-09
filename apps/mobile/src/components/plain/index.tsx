@@ -42,8 +42,23 @@ export function Heading({ children }: { children: string }) {
   );
 }
 
-export function Body({ children, muted }: { children: ReactNode; muted?: boolean }) {
-  return <Text style={[styles.body, muted && { color: colors.muted }]}>{children}</Text>;
+export function Body({
+  children,
+  muted,
+  accessibilityLabel,
+}: {
+  children: ReactNode;
+  muted?: boolean;
+  accessibilityLabel?: string;
+}) {
+  return (
+    <Text
+      accessibilityLabel={accessibilityLabel}
+      style={[styles.body, muted && { color: colors.muted }]}
+    >
+      {children}
+    </Text>
+  );
 }
 
 export function Button({
@@ -79,16 +94,18 @@ export function Chip({
   selected,
   onPress,
   role = "radio",
+  accessibilityLabel,
 }: {
   label: string;
   selected: boolean;
   onPress: () => void;
   role?: "radio" | "checkbox";
+  accessibilityLabel?: string;
 }) {
   return (
     <Pressable
       accessibilityRole={role}
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ checked: selected }}
       onPress={onPress}
       style={[styles.chip, selected && styles.chipSelected]}
@@ -106,6 +123,7 @@ export function TextField({
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
+      {hint ? <Body muted>{hint}</Body> : null}
       <TextInput
         accessibilityLabel={label}
         accessibilityHint={hint}
@@ -128,7 +146,14 @@ export function Notice({
   const symbol = tone === "error" ? "✗" : tone === "warn" ? "!" : "i";
   return (
     <View accessibilityRole="alert" style={[styles.notice, { backgroundColor: bg }]}>
-      <Text style={styles.body}>{`${symbol}  `}</Text>
+      <Text
+        accessible={false}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        style={styles.body}
+      >
+        {`${symbol}  `}
+      </Text>
       <View style={{ flex: 1 }}>{children}</View>
     </View>
   );

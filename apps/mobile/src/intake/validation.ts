@@ -35,7 +35,8 @@ const within = (mm: number, [lo, hi]: readonly [number, number]): boolean => mm 
 export const checkPlausibility = (spec: MeasurementSpec, mm: number): Plausibility => {
   // Outside the hard range a value is rejected and can never be kept. A likely typo still
   // gets a suggested replacement (6 cm where 60 cm is expected).
-  const level = within(mm, spec.hardMm) ? "warn" : "error";
+  // Body ranges are unsourced proposals, so a body value is never blocked.
+  const level = within(mm, spec.hardMm) || spec.group === "body" ? "warn" : "error";
   if (within(mm, spec.typicalMm)) return { level: "ok", code: "ok" };
   if (within(mm * 10, spec.typicalMm)) {
     return { level, code: "maybe_missing_zero", suggestedCm: mmToCm(mm * 10) };

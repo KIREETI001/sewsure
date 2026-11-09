@@ -25,7 +25,8 @@ const renderScreen = (ui: ReactElement) =>
       client={
         new QueryClient({
           defaultOptions: {
-            mutations: { retry: false },
+            // Avoid five-minute mutation GC timers in this isolated test client.
+            mutations: { retry: false, gcTime: Infinity },
             queries: { retry: false, gcTime: Infinity },
           },
         })
@@ -45,6 +46,43 @@ beforeEach(() => {
 });
 
 describe("entry", () => {
+  it.each(["Try demo mode", "Sign in"])(
+    "removes each Start requirement when satisfied via %s",
+    async (sessionAction) => {
+      await renderScreen(<EntryScreen />);
+      expect(screen.getByText(/Choose Maker or owner to start/)).toBeTruthy();
+      expect(screen.getByText(/To start as Maker or owner, sign in/)).toBeTruthy();
+      await fireEvent.press(screen.getByRole("button", { name: "Start" }));
+      expect(mockPush).not.toHaveBeenCalled();
+      await fireEvent.press(screen.getByRole("radio", { name: "Maker or owner" }));
+      expect(screen.queryByText(/Choose Maker or owner to start/)).toBeNull();
+      expect(screen.getByText(/To start as Maker or owner, sign in/)).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Start" })).toBeDisabled();
+      await fireEvent.press(screen.getByRole("button", { name: sessionAction }));
+      await waitFor(() => expect(screen.getByRole("button", { name: "Start" })).toBeEnabled());
+      expect(screen.queryByText(/To start as Maker or owner, sign in/)).toBeNull();
+    },
+  );
+
+  it.each(["Try demo mode", "Sign in"])(
+    "keeps the Maker requirement for Tailor after %s",
+    async (sessionAction) => {
+      await renderScreen(<EntryScreen />);
+      await fireEvent.press(screen.getByRole("radio", { name: "Tailor" }));
+      await fireEvent.press(screen.getByRole("button", { name: sessionAction }));
+      await waitFor(() =>
+        expect(screen.queryByText(/To start as Maker or owner, sign in/)).toBeNull(),
+      );
+      expect(screen.getByText(/Choose Maker or owner to start. Tailor tools are unavailable/)).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Start" })).toBeDisabled();
+      await fireEvent.press(screen.getByRole("button", { name: "Start" }));
+      expect(mockPush).not.toHaveBeenCalled();
+      await fireEvent.press(screen.getByRole("radio", { name: "Maker or owner" }));
+      expect(screen.queryByText(/Choose Maker or owner to start/)).toBeNull();
+      expect(screen.getByRole("button", { name: "Start" })).toBeEnabled();
+    },
+  );
+
   it("cannot start until sign-in or demo mode, and demo mode is not uploaded", async () => {
     await renderScreen(<EntryScreen />);
     expect(screen.getByRole("button", { name: "Start" })).toBeDisabled();
@@ -69,6 +107,40 @@ describe("entry", () => {
 });
 
 describe("capture", () => {
+  it("distinguishes Front and Back Retake buttons without changing their visible text", async () => {
+    await act(() => useIntakeStore.getState().patch({ front: photo, back: photo }));
+    await renderScreen(<CaptureScreen />);
+    expect(screen.getByRole("button", { name: "Retake: Front" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Retake: Back" })).toBeTruthy();
+    expect(screen.getAllByText("Retake")).toHaveLength(2);
+  });
+
+  it("distinguishes photo checks and toggles only the named side", async () => {
+    await act(() =>
+      useIntakeStore.getState().patch({
+        front: { ...photo, checked: false },
+        back: { ...photo, checked: false },
+        category: "shirt",
+      }),
+    );
+    await renderScreen(<CaptureScreen />);
+    const checkLabel = "Sharp, evenly lit, and the whole garment is in frame";
+    const frontCheck = screen.getByRole("checkbox", { name: `${checkLabel}: Front` });
+    const backCheck = screen.getByRole("checkbox", { name: `${checkLabel}: Back` });
+    expect(screen.getAllByText(checkLabel)).toHaveLength(2);
+    expect(frontCheck).not.toBeChecked();
+    expect(backCheck).not.toBeChecked();
+    // Category chips retain their visible label as the default accessible name.
+    expect(screen.getByRole("radio", { name: "Shirt" })).toBeChecked();
+    await fireEvent.press(frontCheck);
+    expect(frontCheck).toBeChecked();
+    expect(backCheck).not.toBeChecked();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    await fireEvent.press(backCheck);
+    expect(backCheck).toBeChecked();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+  });
+
   it("explains a denied camera permission and offers the library", async () => {
     picker.requestCameraPermissionsAsync.mockResolvedValue({ granted: false } as never);
     await renderScreen(<CaptureScreen />);
@@ -98,6 +170,38 @@ describe("capture", () => {
 });
 
 describe("inspiration", () => {
+  it.each([true, false])("removes missing requirements independently (fit first: %s)", async (fitFirst) => {
+    await renderScreen(<InspirationScreen />);
+    expect(screen.getByText(/Nothing entered yet/)).toBeTruthy();
+    expect(screen.getByText("Choose a fit preference to continue.")).toBeTruthy();
+    expect(screen.getByText("Choose your sewing skill to continue.")).toBeTruthy();
+    const input = screen.getByLabelText("Describe the change you want");
+    await fireEvent.changeText(input, "   ");
+    expect(screen.getByText(/Nothing entered yet/)).toBeTruthy();
+    await fireEvent.changeText(input, "shorter sleeves");
+    expect(screen.queryByText(/Nothing entered yet/)).toBeNull();
+    await fireEvent.press(screen.getByRole("radio", { name: fitFirst ? "No preference" : "Beginner" }));
+    expect(screen.queryByText(fitFirst ? "Choose a fit preference to continue." : "Choose your sewing skill to continue.")).toBeNull();
+    expect(screen.getByText(fitFirst ? "Choose your sewing skill to continue." : "Choose a fit preference to continue.")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    await fireEvent.press(screen.getByRole("radio", { name: fitFirst ? "Beginner" : "No preference" }));
+    expect(screen.queryByText("Choose a fit preference to continue.")).toBeNull();
+    expect(screen.queryByText("Choose your sewing skill to continue.")).toBeNull();
+    expect(useIntakeStore.getState().tools).toEqual([]);
+    expect(useIntakeStore.getState().extraMaterials).toBe("");
+    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+    await fireEvent.press(screen.getByRole("button", { name: "Continue" }));
+    expect(mockPush).toHaveBeenCalledWith("/(intake)/measurements");
+    for (const mode of ["Image", "Surprise Me"]) {
+      await fireEvent.press(screen.getByRole("radio", { name: mode }));
+      expect(screen.getByText(/Nothing entered yet/)).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    }
+    await fireEvent.press(screen.getByRole("radio", { name: "Describe it" }));
+    expect(screen.queryByText(/Nothing entered yet/)).toBeNull();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+  });
+
   it("offers Surprise Me when blank and fills the idea with a mock marker", async () => {
     await renderScreen(<InspirationScreen />);
     expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
@@ -181,7 +285,7 @@ describe("measurements", () => {
 
     setApi(mockApi);
     await fireEvent.press(screen.getByRole("button", { name: "Try upload again" }));
-    expect(await screen.findByText(/^✓ Uploaded/)).toBeTruthy();
+    expect(await screen.findByText(/^○ Test upload only. Nothing left this device\./)).toBeTruthy();
   });
 
   it("never offers upload in demo mode", async () => {
@@ -242,7 +346,7 @@ describe("review fixes", () => {
     await ready();
     await renderScreen(<MeasurementsScreen />);
     await fireEvent.press(screen.getByRole("button", { name: "Upload" }));
-    expect(await screen.findByText(/^✓ Uploaded/)).toBeTruthy();
+    expect(await screen.findByText(/^○ Test upload only. Nothing left this device\./)).toBeTruthy();
     expect(screen.getByLabelText("Sample data, not a real result")).toBeTruthy();
   });
 
@@ -298,5 +402,52 @@ describe("review fixes", () => {
     await fireEvent.press(screen.getByRole("radio", { name: "Image" }));
     await act(() => useIntakeStore.getState().patch({ fit: "relaxed", skill: "beginner" }));
     expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+  });
+});
+
+describe("claims audit fixes", () => {
+  it("does not promise checked redesigns on the first screen", async () => {
+    await renderScreen(<EntryScreen />);
+    expect(screen.queryByText(/passed the checks/)).toBeNull();
+    expect(screen.getByText(/This early build stops there/)).toBeTruthy();
+  });
+
+  it("asks for no garment measurements for idea-only garments and still uploads", async () => {
+    const uploadIntake = jest.fn().mockResolvedValue(await mockApi.uploadIntake({} as never));
+    setApi({ ...mockApi, uploadIntake });
+    await act(() =>
+      useIntakeStore.getState().patch({
+        category: "dress",
+        front: photo,
+        back: photo,
+        inspirationMode: "text",
+        inspirationDraft: { imageUri: null, text: "shorter", surprisePrompt: null },
+        fit: "relaxed",
+        skill: "beginner",
+      }),
+    );
+    await renderScreen(<MeasurementsScreen />);
+    expect(screen.getByText(/only suggest ideas for this garment/)).toBeTruthy();
+    expect(screen.queryByLabelText("Chest, flat across (cm)")).toBeNull();
+    await fireEvent.press(screen.getByRole("button", { name: "Upload" }));
+    await waitFor(() => expect(uploadIntake).toHaveBeenCalledTimes(1));
+  });
+
+  it("shows idea-only and tee notes on capture", async () => {
+    await act(() => useIntakeStore.getState().patch({ category: "skirt" }));
+    await renderScreen(<CaptureScreen />);
+    expect(screen.getByText(/only suggest ideas for this garment/)).toBeTruthy();
+    await fireEvent.press(screen.getByRole("radio", { name: "T-shirt" }));
+    expect(screen.getByText(/Limited support is planned for jersey tees/)).toBeTruthy();
+  });
+
+  it("never blocks a body value and only asks for a double-check", async () => {
+    await act(() =>
+      useIntakeStore.getState().patch({ category: "shirt", bodyConsentVersion: "body-v0-draft" }),
+    );
+    await renderScreen(<MeasurementsScreen />);
+    await fireEvent.changeText(screen.getByLabelText("Height (cm)"), "3000");
+    expect(screen.getByText("Please double-check this value.")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^Keep/ })).toBeTruthy();
   });
 });

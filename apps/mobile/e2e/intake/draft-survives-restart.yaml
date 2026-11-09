@@ -1,0 +1,36 @@
+# STATUS: UNVERIFIED ON ANDROID. Reconciled in Milestone 2; never executed on a device/emulator.
+# Restart without reseeding or clearing storage; recover the persisted confirmed draft through normal intake navigation.
+appId: com.sewsure.mobile
+---
+- runFlow:
+    file: ../seed/apply.yaml
+    env:
+      SEED: measurements-confirmed
+- assertVisible:
+    text: Not uploaded\. Saved as a draft on this device\.
+- stopApp
+- launchApp:
+    clearState: false
+- scrollUntilVisible:
+    element:
+      text: Start
+    direction: DOWN
+- tapOn: Start
+- scrollUntilVisible:
+    element:
+      text: Continue
+    direction: DOWN
+- tapOn: Continue
+- scrollUntilVisible:
+    element:
+      text: Continue
+    direction: DOWN
+- tapOn: Continue
+- assertVisible:
+    text: Not uploaded\. Saved as a draft on this device\.
+- scrollUntilVisible:
+    element:
+      text: "Confirmed: 52 cm"
+    direction: DOWN
+- assertVisible:
+    text: "Confirmed: 52 cm"

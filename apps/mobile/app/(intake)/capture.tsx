@@ -7,6 +7,7 @@ import { getApi } from "@/api/client";
 import type { GarmentCategory } from "@/api/types";
 import { Body, Button, Chip, Heading, MockBadge, Notice, Row, Screen } from "@/components/plain";
 import { t, type MessageKey } from "@/i18n";
+import { INSPIRATION_ONLY } from "@/intake/measurements";
 import { checkPhotoBasics } from "@/intake/validation";
 import { useIntakeStore, type PhotoDraft } from "@/state/intakeStore";
 
@@ -73,11 +74,17 @@ function PhotoSlot({ side }: { side: Side }) {
           <Chip
             role="checkbox"
             label={t("capture.check.all")}
+            accessibilityLabel={`${t("capture.check.all")}: ${sideLabel}`}
             selected={photo.checked}
             onPress={() => setChecked(!photo.checked)}
           />
           <Row>
-            <Button secondary label={t("capture.retake")} onPress={() => pick("camera")} />
+            <Button
+              secondary
+              label={t("capture.retake")}
+              accessibilityLabel={`${t("capture.retake")}: ${sideLabel}`}
+              onPress={() => pick("camera")}
+            />
             <Button
               secondary
               label={t("capture.remove")}
@@ -178,6 +185,12 @@ export default function CaptureScreen() {
         ))}
       </Row>
       {category === null && <Body muted>{t("capture.category.needed")}</Body>}
+      {category !== null && INSPIRATION_ONLY.includes(category) && (
+        <Notice tone="info">
+          <Body>{t("capture.category.ideaOnly")}</Body>
+        </Notice>
+      )}
+      {category === "tee" && <Body muted>{t("capture.category.teeNote")}</Body>}
 
       <Button
         label={t("common.continue")}

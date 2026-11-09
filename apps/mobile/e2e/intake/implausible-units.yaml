@@ -1,10 +1,28 @@
-# 6 cm where 60 cm is likely: warn, offer the fix, then confirm in cm.
-# Precondition: a draft with photos, category and inspiration (use the demo seed build).
+# STATUS: UNVERIFIED ON ANDROID. Reconciled in Milestone 2; never executed on a device/emulator.
+# Correct 6 cm to 60 cm. Status selectors target symbol-free accessibility labels.
 appId: com.sewsure.mobile
 ---
-- launchApp
-- tapOn: "Chest, flat across (cm)"
+- runFlow:
+    file: ../seed/apply.yaml
+    env:
+      SEED: measurements-signed-in
+- scrollUntilVisible:
+    element:
+      text: Chest, flat across \(cm\)
+    direction: DOWN
+- tapOn: Chest, flat across \(cm\)
 - inputText: "6"
-- assertVisible: ".*Did you mean 60 cm.*"
-- tapOn: "Use 60 cm"
-- assertVisible: "Confirmed: 60 cm"
+- scrollUntilVisible:
+    element:
+      text: 6 cm looks small\. Did you mean 60 cm\?
+    direction: DOWN
+- assertVisible:
+    text: 6 cm looks small\. Did you mean 60 cm\?
+- tapOn: Use 60 cm
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      text: "Confirmed: 60 cm"
+    direction: DOWN
+- assertVisible:
+    text: "Confirmed: 60 cm"

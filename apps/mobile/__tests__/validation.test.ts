@@ -114,6 +114,13 @@ describe("entries", () => {
   });
 });
 
+describe("body ranges", () => {
+  it("never produce a blocking error", () => {
+    const height = BODY_SPECS[0]!;
+    expect(checkPlausibility(height, cmToMm(3000)).level).toBe("warn");
+  });
+});
+
 describe("checkPhotoBasics", () => {
   it("warns on small photos only", () => {
     expect(checkPhotoBasics({ width: 4000, height: 3000 }).warnings).toEqual([]);
