@@ -69,6 +69,40 @@ describe("entry", () => {
 });
 
 describe("capture", () => {
+  it("distinguishes Front and Back Retake buttons without changing their visible text", async () => {
+    await act(() => useIntakeStore.getState().patch({ front: photo, back: photo }));
+    await renderScreen(<CaptureScreen />);
+    expect(screen.getByRole("button", { name: "Retake: Front" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Retake: Back" })).toBeTruthy();
+    expect(screen.getAllByText("Retake")).toHaveLength(2);
+  });
+
+  it("distinguishes photo checks and toggles only the named side", async () => {
+    await act(() =>
+      useIntakeStore.getState().patch({
+        front: { ...photo, checked: false },
+        back: { ...photo, checked: false },
+        category: "shirt",
+      }),
+    );
+    await renderScreen(<CaptureScreen />);
+    const checkLabel = "Sharp, evenly lit, and the whole garment is in frame";
+    const frontCheck = screen.getByRole("checkbox", { name: `${checkLabel}: Front` });
+    const backCheck = screen.getByRole("checkbox", { name: `${checkLabel}: Back` });
+    expect(screen.getAllByText(checkLabel)).toHaveLength(2);
+    expect(frontCheck).not.toBeChecked();
+    expect(backCheck).not.toBeChecked();
+    // Category chips retain their visible label as the default accessible name.
+    expect(screen.getByRole("radio", { name: "Shirt" })).toBeChecked();
+    await fireEvent.press(frontCheck);
+    expect(frontCheck).toBeChecked();
+    expect(backCheck).not.toBeChecked();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    await fireEvent.press(backCheck);
+    expect(backCheck).toBeChecked();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+  });
+
   it("explains a denied camera permission and offers the library", async () => {
     picker.requestCameraPermissionsAsync.mockResolvedValue({ granted: false } as never);
     await renderScreen(<CaptureScreen />);

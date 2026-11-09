@@ -73,11 +73,17 @@ function PhotoSlot({ side }: { side: Side }) {
           <Chip
             role="checkbox"
             label={t("capture.check.all")}
+            accessibilityLabel={`${t("capture.check.all")}: ${sideLabel}`}
             selected={photo.checked}
             onPress={() => setChecked(!photo.checked)}
           />
           <Row>
-            <Button secondary label={t("capture.retake")} onPress={() => pick("camera")} />
+            <Button
+              secondary
+              label={t("capture.retake")}
+              accessibilityLabel={`${t("capture.retake")}: ${sideLabel}`}
+              onPress={() => pick("camera")}
+            />
             <Button
               secondary
               label={t("capture.remove")}
