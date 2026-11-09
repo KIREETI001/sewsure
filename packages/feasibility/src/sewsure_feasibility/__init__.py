@@ -40,6 +40,8 @@ __all__ = [
     "ComponentKind",
     "ComponentStatus",
     "ConstraintResult",
+    "DefectKind",
+    "DefectSeverity",
     "DesignState",
     "FabricComposition",
     "FabricPanel",
@@ -48,11 +50,15 @@ __all__ = [
     "FailureCode",
     "Garment",
     "GarmentComponent",
+    "GarmentCondition",
     "GarmentConstruction",
+    "GarmentDefect",
     "GarmentProfile",
     "Measurement",
+    "OriginalGarmentRecord",
     "PatternPiece",
     "Placement",
+    "Repairability",
     "Residual",
     "Side",
     "StretchLevel",
@@ -62,6 +68,13 @@ __all__ = [
     "supersede",
 ]
 
+from sewsure_feasibility.condition import (
+    DefectKind,
+    DefectSeverity,
+    GarmentCondition,
+    GarmentDefect,
+    Repairability,
+)
 from sewsure_feasibility.fabric import (
     FabricComposition,
     FabricProperties,
@@ -72,3 +85,4 @@ from sewsure_feasibility.garment_profile import (
     GARMENT_MEASUREMENT_KEYS,
     GarmentProfile,
 )
+from sewsure_feasibility.original_garment import OriginalGarmentRecord
