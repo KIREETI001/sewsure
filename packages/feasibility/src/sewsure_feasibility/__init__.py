@@ -27,21 +27,38 @@ __all__ = [
     "ALLOWED_RECIPE_IDS",
     "BODY_MEASUREMENT_KEYS",
     "ENGINE_VERSION",
+    "GARMENT_MEASUREMENT_KEYS",
     "Alternative",
     "BodyProfile",
     "CheckOutcome",
     "ConstraintResult",
     "DesignState",
+    "FabricComposition",
     "FabricPanel",
+    "FabricProperties",
+    "FabricStructure",
     "FailureCode",
     "Garment",
+    "GarmentProfile",
     "Measurement",
     "PatternPiece",
     "Placement",
     "Residual",
     "Side",
+    "StretchLevel",
     "Zone",
     "cm_to_mm",
     "evaluate",
     "supersede",
 ]
+
+from sewsure_feasibility.fabric import (
+    FabricComposition,
+    FabricProperties,
+    FabricStructure,
+    StretchLevel,
+)
+from sewsure_feasibility.garment_profile import (
+    GARMENT_MEASUREMENT_KEYS,
+    GarmentProfile,
+)
