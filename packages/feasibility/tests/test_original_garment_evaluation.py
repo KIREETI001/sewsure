@@ -1,8 +1,11 @@
 """Integration tests for original garment evaluation."""
 
+import pytest
+
 from conftest import CHECKED_AT, CONFIRMED, RECIPE, meas, params, shirt
 from sewsure_feasibility import (
     DesignState,
+    FabricComposition,
     FabricProperties,
     FailureCode,
     Garment,
@@ -28,7 +31,9 @@ def make_record(
             garment=garment,
             measurements=measurements if measurements is not None else meas(),
         ),
-        fabric=FabricProperties(),
+        fabric=FabricProperties(
+            composition=FabricComposition.COTTON,
+        ),
         construction=GarmentConstruction(
             garment=garment,
             components=(),
@@ -199,3 +204,17 @@ def test_missing_optional_chest_circumference_does_not_block_evaluation() -> Non
     assert result.status is DesignState.PASS_SUPPORTED_CHECKS
     assert result.hard_pass
     assert FailureCode.CONFLICTING_DIMENSIONS not in result.failure_codes
+
+
+def test_knitted_fabric_is_rejected() -> None:
+    with pytest.raises(ValueError, match="Only woven fabrics are supported"):
+        FabricProperties(
+            structure="knitted",
+        )
+
+
+def test_stretchy_fabric_is_rejected() -> None:
+    with pytest.raises(ValueError, match="Only non-stretch fabrics are supported"):
+        FabricProperties(
+            stretch_level="low",
+        )

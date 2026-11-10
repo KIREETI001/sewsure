@@ -9,6 +9,7 @@ import pytest
 from sewsure_feasibility import (
     ConstraintResult,
     FabricPanel,
+    FabricProperties,
     Garment,
     Measurement,
     Side,
@@ -79,7 +80,9 @@ def ev(
     measurements: dict[str, Measurement],
     recipe_id: str = RECIPE,
     p: dict[str, float | str | bool] | None = None,
-    **kw: str | None,
+    *,
+    fabric: FabricProperties | None = None,
+    revision_ref: str | None = None,
 ) -> ConstraintResult:
     """evaluate() with a fixed clock so results compare equal."""
     return evaluate(
@@ -87,6 +90,7 @@ def ev(
         measurements,
         recipe_id,
         p if p is not None else params(),
+        fabric=fabric,
+        revision_ref=revision_ref,
         checked_at=CHECKED_AT,
-        **kw,
     )
