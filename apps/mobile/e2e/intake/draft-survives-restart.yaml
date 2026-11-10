@@ -1,0 +1,17 @@
+# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
+# §18.2 #3 / §9.2: the local draft survives closing the app. After relaunch the app opens on the entry screen
+# (there is no resume screen), so the flow walks forward again. Draft values persist via AsyncStorage.
+appId: com.sewsure.mobile
+---
+- runFlow:
+    file: ../seed/apply.yaml
+    env:
+      SEED: measurements-confirmed
+- assertVisible: "○ Not uploaded.*"
+- stopApp
+- launchApp
+- tapOn: "Start"
+- tapOn: "Continue"
+- tapOn: "Continue"
+- assertVisible: "○ Not uploaded.*"
+- assertVisible: "✓ Confirmed: 52 cm"

@@ -1,10 +1,15 @@
-# 6 cm where 60 cm is likely: warn, offer the fix, then confirm in cm.
-# Precondition: a draft with photos, category and inspiration (use the demo seed build).
+# STATUS: written, NEVER RUN. No Android SDK, adb, Java or Maestro on the authoring machine (see docs/qa/test-run-log.md).
+# §9.1 row 4: 6 cm where 60 cm is likely -> warn, offer the fix, confirm in cm.
+# Maestro matches the WHOLE string as a regex: the confirmation line is "✓ Confirmed: 60 cm",
+# so the earlier flow's "Confirmed: 60 cm" would not have matched.
 appId: com.sewsure.mobile
 ---
-- launchApp
+- runFlow:
+    file: ../seed/apply.yaml
+    env:
+      SEED: measurements-signed-in
 - tapOn: "Chest, flat across (cm)"
 - inputText: "6"
-- assertVisible: ".*Did you mean 60 cm.*"
+- assertVisible: "6 cm looks small. Did you mean 60 cm."
 - tapOn: "Use 60 cm"
-- assertVisible: "Confirmed: 60 cm"
+- assertVisible: "✓ Confirmed: 60 cm"
