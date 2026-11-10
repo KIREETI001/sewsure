@@ -1,0 +1,17 @@
+trial_id,synthetic,phone,angle_deg,fabric,mark_id,displayed_x_px,displayed_y_px,observed_x_px,observed_y_px,px_per_mm,calibration_state,rejection_reason
+SYN-T0,true,SYN-phoneA,0,plain_woven,m0,200,300,201.03,301.16,2.0,calibrated,
+SYN-T0,true,SYN-phoneA,0,plain_woven,m1,350,390,350.05,389.39,2.0,calibrated,
+SYN-T0,true,SYN-phoneA,0,plain_woven,m2,500,480,499.13,480.03,2.0,calibrated,
+SYN-T0,true,SYN-phoneA,0,plain_woven,m3,650,570,649.18,568.85,2.0,calibrated,
+SYN-T1,true,SYN-phoneA,15,plain_woven,m0,200,300,200.3,300.2,2.0,calibrated,
+SYN-T1,true,SYN-phoneA,15,plain_woven,m1,350,390,350.82,388.63,2.0,calibrated,
+SYN-T1,true,SYN-phoneA,15,plain_woven,m2,500,480,500.01,479.9,2.0,calibrated,
+SYN-T1,true,SYN-phoneA,15,plain_woven,m3,650,570,647.74,570.81,2.0,calibrated,
+SYN-T2,true,SYN-phoneB,30,textured,m0,200,300,200.8,305.97,2.0,calibrated,
+SYN-T2,true,SYN-phoneB,30,textured,m1,350,390,350.51,389.64,2.0,calibrated,
+SYN-T2,true,SYN-phoneB,30,textured,m2,500,480,503.08,480.5,2.0,calibrated,
+SYN-T2,true,SYN-phoneB,30,textured,m3,650,570,652.27,569.09,2.0,calibrated,
+SYN-T3,true,SYN-phoneB,45,textured,m0,200,300,200.0,300.0,2.0,rejected,ERROR_EXCEEDS_TOLERANCE
+SYN-T3,true,SYN-phoneB,45,textured,m1,350,390,350.0,390.0,2.0,rejected,ERROR_EXCEEDS_TOLERANCE
+SYN-T3,true,SYN-phoneB,45,textured,m2,500,480,500.0,480.0,2.0,rejected,ERROR_EXCEEDS_TOLERANCE
+SYN-T3,true,SYN-phoneB,45,textured,m3,650,570,650.0,570.0,2.0,rejected,ERROR_EXCEEDS_TOLERANCE
