@@ -28,7 +28,13 @@ def test_1_normal_crop_positive_remainder_and_hem(good_shirt: Garment) -> None:
     assert r.failure_codes == ()
     assert r.recipe_version == "1.0.0" and r.engine_version
     assert "SIDE_SEAMS_NOT_VERIFIED" in r.uncertainty_flags
-    assert [c.result for c in r.checks] == ["pass"] * 4
+    assert [c.result for c in r.checks] == [
+        "pass",
+        "not_run",
+        "pass",
+        "pass",
+        "pass",
+    ]
 
 
 def test_2_finished_length_greater_than_available(good_shirt: Garment) -> None:

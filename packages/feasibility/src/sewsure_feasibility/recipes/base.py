@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 
+from sewsure_feasibility.fabric import FabricComposition
 from sewsure_feasibility.models import CheckOutcome, FailureCode, Garment, Residual
 
 
@@ -38,6 +39,7 @@ class Recipe:
     version: str
     supported_categories: frozenset[str]
     supported_materials: frozenset[str]
+    supported_compositions: frozenset[FabricComposition]
     required_dimensions: tuple[str, ...]
     required_params: tuple[str, ...]
     optional_params: frozenset[str]

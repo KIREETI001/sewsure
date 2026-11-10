@@ -168,7 +168,7 @@ def test_code_insufficient_length_finished_exceeds() -> None:
     r = evaluate(shirt(zones="minimal"), meas(500), p=params(600, 30))
     assert r.failure_codes == (FailureCode.INSUFFICIENT_LENGTH,)
     assert r.status is DesignState.FAILED_CHECKS
-    assert r.checks[2].result == "fail"
+    assert r.checks[3].result == "fail"
 
 
 def test_code_no_positive_remainder() -> None:
@@ -182,7 +182,7 @@ def test_code_cut_intersects_prohibited_region() -> None:
     r = evaluate(shirt(), meas(), p=params(390, 30))
     assert r.status is DesignState.FAILED_CHECKS
     assert r.failure_codes == (FailureCode.CUT_INTERSECTS_PROHIBITED_REGION,)
-    assert r.checks[3].result == "fail"
+    assert r.checks[4].result == "fail"
 
 
 # ---- X1 review regressions -------------------------------------------------------------

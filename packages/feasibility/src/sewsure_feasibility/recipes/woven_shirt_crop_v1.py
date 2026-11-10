@@ -17,6 +17,7 @@ from collections.abc import Mapping
 
 from shapely.geometry import LineString, Polygon
 
+from sewsure_feasibility.fabric import FabricComposition
 from sewsure_feasibility.models import (
     CheckOutcome,
     FailureCode,
@@ -115,6 +116,13 @@ RECIPE = Recipe(
     version=RECIPE_VERSION,
     supported_categories=frozenset({"woven_shirt"}),
     supported_materials=frozenset({"woven"}),
+    supported_compositions=frozenset(
+        {
+            FabricComposition.COTTON,
+            FabricComposition.POLYESTER,
+            FabricComposition.COTTON_POLYESTER_BLEND,
+        }
+    ),
     required_dimensions=("shoulder_to_hem", "chest_flat_width"),
     required_params=("finished_length_mm", "hem_allowance_mm"),
     optional_params=frozenset({"hem_finish"}),
