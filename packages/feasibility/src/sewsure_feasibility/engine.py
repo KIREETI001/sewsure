@@ -28,6 +28,7 @@ from sewsure_feasibility.models import (
     Garment,
     Measurement,
 )
+from sewsure_feasibility.original_garment import OriginalGarmentRecord
 from sewsure_feasibility.recipes import get_recipe
 from sewsure_feasibility.recipes.base import Recipe
 
@@ -298,3 +299,26 @@ def supersede(previous: ConstraintResult) -> ConstraintResult:
     if previous.status is not DesignState.PASS_SUPPORTED_CHECKS:
         raise ValueError(f"only a passed result can be superseded, got {previous.status.value}")
     return dataclasses.replace(previous, status=DesignState.SUPERSEDED)
+
+
+def evaluate_original_garment(
+    record: OriginalGarmentRecord,
+    recipe_id: str,
+    params: Mapping[str, ParamValue],
+    *,
+    revision_ref: str | None = None,
+    checked_at: datetime | None = None,
+) -> ConstraintResult:
+    """Evaluate a transformation using a unified original garment record.
+
+    Extracts the garment and its recorded measurements before delegating
+    to the existing feasibility evaluation pipeline.
+    """
+    return evaluate(
+        garment=record.garment,
+        measurements=record.profile.measurements,
+        recipe_id=recipe_id,
+        params=params,
+        revision_ref=revision_ref,
+        checked_at=checked_at,
+    )

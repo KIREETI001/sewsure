@@ -17,7 +17,12 @@ from sewsure_feasibility.condition import (
     GarmentDefect,
     Repairability,
 )
-from sewsure_feasibility.engine import ENGINE_VERSION, evaluate, supersede
+from sewsure_feasibility.engine import (
+    ENGINE_VERSION,
+    evaluate,
+    evaluate_original_garment,
+    supersede,
+)
 from sewsure_feasibility.fabric import (
     FabricComposition,
     FabricProperties,
@@ -83,5 +88,6 @@ __all__ = [
     "Zone",
     "cm_to_mm",
     "evaluate",
+    "evaluate_original_garment",
     "supersede",
 ]
