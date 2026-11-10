@@ -1,9 +1,9 @@
 from datetime import UTC, datetime
 from typing import cast
-from conftest import CONFIRMED
 
 import pytest
 
+from conftest import CONFIRMED
 from sewsure_feasibility import (
     GARMENT_MEASUREMENT_KEYS,
     Garment,
