@@ -120,6 +120,7 @@ def test_measurements_are_immutable():
     with pytest.raises(TypeError):
         mutable_view["waist_flat_width"] = make_measurement()
 
+
 def test_chest_circumference_measurement_is_accepted() -> None:
     profile = GarmentProfile(
         profile_id="profile-001",
