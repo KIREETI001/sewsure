@@ -181,7 +181,7 @@ describe("measurements", () => {
 
     setApi(mockApi);
     await fireEvent.press(screen.getByRole("button", { name: "Try upload again" }));
-    expect(await screen.findByText(/^✓ Uploaded/)).toBeTruthy();
+    expect(await screen.findByText(/^○ Test upload only. Nothing left this device\./)).toBeTruthy();
   });
 
   it("never offers upload in demo mode", async () => {
@@ -242,7 +242,7 @@ describe("review fixes", () => {
     await ready();
     await renderScreen(<MeasurementsScreen />);
     await fireEvent.press(screen.getByRole("button", { name: "Upload" }));
-    expect(await screen.findByText(/^✓ Uploaded/)).toBeTruthy();
+    expect(await screen.findByText(/^○ Test upload only. Nothing left this device\./)).toBeTruthy();
     expect(screen.getByLabelText("Sample data, not a real result")).toBeTruthy();
   });
 
@@ -298,5 +298,52 @@ describe("review fixes", () => {
     await fireEvent.press(screen.getByRole("radio", { name: "Image" }));
     await act(() => useIntakeStore.getState().patch({ fit: "relaxed", skill: "beginner" }));
     expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+  });
+});
+
+describe("claims audit fixes", () => {
+  it("does not promise checked redesigns on the first screen", async () => {
+    await renderScreen(<EntryScreen />);
+    expect(screen.queryByText(/passed the checks/)).toBeNull();
+    expect(screen.getByText(/This early build stops there/)).toBeTruthy();
+  });
+
+  it("asks for no garment measurements for idea-only garments and still uploads", async () => {
+    const uploadIntake = jest.fn().mockResolvedValue(await mockApi.uploadIntake({} as never));
+    setApi({ ...mockApi, uploadIntake });
+    await act(() =>
+      useIntakeStore.getState().patch({
+        category: "dress",
+        front: photo,
+        back: photo,
+        inspirationMode: "text",
+        inspirationDraft: { imageUri: null, text: "shorter", surprisePrompt: null },
+        fit: "relaxed",
+        skill: "beginner",
+      }),
+    );
+    await renderScreen(<MeasurementsScreen />);
+    expect(screen.getByText(/only suggest ideas for this garment/)).toBeTruthy();
+    expect(screen.queryByLabelText("Chest, flat across (cm)")).toBeNull();
+    await fireEvent.press(screen.getByRole("button", { name: "Upload" }));
+    await waitFor(() => expect(uploadIntake).toHaveBeenCalledTimes(1));
+  });
+
+  it("shows idea-only and tee notes on capture", async () => {
+    await act(() => useIntakeStore.getState().patch({ category: "skirt" }));
+    await renderScreen(<CaptureScreen />);
+    expect(screen.getByText(/only suggest ideas for this garment/)).toBeTruthy();
+    await fireEvent.press(screen.getByRole("radio", { name: "T-shirt" }));
+    expect(screen.getByText(/Limited support is planned for jersey tees/)).toBeTruthy();
+  });
+
+  it("never blocks a body value and only asks for a double-check", async () => {
+    await act(() =>
+      useIntakeStore.getState().patch({ category: "shirt", bodyConsentVersion: "body-v0-draft" }),
+    );
+    await renderScreen(<MeasurementsScreen />);
+    await fireEvent.changeText(screen.getByLabelText("Height (cm)"), "3000");
+    expect(screen.getByText("Please double-check this value.")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^Keep/ })).toBeTruthy();
   });
 });
