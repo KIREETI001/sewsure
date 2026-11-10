@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 from typing import cast
+from conftest import CONFIRMED
 
 import pytest
 
@@ -118,3 +119,18 @@ def test_measurements_are_immutable():
 
     with pytest.raises(TypeError):
         mutable_view["waist_flat_width"] = make_measurement()
+
+def test_chest_circumference_measurement_is_accepted() -> None:
+    profile = GarmentProfile(
+        profile_id="profile-001",
+        garment=Garment("shirt-001", "woven_shirt", "woven"),
+        measurements={
+            "chest_circumference": Measurement(
+                1040.0,
+                "tape_measure",
+                CONFIRMED,
+            ),
+        },
+    )
+
+    assert profile.get_confirmed_value_mm("chest_circumference") == 1040.0

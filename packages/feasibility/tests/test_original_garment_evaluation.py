@@ -1,6 +1,6 @@
 """Integration tests for original garment evaluation."""
 
-from conftest import CHECKED_AT, RECIPE, meas, params, shirt
+from conftest import CHECKED_AT, CONFIRMED, RECIPE, meas, params, shirt
 from sewsure_feasibility import (
     DesignState,
     FabricProperties,
@@ -140,3 +140,62 @@ def test_revision_reference_is_preserved() -> None:
     )
 
     assert result.revision_ref == "revision-001"
+
+
+def test_matching_chest_circumference_passes() -> None:
+    measurements = meas()
+    measurements["chest_circumference"] = Measurement(
+        1040.0,
+        "tape_measure",
+        CONFIRMED,
+    )
+
+    record = make_record(measurements=measurements)
+
+    result = evaluate_original_garment(
+        record,
+        RECIPE,
+        params(),
+        checked_at=CHECKED_AT,
+    )
+
+    assert result.status is DesignState.PASS_SUPPORTED_CHECKS
+    assert result.hard_pass
+    assert result.failure_codes == ()
+
+
+def test_conflicting_chest_circumference_needs_input() -> None:
+    measurements = meas()
+    measurements["chest_circumference"] = Measurement(
+        1300.0,
+        "tape_measure",
+        CONFIRMED,
+    )
+
+    record = make_record(measurements=measurements)
+
+    result = evaluate_original_garment(
+        record,
+        RECIPE,
+        params(),
+        checked_at=CHECKED_AT,
+    )
+
+    assert result.status is DesignState.NEEDS_INPUT
+    assert FailureCode.CONFLICTING_DIMENSIONS in result.failure_codes
+    assert result.cut_mark_mm is None
+
+
+def test_missing_optional_chest_circumference_does_not_block_evaluation() -> None:
+    record = make_record(measurements=meas())
+
+    result = evaluate_original_garment(
+        record,
+        RECIPE,
+        params(),
+        checked_at=CHECKED_AT,
+    )
+
+    assert result.status is DesignState.PASS_SUPPORTED_CHECKS
+    assert result.hard_pass
+    assert FailureCode.CONFLICTING_DIMENSIONS not in result.failure_codes
