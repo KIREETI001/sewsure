@@ -17,6 +17,7 @@ from sewsure_feasibility.models import Garment, Measurement
 GARMENT_MEASUREMENT_KEYS = frozenset(
     {
         "shoulder_to_hem",
+        "chest_circumference",
         "chest_flat_width",
         "waist_flat_width",
         "hem_flat_width",
