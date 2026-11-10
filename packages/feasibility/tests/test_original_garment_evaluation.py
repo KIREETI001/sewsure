@@ -5,9 +5,11 @@ from sewsure_feasibility import (
     DesignState,
     FabricProperties,
     FailureCode,
+    Garment,
     GarmentCondition,
     GarmentConstruction,
     GarmentProfile,
+    Measurement,
     OriginalGarmentRecord,
     evaluate_original_garment,
 )
@@ -15,10 +17,10 @@ from sewsure_feasibility import (
 
 def make_record(
     *,
-    measurements=None,
-    garment=None,
-):
-    garment = garment or shirt()
+    measurements: dict[str, Measurement] | None = None,
+    garment: Garment | None = None,
+) -> OriginalGarmentRecord:
+    garment = garment if garment is not None else shirt()
 
     return OriginalGarmentRecord(
         profile=GarmentProfile(
