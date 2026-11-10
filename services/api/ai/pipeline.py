@@ -12,8 +12,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .feasibility_port import IDEA_ONLY, NEEDS_INPUT, FeasibilityChecker
-from .model_client import ModelClient
+from sewsure_feasibility import DesignState
+
+from .feasibility_port import FeasibilityChecker
+from .model_client import ModelClient, ModelError
 from .safety import SafetyScreen
 from .stages import (
     RevisionStore,
@@ -76,7 +78,10 @@ def run_pipeline(
     if context.rejection:
         return done("complete", "unsupported", reasons=(context.rejection,))
 
-    verdict = screen.screen(request.inspiration_text)
+    try:
+        verdict = screen.screen(request.inspiration_text)
+    except ModelError as exc:  # never skip the screen: an unavailable screen is a failed job
+        return done("failed", "error", reasons=(exc.code,), recoverable=True)
     if not verdict.allowed:
         return done("complete", "blocked", reasons=(verdict.reason,))
 
@@ -86,27 +91,25 @@ def run_pipeline(
             # Nothing the reviewed recipes can do (sleeves, shaping, or no clear change).
             return done("complete", "unsupported", reasons=("NO_SUPPORTED_CHANGE_REQUESTED",))
         candidates = stage_d_propose_candidates(client, attributes, context, tele)
+        checked = stage_e_check(checker, candidates, request.context_id)
+        ranked = stage_f_relax_and_rank(checked, attributes, checker, request.context_id)
     except StageError as exc:
         return done("failed", "error", reasons=(exc.code,), recoverable=exc.recoverable)
 
-    checked = stage_e_check(
-        checker, candidates, request.garment_category, request.fabric_family, request.context_id
-    )
-    ranked = stage_f_relax_and_rank(
-        checked,
-        attributes,
-        checker,
-        request.garment_category,
-        request.fabric_family,
-        request.context_id,
-    )
     if not ranked:
         codes = sorted(
-            {c for ch in checked for c in (*ch.result.failure_codes, *ch.result.missing_dimensions)}
+            {
+                c
+                for ch in checked
+                for c in (
+                    *(fc.value for fc in ch.result.failure_codes),
+                    *ch.result.missing_dimensions,
+                )
+            }
         )
-        if checked and all(ch.result.status == IDEA_ONLY for ch in checked):
+        if checked and all(ch.result.status is DesignState.IDEA_ONLY for ch in checked):
             return done("complete", "unsupported", reasons=tuple(codes) or ("IDEA_ONLY",))
-        needs = any(ch.result.status == NEEDS_INPUT for ch in checked)
+        needs = any(ch.result.status is DesignState.NEEDS_INPUT for ch in checked)
         return done(
             "complete",
             "needs_input" if needs else "no_feasible_design",
